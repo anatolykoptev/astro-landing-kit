@@ -1,7 +1,7 @@
 ---
 import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
-import ItemGrid from '~/components/ui/ItemGrid.astro';
 import Headline from '~/components/ui/Headline.astro';
+import { Icon } from 'astro-icon/components';
 import type { Features as Props } from '~/types';
 
 const {
@@ -9,28 +9,34 @@ const {
   subtitle = await Astro.slots.render('subtitle'),
   tagline = await Astro.slots.render('tagline'),
   items = [],
-  columns = 2,
-
+  columns = 3,
   defaultIcon,
-
   id,
   isDark = false,
   classes = {},
   bg = await Astro.slots.render('bg'),
 } = Astro.props;
+
+const gridClass = columns === 4 ? 'pm7-card-grid--4' : columns === 2 ? 'pm7-card-grid--2' : 'pm7-card-grid--3';
 ---
 
-<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-5xl ${classes?.container ?? ''}`} bg={bg}>
+<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-6xl ${classes?.container ?? ''}`} bg={bg}>
   <Headline title={title} subtitle={subtitle} tagline={tagline} classes={classes?.headline as Record<string, string>} />
-  <ItemGrid
-    items={items}
-    columns={columns}
-    defaultIcon={defaultIcon}
-    classes={{
-      container: '',
-      title: 'md:text-[1.3rem]',
-      icon: 'text-white bg-primary rounded-full w-10 h-10 p-2 md:w-12 md:h-12 md:p-3 mr-4 rtl:ml-4 rtl:mr-0',
-      ...((classes?.items as Record<string, never>) ?? {}),
-    }}
-  />
+  <div class={`pm7-card-grid ${gridClass}`}>
+    {items.map(({ title, description, icon, callToAction }) => (
+      <div class="pm7-card pm7-card--hoverable intersect-once motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade">
+        <div class="pm7-card-header">
+          {(icon || defaultIcon) && (
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-3" style="background: var(--pm7-primary-light, rgba(16,185,129,0.12)); border: 1px solid color-mix(in srgb, var(--pm7-primary) 28%, transparent);">
+              <Icon name={icon || defaultIcon} class="w-5 h-5" style="color: var(--pm7-primary);" />
+            </div>
+          )}
+          <h3 class="pm7-card-title">{title}</h3>
+        </div>
+        <div class="pm7-card-body">
+          {description && <p class="pm7-card-description" set:html={description} />}
+        </div>
+      </div>
+    ))}
+  </div>
 </WidgetWrapper>

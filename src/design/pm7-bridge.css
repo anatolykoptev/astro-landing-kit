@@ -1,9 +1,14 @@
 /*
- * pm7-bridge: maps DESIGN.md tokens (Tailwind @theme vars) → pm7 CSS custom properties.
- * Only core vars overridden here; pm7's own defaults handle the rest (~50 component vars).
+ * pm7-bridge: maps DESIGN.md tokens → pm7 CSS custom properties.
+ * Core colors, then component-level overrides for landing page quality.
  */
+
+/* ── Light mode defaults ── */
 :root {
   --pm7-primary: var(--color-primary, #3b82f6);
+  --pm7-primary-hover: color-mix(in srgb, var(--pm7-primary) 85%, black);
+  --pm7-primary-active: color-mix(in srgb, var(--pm7-primary) 75%, black);
+  --pm7-primary-light: color-mix(in srgb, var(--pm7-primary) 12%, transparent);
   --pm7-background: var(--color-surface, var(--aw-color-bg-page, #ffffff));
   --pm7-foreground: var(--color-text, var(--aw-color-text-default, #111827));
   --pm7-muted: var(--color-muted, var(--aw-color-text-muted, #6b7280));
@@ -12,11 +17,51 @@
   --pm7-warning: var(--color-warning, #f59e0b);
   --pm7-error: var(--color-error, #ef4444);
   --pm7-info: var(--color-info, #3b82f6);
+  --pm7-ring: var(--pm7-primary);
+  --pm7-surface: var(--pm7-background);
+  --pm7-surface-hover: color-mix(in srgb, var(--pm7-background) 95%, white);
+
+  /* Buttons: bigger, bolder for landing pages */
+  --pm7-button-padding-x: 1.75rem;
+  --pm7-button-padding-y: 0.75rem;
+  --pm7-button-radius: 0.5rem;
+  --pm7-button-font-weight: 600;
+  --pm7-button-shadow-hover: 0 0 20px color-mix(in srgb, var(--pm7-primary) 25%, transparent);
+
+  /* Cards: elevated with subtle glow on hover */
+  --pm7-card-radius: 0.75rem;
+  --pm7-card-padding: 1.75rem;
+  --pm7-card-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  --pm7-card-shadow-hover: 0 0 32px color-mix(in srgb, var(--pm7-primary) 15%, transparent), 0 8px 24px rgba(0,0,0,0.12);
+
+  /* Accordion: breathing room */
+  --pm7-accordion-radius: 0.75rem;
 }
 
+/* ── Dark mode ── */
 .dark {
-  --pm7-background: var(--color-surface, var(--aw-color-bg-page-dark, #1e293b));
+  --pm7-background: var(--color-surface, var(--aw-color-bg-page-dark, #0f172a));
   --pm7-foreground: var(--color-text, #e2e8f0);
   --pm7-muted: var(--color-muted, #94a3b8);
-  --pm7-border: var(--color-border, #334155);
+  --pm7-muted-foreground: #94a3b8;
+  --pm7-border: var(--color-border, #1e293b);
+  --pm7-border-hover: #334155;
+  --pm7-surface: #111827;
+  --pm7-surface-hover: #1e293b;
+  --pm7-surface-active: #1e293b;
+  --pm7-card-bg: #111827;
+  --pm7-card-footer-bg: #0f172a;
+  --pm7-accordion-bg: #111827;
+  --pm7-accordion-bg-hover: #1e293b;
+  --pm7-accordion-border: #1e293b;
+  --pm7-code-bg: #0f172a;
+  --pm7-input: #111827;
+  --pm7-ring-offset: #0f172a;
+
+  /* Dark mode cards: subtle border glow */
+  --pm7-card-shadow: 0 0 0 1px color-mix(in srgb, var(--pm7-primary) 8%, transparent);
+  --pm7-card-shadow-hover: 0 0 36px color-mix(in srgb, var(--pm7-primary) 18%, transparent), 0 8px 32px rgba(0,0,0,0.4);
+
+  /* Buttons on dark: brighter hover glow */
+  --pm7-button-shadow-hover: 0 0 24px color-mix(in srgb, var(--pm7-primary) 30%, transparent);
 }

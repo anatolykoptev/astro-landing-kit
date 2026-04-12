@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @source "../../components/";
 @source "../../layouts/";
+@source "../../../vendor/pm7/";
 @import "../../../vendor/pm7/pm7.css";
 @import "../../design/pm7-bridge.css";
 @plugin "@tailwindcss/typography";

@@ -59,6 +59,34 @@ export function generateThemeCss(tokens: DesignTokens): string {
   return lines.join('\n');
 }
 
+/** Generate pm7 CSS custom property overrides from design tokens */
+export function generatePm7Overrides(tokens: DesignTokens): string {
+  if (tokens.colors.length === 0) return '';
+
+  const lines: string[] = [];
+  lines.push('');
+  lines.push('/* pm7-ui overrides from DESIGN.md */');
+  lines.push(':root {');
+
+  const primary = tokens.colors[0];
+  lines.push(`  --pm7-primary: ${primary.hex};`);
+
+  const surface = tokens.colors.find(c => c.role.toLowerCase().includes('surface') || c.role.toLowerCase().includes('background'));
+  if (surface) lines.push(`  --pm7-background: ${surface.hex};`);
+
+  const text = tokens.colors.find(c => c.role.toLowerCase().includes('text') || c.role.toLowerCase().includes('foreground'));
+  if (text) lines.push(`  --pm7-foreground: ${text.hex};`);
+
+  const muted = tokens.colors.find(c => c.role.toLowerCase().includes('muted') || c.role.toLowerCase().includes('secondary text'));
+  if (muted) lines.push(`  --pm7-muted: ${muted.hex};`);
+
+  const border = tokens.colors.find(c => c.role.toLowerCase().includes('border') || c.role.toLowerCase().includes('divider'));
+  if (border) lines.push(`  --pm7-border: ${border.hex};`);
+
+  lines.push('}');
+  return lines.join('\n');
+}
+
 export function generateDarkModeOverrides(tokens: DesignTokens): string {
   if (tokens.colors.length < 2) return '';
 

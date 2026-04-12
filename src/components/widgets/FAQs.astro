@@ -1,7 +1,6 @@
 ---
-import Headline from '~/components/ui/Headline.astro';
-import ItemGrid from '~/components/ui/ItemGrid.astro';
 import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import Headline from '~/components/ui/Headline.astro';
 import type { Faqs as Props } from '~/types';
 
 const {
@@ -9,8 +8,6 @@ const {
   subtitle = '',
   tagline = '',
   items = [],
-  columns = 2,
-
   id,
   isDark = false,
   classes = {},
@@ -18,16 +15,18 @@ const {
 } = Astro.props;
 ---
 
-<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-7xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
+<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-3xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
   <Headline title={title} subtitle={subtitle} tagline={tagline} />
-  <ItemGrid
-    items={items}
-    columns={columns}
-    defaultIcon="tabler:chevron-right"
-    classes={{
-      container: `${columns === 1 ? 'max-w-4xl' : ''} gap-y-8 md:gap-y-12`,
-      panel: 'max-w-none',
-      icon: 'flex-shrink-0 mt-1 w-6 h-6 text-primary',
-    }}
-  />
+  <div data-pm7-accordion class="pm7-accordion pm7-accordion--separated" data-allow-multiple="true">
+    {items.map(({ title, description }) => (
+      <div class="pm7-accordion-item" data-state="closed">
+        <button class="pm7-accordion-trigger" aria-expanded="false">
+          <span>{title}</span>
+        </button>
+        <div class="pm7-accordion-content" data-state="closed">
+          <div class="pm7-accordion-content-inner" set:html={description} />
+        </div>
+      </div>
+    ))}
+  </div>
 </WidgetWrapper>

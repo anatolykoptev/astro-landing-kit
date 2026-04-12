@@ -44,5 +44,17 @@ const { language, textDirection } = I18N;
     <slot />
 
     <BasicScripts />
+
+    <script>
+      import { PM7Accordion } from '~/vendor/pm7/accordion.js';
+      import { PM7TabSelector } from '~/vendor/pm7/tab-selector.js';
+
+      PM7Accordion.autoInit();
+
+      document.addEventListener('astro:after-swap', () => {
+        PM7Accordion.autoInit();
+        PM7TabSelector.autoInit?.();
+      });
+    </script>
   </body>
 </html>

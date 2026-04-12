@@ -1,0 +1,71 @@
+{
+  "slug": "landing",
+  "meta": {
+    "title": "Landing Kit Demo",
+    "description": "A demo landing page built with @krolik/landing-kit"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "props": {
+        "tagline": "Landing Kit",
+        "title": "Build landing pages <span class=\"text-accent highlight\">fast</span>",
+        "subtitle": "Reusable components, pluggable content, zero boilerplate.",
+        "actions": [
+          { "variant": "primary", "text": "Get Started", "href": "#features", "icon": "tabler:square-rounded-arrow-right" },
+          { "text": "Learn more", "href": "#faqs" }
+        ]
+      }
+    },
+    {
+      "type": "features",
+      "props": {
+        "tagline": "Features",
+        "title": "What you get",
+        "subtitle": "Everything you need for a production landing page.",
+        "items": [
+          { "title": "Astro + Svelte", "description": "Zero JS by default, islands for interactivity.", "icon": "tabler:brand-svelte" },
+          { "title": "Content Providers", "description": "JSON, Directus, or bring your own.", "icon": "tabler:database" },
+          { "title": "SEO Built-in", "description": "JSON-LD, OG tags, sitemap, robots — all configured.", "icon": "tabler:search" },
+          { "title": "Form Protection", "description": "Honeypot, CSRF tokens, rate limiting.", "icon": "tabler:shield-check" },
+          { "title": "Dark Mode", "description": "System-aware theme switching out of the box.", "icon": "tabler:moon" },
+          { "title": "Blog Ready", "description": "Optional MDX blog with tags, categories, RSS.", "icon": "tabler:article" }
+        ]
+      }
+    },
+    {
+      "type": "stats",
+      "props": {
+        "title": "By the numbers",
+        "stats": [
+          { "amount": "22", "title": "Widgets" },
+          { "amount": "3", "title": "Adapters" },
+          { "amount": "100", "title": "Lighthouse Score" },
+          { "amount": "0", "title": "JS by default" }
+        ]
+      }
+    },
+    {
+      "type": "faqs",
+      "props": {
+        "tagline": "FAQ",
+        "title": "Common questions",
+        "items": [
+          { "title": "Can I use this with any Astro adapter?", "description": "Yes — SSG, SSR, hybrid. The kit is adapter-agnostic." },
+          { "title": "Do I need Directus?", "description": "No. The default adapter reads JSON files. Directus is optional." },
+          { "title": "Is the blog required?", "description": "No. Blog components are only loaded if you import them." }
+        ]
+      }
+    },
+    {
+      "type": "cta",
+      "props": {
+        "title": "Ready to build?",
+        "subtitle": "Clone the repo and create your first landing page in minutes.",
+        "actions": [
+          { "variant": "primary", "text": "Get Started", "href": "https://github.com/anatolykoptev/landing-kit" }
+        ]
+      }
+    }
+  ]
+}

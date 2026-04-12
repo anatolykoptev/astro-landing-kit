@@ -1,6 +1,27 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@variant dark (&:where(.dark, .dark *));
+@variant intersect (&:not([no-intersect]));
+
+@theme {
+  --color-primary: var(--aw-color-primary);
+  --color-secondary: var(--aw-color-secondary);
+  --color-accent: var(--aw-color-accent);
+  --color-default: var(--aw-color-text-default);
+  --color-muted: var(--aw-color-text-muted);
+
+  --font-family-sans: var(--aw-font-sans, ui-sans-serif), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-family-serif: var(--aw-font-serif, ui-serif), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-family-heading: var(--aw-font-heading, ui-sans-serif), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --animate-fade: fadeInUp 1s both;
+
+  @keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(2rem); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+}
 
 @layer utilities {
   .bg-page {
@@ -22,34 +43,53 @@
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center rounded-full border-gray-400 border bg-transparent font-medium text-center text-base text-page leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 hover:bg-gray-100 hover:border-gray-600 dark:text-slate-300 dark:border-slate-500 dark:hover:bg-slate-800 dark:hover:border-slate-800 cursor-pointer;
+    @apply inline-flex items-center justify-center rounded-full border-gray-400 border bg-transparent font-medium text-center text-base leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 hover:bg-gray-100 hover:border-gray-600 dark:text-slate-300 dark:border-slate-500 dark:hover:bg-slate-800 dark:hover:border-slate-800 cursor-pointer;
+    color: var(--aw-color-text-page);
   }
 
   .btn-primary {
-    @apply btn font-semibold bg-primary text-white border-primary hover:bg-secondary hover:border-secondary hover:text-white dark:text-white dark:bg-primary dark:border-primary dark:hover:border-secondary dark:hover:bg-secondary;
+    @apply inline-flex items-center justify-center rounded-full border bg-transparent font-semibold text-center text-base leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 cursor-pointer text-white hover:text-white dark:text-white;
+    background-color: var(--aw-color-primary);
+    border-color: var(--aw-color-primary);
+  }
+  .btn-primary:hover {
+    background-color: var(--aw-color-secondary);
+    border-color: var(--aw-color-secondary);
   }
 
   .btn-secondary {
-    @apply btn;
+    @apply inline-flex items-center justify-center rounded-full border-gray-400 border bg-transparent font-medium text-center text-base leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 hover:bg-gray-100 hover:border-gray-600 dark:text-slate-300 dark:border-slate-500 dark:hover:bg-slate-800 dark:hover:border-slate-800 cursor-pointer;
+    color: var(--aw-color-text-page);
   }
 
   .btn-tertiary {
-    @apply btn border-none shadow-none text-muted hover:text-gray-900 dark:text-gray-400 dark:hover:text-white;
+    @apply inline-flex items-center justify-center rounded-full bg-transparent font-medium text-center text-base leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 border-none shadow-none hover:text-gray-900 dark:text-gray-400 dark:hover:text-white cursor-pointer;
+    color: var(--aw-color-text-muted);
   }
 }
 
 #header.scroll > div:first-child {
-  @apply bg-page md:bg-white/90 md:backdrop-blur-md;
+  background-color: var(--aw-color-bg-page);
   box-shadow: 0 0.375rem 1.5rem 0 rgb(140 152 164 / 13%);
+}
+@media (min-width: 768px) {
+  #header.scroll > div:first-child {
+    background-color: rgb(255 255 255 / 0.9);
+    backdrop-filter: blur(12px);
+  }
 }
 .dark #header.scroll > div:first-child,
 #header.scroll.dark > div:first-child {
-  @apply bg-page md:bg-[#030621e6] border-b border-gray-500/20;
+  background-color: var(--aw-color-bg-page);
   box-shadow: none;
+  border-bottom: 1px solid rgb(107 114 128 / 0.2);
 }
-/* #header.scroll > div:last-child {
-  @apply py-3;
-} */
+@media (min-width: 768px) {
+  .dark #header.scroll > div:first-child,
+  #header.scroll.dark > div:first-child {
+    background-color: #030621e6;
+  }
+}
 
 #header.expanded nav {
   position: fixed;

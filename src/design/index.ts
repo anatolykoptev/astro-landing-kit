@@ -1,5 +1,6 @@
 export { parseDesignMd, type DesignTokens, type ColorToken, type TypographyToken } from './parser';
 export { generateThemeCss, generateDarkModeOverrides, generatePm7Overrides } from './theme-generator';
+export { generateAwOverrides, isDarkDesign } from './aw-overrides';
 export { applyDesign } from './apply';
 export { generateSmartDarkMode } from './dark-mode';
 export { listDesigns, loadDesign, searchDesigns, type SearchResult } from './search-bridge';

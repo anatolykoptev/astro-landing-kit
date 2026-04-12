@@ -24,7 +24,8 @@
     "./types": "./src/adapters/types.ts",
     "./styles": "./src/assets/styles/tailwind.css",
     "./design": "./src/design/index.ts",
-    "./design/integration": "./src/design/integration.ts"
+    "./design/integration": "./src/design/integration.ts",
+    "./integration": "./vendor/integration/index.ts"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.12",

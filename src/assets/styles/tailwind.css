@@ -4,6 +4,7 @@
 @source "../../../vendor/pm7/";
 @import "../../../vendor/pm7/pm7.css";
 @import "../../design/pm7-bridge.css";
+@import "./landing-effects.css";
 @plugin "@tailwindcss/typography";
 
 @variant dark (&:where(.dark, .dark *));

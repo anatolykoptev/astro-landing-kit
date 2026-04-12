@@ -31,15 +31,18 @@ Layer 0: Foundation       Astro 5, Tailwind CSS 4, GSAP, JSON-LD SEO
 
 **Next:** Migrate memdb-site as first consumer, then hully-site.
 
-## Phase 2: Design System Integration
+## Phase 2: Design System Integration — IN PROGRESS
 
 **Depends on:** Phase 1 complete, `design_search` tool (done)
 
-- DESIGN.md → Tailwind theme generator (parse colors/fonts/spacing → tailwind.config.ts)
-- `astro add design-md` integration command
-- design_search MCP tool as project bootstrap: describe UI → pick design → auto-configure theme
-- Dark/light mode from DESIGN.md palette
-- Component variant system tied to design tokens
+- [x] DESIGN.md parser → DesignTokens (colors, fonts, scale, shape, motion)
+- [x] Tailwind v4 @theme generator from tokens
+- [x] CLI: `tsx src/design/apply.ts DESIGN.md [output.css]`
+- [x] Tested on 371 design styles (Dark SaaS, Acanthus, etc.)
+- [ ] `astro add design-md` integration command (auto-import theme CSS)
+- [ ] design_search MCP tool as project bootstrap: describe UI → pick design → auto-configure
+- [ ] Dark/light mode resolver from palette roles
+- [ ] Component variant system tied to design tokens
 
 ## Phase 3: pm7-ui Components
 

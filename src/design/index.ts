@@ -3,3 +3,4 @@ export { generateThemeCss, generateDarkModeOverrides } from './theme-generator';
 export { applyDesign } from './apply';
 export { generateSmartDarkMode } from './dark-mode';
 export { listDesigns, loadDesign, searchDesigns, type SearchResult } from './search-bridge';
+export { default as designMdIntegration, type DesignIntegrationOptions } from './integration';

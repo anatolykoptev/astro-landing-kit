@@ -22,7 +22,9 @@
     "./adapters/json": "./src/adapters/json.ts",
     "./adapters/directus": "./src/adapters/directus.ts",
     "./types": "./src/adapters/types.ts",
-    "./styles": "./src/assets/styles/tailwind.css"
+    "./styles": "./src/assets/styles/tailwind.css",
+    "./design": "./src/design/index.ts",
+    "./design/integration": "./src/design/integration.ts"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.12",

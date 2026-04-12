@@ -43,16 +43,28 @@ Layer 0: Foundation       Astro 5, Tailwind CSS 4, GSAP, JSON-LD SEO
 - [x] Smart dark/light mode resolver from color roles
 - [ ] Component variant system tied to design tokens (deferred to first migration)
 
-## Phase 3: pm7-ui Components
+## Phase 3a: pm7-ui Components — COMPLETE
 
-**Depends on:** Phase 2
+**Status:** Done (2026-04-12).
 
-- Evaluate pm7-ui (`@pm7/core`) as base component layer
-- pm7 is framework-agnostic (pure CSS classes: `pm7-button`, `pm7-card`)
-- Works with Astro, Svelte, plain HTML — no React dependency
-- Replace/complement AstroWind widgets where pm7 components are better
-- AI-optimized: simple class names, copy-paste ready, self-healing
-- Map DESIGN.md tokens → pm7 CSS custom properties
+- [x] Vendor full pm7 CSS + JS into `vendor/pm7/`
+- [x] Bridge CSS: DESIGN.md tokens → pm7 custom properties
+- [x] Theme generator: pm7 overrides from design tokens
+- [x] Component catalog: 16 components, searchComponents()
+- [x] Section recipes: 10 pre-composed sections, searchSections()
+- [x] Search bridge integration: unified design + component + section search
+- [ ] Component variant system tied to design tokens (deferred to first migration)
+
+## Phase 3b: Experience Memory
+
+**Depends on:** Phase 3a + first migrations (memdb-site, hully-site)
+
+- Self-learning from landing page assembly outcomes (go-wowa pattern)
+- Experience recording: component+section+design combos accepted/rejected
+- Recall: suggest proven combos for new landing pages
+- Consolidator: generalize patterns across sites
+- Storage: MemDB cubes per domain + `_global` for cross-site patterns
+- Confidence: Beta-Bernoulli scoring (same as go-wowa intelligence layer)
 
 ## Phase 4: A2UI Agent-Driven Sections
 

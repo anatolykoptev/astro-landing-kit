@@ -1,6 +1,8 @@
 ---
 import { GoogleAnalytics } from '@astrolib/analytics';
 import { ANALYTICS } from 'astrowind:config';
+
+const plausible = (ANALYTICS as { vendors?: { plausible?: { domain?: string; src?: string } } })?.vendors?.plausible;
 ---
 
 {
@@ -8,6 +10,16 @@ import { ANALYTICS } from 'astrowind:config';
     <GoogleAnalytics
       id={String(ANALYTICS.vendors.googleAnalytics.id)}
       partytown={ANALYTICS?.vendors?.googleAnalytics?.partytown}
+    />
+  ) : null
+}
+{
+  plausible?.domain ? (
+    <script
+      is:inline
+      defer
+      data-domain={plausible.domain}
+      src={plausible.src || 'https://plausible.io/js/script.js'}
     />
   ) : null
 }

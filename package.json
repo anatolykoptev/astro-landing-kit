@@ -17,7 +17,7 @@
     "./adapters": "./src/adapters/index.ts",
     "./images": "./src/utils/images.ts",
     "./styles": "./src/assets/styles/tailwind.css",
-    "./styles/*": "./src/assets/styles/*.css",
+    "./styles/*": "./src/assets/styles/*",
     "./design": "./src/design/index.ts",
     "./design/integration": "./src/design/integration.ts",
     "./integration": "./vendor/integration/index.ts",

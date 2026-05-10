@@ -2,9 +2,22 @@
 import favIcon from '~/assets/favicons/favicon.ico';
 import favIconSvg from '~/assets/favicons/favicon.svg';
 import appleTouchIcon from '~/assets/favicons/apple-touch-icon.png';
+
+export interface Props {
+  /**
+   * Color for the Safari pinned-tab mask icon.
+   * Pass a hex value to use your brand color, or pass null/undefined to omit the tag.
+   * Default: '#0d9488' (kit-neutral teal — override in your layout).
+   */
+  maskIconColor?: string | null;
+}
+
+const { maskIconColor = '#0d9488' } = Astro.props;
 ---
 
 <link rel="shortcut icon" href={favIcon} />
 <link rel="icon" type="image/svg+xml" href={favIconSvg.src} />
-<link rel="mask-icon" href={favIconSvg.src} color="#8D46E7" />
+{maskIconColor != null && (
+  <link rel="mask-icon" href={favIconSvg.src} color={maskIconColor} />
+)}
 <link rel="apple-touch-icon" sizes="180x180" href={appleTouchIcon.src} />

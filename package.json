@@ -20,7 +20,9 @@
     "./styles/*": "./src/assets/styles/*.css",
     "./design": "./src/design/index.ts",
     "./design/integration": "./src/design/integration.ts",
-    "./integration": "./vendor/integration/index.ts"
+    "./integration": "./vendor/integration/index.ts",
+    "./components/FontPreload": "./src/components/FontPreload.astro",
+    "./components/*": "./src/components/*.astro"
   },
   "scripts": {
     "dev": "astro dev",

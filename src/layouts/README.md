@@ -33,7 +33,13 @@ Three layered Astro layouts: `Layout` (bare HTML shell), `PageLayout` (Layout + 
 
 `MetaData` type: `{ title, description, canonical?, noindex?, openGraph?, twitter? }` from `~/types`.
 
-## Example
+## WCAG landmark rule — do NOT add a second `<main>`
+
+**`PageLayout` already wraps slot content in `<main>`.** Consumers must NOT add their own
+`<main>` element inside `PageLayout` — doing so creates a duplicate ARIA landmark that
+violates WCAG SC 1.3.1 and confuses screen readers.
+
+Correct usage:
 
 ```astro
 ---
@@ -41,9 +47,13 @@ import PageLayout from '@krolik/landing-kit/layouts/PageLayout';
 const meta = { title: 'Home', description: 'Welcome' };
 ---
 <PageLayout metadata={meta}>
-  <main>content</main>
+  <!-- slot content here — no <main> wrapper needed -->
+  <section>content</section>
 </PageLayout>
 ```
+
+If you need the bare HTML shell without a pre-baked `<main>`, use `Layout` directly and
+add your own `<main>` there. `Layout` does not inject a landmark element.
 
 ## Dependencies
 

@@ -61,6 +61,8 @@ export function buildJsonLd(
   if (graph.length === 0) return '';
 
   const doc = { '@context': 'https://schema.org', '@graph': graph };
-  const json = JSON.stringify(doc).replace(/<\//g, '<\\/');
-  return `<script type="application/ld+json">${json}</script>`;
+  const json = JSON.stringify(doc)
+    .replace(/<\//g, '<\\/')
+    .replace(/\//g, '\\/');
+  return `<script type="application/ld+json">${json}<\/script>`;
 }

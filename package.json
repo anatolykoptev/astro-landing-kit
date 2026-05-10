@@ -15,6 +15,7 @@
     "./adapters/json": "./src/adapters/json.ts",
     "./adapters/types": "./src/adapters/types.ts",
     "./adapters": "./src/adapters/index.ts",
+    "./images": "./src/utils/images.ts",
     "./styles": "./src/assets/styles/tailwind.css",
     "./styles/*": "./src/assets/styles/*.css",
     "./design": "./src/design/index.ts",

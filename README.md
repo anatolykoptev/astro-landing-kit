@@ -1,53 +1,54 @@
 # @krolik/landing-kit
 
-Thin, composable Astro + Svelte landing page primitives. No CMS, no forms backend, no opinionated routing. Bring your own content.
+Composable Astro + Svelte primitives for marketing sites. Pick what you need.
+
+## Modules
+
+| Module | Purpose | Status |
+|---|---|---|
+| [seo](src/seo/README.md) | JSON-LD + structured data builders | stable |
+| [layouts](src/layouts/README.md) | PageLayout / LandingLayout / MarkdownLayout shells | stable |
+| [widgets](src/components/widgets/README.md) | Hero, Footer, FAQs, CTA, Stats, Steps, Features, … | stable |
+| [ui](src/components/ui/README.md) | Button, Headline, ItemGrid, WidgetWrapper primitives | stable |
+| [blog](src/components/blog/README.md) | Grid, List, SinglePost, Pagination, Tags | stable |
+| [islands](src/components/islands/README.md) | ContactForm, StatsCounter, FaqAccordion (Svelte 5) | stable |
+| [adapters](src/adapters/README.md) | `LandingPage` types + JSON file-based content loader | stable |
+| [images](src/utils/README.md) | Astro image optimization helpers + unpic CDN support | stable |
+| [styles](src/assets/styles/README.md) | Tailwind v4 base stylesheet | stable |
+| [design](src/design/README.md) | DESIGN.md → CSS theme tokens, pm7 catalog | krolik-private |
+| [integration](vendor/README.md) | astrowindIntegration: config.yaml loader for Astro | krolik-private |
 
 ## Install
 
 ```bash
 npm install @krolik/landing-kit
-# or local workspace:
+# or local workspace reference:
 # "dependencies": { "@krolik/landing-kit": "file:../../src/landing-kit" }
 ```
 
-## Exports
-
-| Import path | What you get |
-|---|---|
-| `@krolik/landing-kit/layouts/PageLayout` | Base HTML shell with head, meta, Tailwind |
-| `@krolik/landing-kit/widgets/*` | Footer, Header, Hero, Features, FAQs, Stats, Steps, … |
-| `@krolik/landing-kit/ui/*` | Button, Headline, ItemGrid, WidgetWrapper, … |
-| `@krolik/landing-kit/blog/*` | Grid, List, SinglePost, Pagination, Tags, … |
-| `@krolik/landing-kit/islands/ContactForm` | Svelte 5 contact form (endpoint prop) |
-| `@krolik/landing-kit/seo` | `buildJsonLd` — schema.org JSON-LD builder |
-| `@krolik/landing-kit/adapters/json` | `loadJson(slug, basePath?)` — read JSON content files |
-| `@krolik/landing-kit/adapters/types` | TypeScript types: `LandingPage`, `PageMeta`, etc. |
-| `@krolik/landing-kit/styles` | Tailwind v4 base styles |
-| `@krolik/landing-kit/design` | `designMdIntegration` — DESIGN.md → CSS theme tokens |
-| `@krolik/landing-kit/integration` | `astrowindIntegration` — config.yaml loader |
-
-## Usage (3 lines)
+## Quickstart
 
 ```astro
 ---
 import PageLayout from '@krolik/landing-kit/layouts/PageLayout';
 import Hero from '@krolik/landing-kit/widgets/Hero';
+import FAQs from '@krolik/landing-kit/widgets/FAQs';
+import { buildJsonLd } from '@krolik/landing-kit/seo';
 import { loadJson } from '@krolik/landing-kit/adapters/json';
 
 const page = await loadJson('home', 'src/content');
+const jsonLd = buildJsonLd(page.meta.structuredData ?? [], {
+  siteUrl: 'https://example.com',
+  siteName: 'Acme',
+});
 ---
 <PageLayout metadata={page.meta}>
-  <Hero {...page.sections[0].props} />
+  <Fragment slot="head" set:html={jsonLd} />
+  <Hero title="Ship faster" tagline="Landing pages in hours" />
+  <FAQs items={page.meta.faqs} />
 </PageLayout>
 ```
 
-## JSON-LD
+## Philosophy
 
-```ts
-import { buildJsonLd } from '@krolik/landing-kit/seo';
-
-const jsonLd = buildJsonLd(page.meta.structuredData, {
-  siteUrl: 'https://example.com',
-  siteName: 'Example',
-});
-```
+Every module is independently importable. No required "framework" entry point. Use only what you need. Cross-module coupling is documented per module — widgets depend on ui; blog depends on ui + utils; seo depends on adapters/types only.

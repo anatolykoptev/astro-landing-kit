@@ -38,7 +38,7 @@ export const findImage = async (
     return imagePath;
   }
 
-  // Relative paths or not "~/assets/"
+  // Relative paths or not ~/assets/
   if (!imagePath.startsWith('~/assets/images')) {
     return imagePath;
   }
@@ -67,6 +67,16 @@ export const adaptOpenGraphImages = async (
   const adaptedImages = await Promise.all(
     images.map(async (image) => {
       if (image?.url) {
+        // Public-prefix URL (e.g. /og.png) — Astro can't optimize public/ assets;
+        // pass through as-is with the consumer-provided dimensions.
+        if (typeof image.url === 'string' && image.url.startsWith('/') && !image.url.startsWith('//')) {
+          return {
+            url: String(new URL(image.url, astroSite)),
+            width: image.width,
+            height: image.height,
+          };
+        }
+
         const resolvedImage = (await findImage(image.url)) as ImageMetadata | string | undefined;
         if (!resolvedImage) {
           return {

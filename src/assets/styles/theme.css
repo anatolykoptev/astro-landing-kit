@@ -1,0 +1,47 @@
+/**
+ * @krolik/landing-kit — canonical theme token starter
+ *
+ * Import this file in your consumer's stylesheet to get a ready-made
+ * color palette that overrides the kit's neutral defaults:
+ *
+ *   @import @krolik/landing-kit/styles/theme.css;
+ *
+ * Then override any variable in your own :root block to brand the site.
+ * All variables listed here map to the --aw-color-* tokens consumed by
+ * kit widgets and the btn-primary / btn-secondary utility classes.
+ */
+
+:root {
+  /* Brand colors — primary action color, secondary (hover), accent (highlights) */
+  --aw-color-primary: rgb(16 185 129);    /* emerald-500  */
+  --aw-color-secondary: rgb(5 150 105);   /* emerald-600  */
+  --aw-color-accent: rgb(16 185 129);     /* emerald-500  */
+
+  /* Typography */
+  --aw-font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --aw-font-serif: 'Inter Variable', ui-serif, Georgia, serif;
+  --aw-font-heading: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+  /* Text colors */
+  --aw-color-text-heading: rgb(0 0 0);
+  --aw-color-text-default: rgb(16 16 16);
+  --aw-color-text-muted: rgb(16 16 16 / 66%);
+  --aw-color-text-page: rgb(16 16 16);
+
+  /* Backgrounds */
+  --aw-color-bg-page: rgb(255 255 255);
+  --aw-color-bg-page-dark: rgb(3 6 32);
+}
+
+.dark {
+  --aw-color-primary: rgb(16 185 129);
+  --aw-color-secondary: rgb(5 150 105);
+  --aw-color-accent: rgb(16 185 129);
+
+  --aw-color-text-heading: rgb(247 248 248);
+  --aw-color-text-default: rgb(229 236 246);
+  --aw-color-text-muted: rgb(229 236 246 / 66%);
+  --aw-color-text-page: rgb(229 236 246);
+
+  --aw-color-bg-page: rgb(3 6 32);
+}

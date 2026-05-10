@@ -1,0 +1,48 @@
+---
+/**
+ * FontPreload — optional font preload hints.
+ *
+ * Emit <link rel="preload"> tags for WOFF2 font files that ship via
+ * @fontsource/* packages (self-hosted, no Google Fonts network round-trip).
+ *
+ * Usage in a Layout <head>:
+ *
+ *   import FontPreload from '@krolik/landing-kit/components/FontPreload';
+ *   <FontPreload paths={[
+ *     '/fonts/inter-variable.woff2',
+ *   ]} />
+ *
+ * The kit does not ship a canonical list of @fontsource paths because
+ * Astro hashes the filenames at build time (e.g. /_astro/inter-Bxxx.woff2).
+ * Pass the resolved paths from your build output, or omit this component
+ * and rely on browser auto-discovery via the @fontsource CSS @font-face rules.
+ *
+ * For Google Fonts consumers, use the `families` prop to emit preconnect
+ * and a standard fonts.googleapis.com URL hint instead:
+ *
+ *   <FontPreload families={['Inter:wght@400;700']} />
+ */
+
+export interface Props {
+  /** Absolute paths to self-hosted WOFF2 font files (e.g. /_astro/inter-xxx.woff2) */
+  paths?: string[];
+  /** Google Fonts family strings — emits preconnect + stylesheet link */
+  families?: string[];
+}
+
+const { paths = [], families = [] } = Astro.props;
+---
+
+{families.length > 0 && (
+  <>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href={`https://fonts.googleapis.com/css2?${families.map(f => `family=${encodeURIComponent(f)}`).join('&')}&display=swap`}
+    />
+  </>
+)}
+{paths.map(path => (
+  <link rel="preload" as="font" type="font/woff2" href={path} crossorigin />
+))}

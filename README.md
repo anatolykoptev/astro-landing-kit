@@ -52,3 +52,16 @@ const jsonLd = buildJsonLd(page.meta.structuredData ?? [], {
 ## Philosophy
 
 Every module is independently importable. No required "framework" entry point. Use only what you need. Cross-module coupling is documented per module — widgets depend on ui; blog depends on ui + utils; seo depends on adapters/types only.
+
+## Recent changes
+
+**PR #4** — go-kit-style modular structure: each module now has its own `README.md` (see module table above) documenting its public API, exports, and cross-module deps.
+
+**PR #5** — `adaptOpenGraphImages` passthrough: URLs already starting with `/` or `https://` (public-prefix) are returned as-is instead of being processed through the image optimizer.
+
+**PR #6** — design-token and layout fixes:
+- `theme.css` added as the canonical export for all CSS custom-property tokens (import once at the app entry point).
+- `FontPreload.astro` helper added: preloads WOFF2 fonts without layout-shift; accepts `fonts` array prop.
+- `maskIconColor` prop added to `Favicons.astro` for SVG mask-icon color control.
+- `--aw-color-primary` legacy leak fixed: the old AstroWind variable no longer bleeds into consumer stylesheets.
+- `PageLayout` now wraps page content in a `<main>` landmark; consumers must **not** add a second `<main>` wrapper inside the default slot.

@@ -10,6 +10,7 @@ export interface Props {
   callToAction?: string | CallToAction;
   callToAction2?: string | CallToAction;
   align?: 'left' | 'center';
+  animate?: boolean;
 }
 
 const {
@@ -20,11 +21,13 @@ const {
   callToAction = await Astro.slots.render('callToAction'),
   callToAction2 = await Astro.slots.render('callToAction2'),
   align = 'center',
+  animate = false,
 } = Astro.props;
 
 const isLeft = align === 'left';
 const headlineAlign = isLeft ? 'text-left' : 'text-center mx-auto';
 const actionsAlign = isLeft ? 'sm:justify-start' : 'sm:justify-center';
+const fadeIn = animate ? 'intersect-once motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade' : '';
 ---
 
 <section class="relative md:-mt-[76px] not-prose">
@@ -36,7 +39,7 @@ const actionsAlign = isLeft ? 'sm:justify-start' : 'sm:justify-center';
         {
           tagline && (
             <p
-              class="text-base text-eyebrow font-bold tracking-wide uppercase"
+              class:list={['text-base text-eyebrow font-bold tracking-wide uppercase', fadeIn]}
               set:html={tagline}
             />
           )
@@ -44,7 +47,7 @@ const actionsAlign = isLeft ? 'sm:justify-start' : 'sm:justify-center';
         {
           title && (
             <h1
-              class="text-5xl md:text-6xl font-bold leading-tighter tracking-tighter mb-4 font-heading"
+              class:list={['text-5xl md:text-6xl font-bold leading-tighter tracking-tighter mb-4 font-heading', fadeIn]}
               set:html={title}
             />
           )
@@ -53,13 +56,13 @@ const actionsAlign = isLeft ? 'sm:justify-start' : 'sm:justify-center';
           {
             subtitle && (
               <p
-                class="text-xl text-muted mb-6"
+                class:list={['text-xl text-muted mb-6', fadeIn]}
                 set:html={subtitle}
               />
             )
           }
           <div
-            class:list={['max-w-xs sm:max-w-md m-auto flex flex-nowrap flex-col sm:flex-row gap-4', actionsAlign]}
+            class:list={['max-w-xs sm:max-w-md m-auto flex flex-nowrap flex-col sm:flex-row gap-4', actionsAlign, fadeIn]}
           >
             {
               callToAction && (

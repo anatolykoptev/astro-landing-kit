@@ -91,8 +91,7 @@
 @source inline("rounded rounded-sm rounded-md rounded-lg rounded-xl rounded-2xl rounded-full rounded-b");
 
 /* ItemGrid layout variants (chapters / log) */
-@source inline("chapter-num text-eyebrow text-default bg-card border-hairline");
-@source inline("list-none font-mono");
+@source inline("chapter-num list-none font-mono");
 
 /* Misc layout */
 @source inline("overflow-hidden overflow-visible overflow-auto");
@@ -116,7 +115,7 @@
    * so a consumer can re-skin without touching .astro files. */
   --color-eyebrow: var(--aw-color-eyebrow, var(--aw-color-primary));
   --color-card: var(--aw-color-bg-card, var(--aw-color-bg-page, #ffffff));
-  --color-hairline: var(--aw-color-hairline, currentColor);
+  --color-hairline: var(--aw-color-hairline, var(--aw-color-text-muted, oklch(0.5 0 0)));
 
   --font-family-sans: var(--aw-font-sans, ui-sans-serif), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-family-serif: var(--aw-font-serif, ui-serif), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
@@ -142,23 +141,6 @@
   }
   .text-page {
     color: var(--aw-color-text-page);
-  }
-  .text-muted {
-    color: var(--aw-color-text-muted);
-  }
-
-  /* Semantic tokens — widget templates use these; consumers override via CSS vars */
-  .text-eyebrow {
-    color: var(--aw-color-eyebrow, var(--aw-color-primary));
-  }
-  .text-default {
-    color: var(--aw-color-text-default);
-  }
-  .bg-card {
-    background-color: var(--aw-color-bg-card, var(--aw-color-bg-page, #ffffff));
-  }
-  .border-hairline {
-    border-color: var(--aw-color-hairline, currentColor);
   }
 
   /* Chapter number — used by ItemGrid 'chapters' layout */

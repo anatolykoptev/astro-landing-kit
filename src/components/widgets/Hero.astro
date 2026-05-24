@@ -14,6 +14,7 @@ const {
   image = await Astro.slots.render('image'),
 
   align = 'center',
+  animate = false,
 
   id,
   bg = await Astro.slots.render('bg'),
@@ -22,6 +23,7 @@ const {
 const isLeft = align === 'left';
 const headlineAlign = isLeft ? 'text-left' : 'text-center mx-auto';
 const actionsAlign = isLeft ? 'flex-col sm:flex-row sm:justify-start' : 'flex-col sm:flex-row sm:justify-center';
+const fadeIn = animate ? 'intersect-once motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade' : '';
 ---
 
 <section class="relative md:-mt-[76px] not-prose" {...id ? { id } : {}}>
@@ -37,7 +39,7 @@ const actionsAlign = isLeft ? 'flex-col sm:flex-row sm:justify-start' : 'flex-co
         {
           tagline && (
             <p
-              class="text-base text-eyebrow font-bold tracking-wide uppercase"
+              class:list={['text-base text-eyebrow font-bold tracking-wide uppercase', fadeIn]}
               set:html={tagline}
             />
           )
@@ -45,7 +47,7 @@ const actionsAlign = isLeft ? 'flex-col sm:flex-row sm:justify-start' : 'flex-co
         {
           title && (
             <h1
-              class="text-5xl md:text-6xl font-bold leading-tighter tracking-tighter mb-4 font-heading"
+              class:list={['text-5xl md:text-6xl font-bold leading-tighter tracking-tighter mb-4 font-heading', fadeIn]}
               set:html={title}
             />
           )
@@ -54,14 +56,14 @@ const actionsAlign = isLeft ? 'flex-col sm:flex-row sm:justify-start' : 'flex-co
           {
             subtitle && (
               <p
-                class="text-xl text-muted mb-6"
+                class:list={['text-xl text-muted mb-6', fadeIn]}
                 set:html={subtitle}
               />
             )
           }
           {
             actions && (
-              <div class:list={['max-w-xs sm:max-w-md m-auto flex flex-nowrap gap-4', actionsAlign]}>
+              <div class:list={['max-w-xs sm:max-w-md m-auto flex flex-nowrap gap-4', actionsAlign, fadeIn]}>
                 {Array.isArray(actions) ? (
                   actions.map((action) => (
                     <div class="flex w-full sm:w-auto">
@@ -80,7 +82,7 @@ const actionsAlign = isLeft ? 'flex-col sm:flex-row sm:justify-start' : 'flex-co
       <div>
         {
           image && (
-            <div class="relative m-auto max-w-5xl">
+            <div class:list={['relative m-auto max-w-5xl', fadeIn]}>
               {typeof image === 'string' ? (
                 <Fragment set:html={image} />
               ) : (

@@ -30,7 +30,7 @@ const {
         tagline={tagline}
         align={align}
         classes={{
-          container: align === 'left' ? 'text-left rtl:text-right' : '',
+          container: align === 'left' ? 'text-left rtl:text-right md:mx-auto' : '',
           title: 'text-3xl lg:text-4xl',
           ...((classes?.headline as object) ?? {}),
         }}

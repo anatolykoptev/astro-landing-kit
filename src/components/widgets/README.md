@@ -19,12 +19,12 @@ All widgets accept typed props matching `~/types`. Key components:
 | Component | Props type | Description |
 |---|---|---|
 | `Hero.astro` / `Hero2.astro` | `Hero` | Above-the-fold hero with image + CTA |
-| `HeroText.astro` | — | Text-only hero variant |
+| `HeroText.astro` | `HeroText` (local Props) | Text-only hero variant |
 | `Features.astro` / `Features2.astro` / `Features3.astro` | `Features` | Icon grid features |
 | `FAQs.astro` | `FAQs` | Accordion-ready FAQ list |
 | `Stats.astro` | `Stats` | Stat counters widget |
 | `Steps.astro` / `Steps2.astro` | `Steps` | Numbered step list |
-| `CallToAction.astro` | — | CTA band |
+| `CallToAction.astro` | `Widget` + local | CTA band |
 | `Contact.astro` | `Contact` | Contact form wrapper |
 | `Pricing.astro` | `Pricing` | Pricing table |
 | `Testimonials.astro` | `Testimonials` | Testimonial cards |
@@ -114,6 +114,16 @@ rendering entirely.
 Default is `false` — no animation. Existing consumers that relied on the
 intersect-observer fade-in must pass `animate={true}` explicitly.
 
+### `animate` prop on Hero / Hero2 / HeroText
+
+Same opt-in pattern as WidgetWrapper. When `animate={true}`, per-element
+`intersect-once motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade`
+is applied to tagline, title, subtitle, actions, and image individually.
+
+```astro
+<Hero animate={true} title="Ship faster" />
+```
+
 ## Semantic color tokens (0.2.0)
 
 Widgets now use semantic Tailwind classes instead of literal color scales.
@@ -123,7 +133,7 @@ Override via CSS custom properties in your site's stylesheet:
 |---|---|---|
 | `--aw-color-eyebrow` | `--aw-color-primary` | `text-eyebrow` |
 | `--aw-color-bg-card` | `--aw-color-bg-page` | `bg-card` |
-| `--aw-color-hairline` | `currentColor` | `border-hairline` |
+| `--aw-color-hairline` | `--aw-color-text-muted` / `oklch(0.5 0 0)` | `border-hairline` |
 | `--aw-color-text-muted` | — | `text-muted` |
 
 Legacy `--aw-color-*` variables are preserved — no migration needed.

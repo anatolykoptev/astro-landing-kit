@@ -7,11 +7,22 @@ import Background from './Background.astro';
 export interface Props extends Widget {
   containerClass?: string;
   ['as']?: HTMLTag;
+  /**
+   * When true, emits intersection-observer fade-in classes.
+   * Default false — opt-in, not on by default.
+   * Breaking change vs 0.1.x: existing consumers that relied on the
+   * auto-fade must now pass animate={true} explicitly.
+   */
+  animate?: boolean;
 }
 
-const { id, isDark = false, containerClass = '', bg, as = 'section' } = Astro.props;
+const { id, isDark = false, containerClass = '', bg, as = 'section', animate = false } = Astro.props;
 
 const WrapperTag = as;
+
+const animateClasses = animate
+  ? 'intersect-once intersect-quarter intersect-no-queue motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade'
+  : '';
 ---
 
 <WrapperTag class="relative not-prose scroll-mt-[72px]" {...id ? { id } : {}}>
@@ -23,7 +34,7 @@ const WrapperTag = as;
   <div
     class:list={[
       twMerge(
-        'relative mx-auto max-w-7xl px-4 md:px-6 py-12 md:py-16 lg:py-20 text-default intersect-once intersect-quarter intersect-no-queue motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade',
+        `relative mx-auto max-w-7xl px-4 md:px-6 py-12 md:py-16 lg:py-20 text-default ${animateClasses}`,
         containerClass
       ),
       { dark: isDark },

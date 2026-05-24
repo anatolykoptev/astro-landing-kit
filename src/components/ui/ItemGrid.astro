@@ -4,7 +4,7 @@ import { twMerge } from 'tailwind-merge';
 import Button from './Button.astro';
 import { Icon } from 'astro-icon/components';
 
-const { items = [], columns, defaultIcon = '', classes = {} } = Astro.props;
+const { items = [], columns, defaultIcon = '', classes = {}, layout = 'grid' } = Astro.props;
 
 const {
   container: containerClass = '',
@@ -18,48 +18,132 @@ const {
 
 {
   items && items.length > 0 && (
-    <div
-      class={twMerge(
-        `grid mx-auto gap-8 md:gap-y-12 ${
-          columns === 4
-            ? 'lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2'
-            : columns === 3
-              ? 'lg:grid-cols-3 sm:grid-cols-2'
-              : columns === 2
-                ? 'sm:grid-cols-2 '
-                : ''
-        }`,
-        containerClass
-      )}
-    >
-      {items.map(({ title, description, icon, callToAction, classes: itemClasses = {} }) => (
-        <div class="intersect-once motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade">
-          <div class={twMerge('flex flex-row max-w-md', panelClass, itemClasses?.panel)}>
-            <div class="flex justify-center">
-              {(icon || defaultIcon) && (
-                <Icon
-                  name={icon || defaultIcon}
-                  class={twMerge('w-7 h-7 mr-2 rtl:mr-0 rtl:ml-2', defaultIconClass, itemClasses?.icon)}
-                />
-              )}
-            </div>
-            <div class="mt-0.5">
-              {title && <h3 class={twMerge('text-xl font-bold', titleClass, itemClasses?.title)}>{title}</h3>}
-              {description && (
-                <p
-                  class={twMerge(`${title ? 'mt-3' : ''} text-muted`, descriptionClass, itemClasses?.description)}
-                  set:html={description}
-                />
-              )}
-              {callToAction && (
-                <div class={twMerge(`${title || description ? 'mt-3' : ''}`, actionClass, itemClasses?.actionClass)}>
-                  <Button variant="link" {...callToAction} />
+    <>
+      {/* ============================================================
+          layout = 'grid' (default) — icon+text card grid, backwards-compat
+          ============================================================ */}
+      {layout === 'grid' && (
+        <div
+          class={twMerge(
+            `grid mx-auto gap-8 md:gap-y-12 ${
+              columns === 4
+                ? 'lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2'
+                : columns === 3
+                  ? 'lg:grid-cols-3 sm:grid-cols-2'
+                  : columns === 2
+                    ? 'sm:grid-cols-2 '
+                    : ''
+            }`,
+            containerClass
+          )}
+        >
+          {items.map(({ title, description, icon, callToAction, classes: itemClasses = {} }) => (
+            <div>
+              <div class={twMerge('flex flex-row max-w-md', panelClass, itemClasses?.panel)}>
+                <div class="flex justify-center">
+                  {icon !== null && (icon || defaultIcon) && (
+                    <Icon
+                      name={(icon || defaultIcon) as string}
+                      class={twMerge('w-7 h-7 mr-2 rtl:mr-0 rtl:ml-2', defaultIconClass, itemClasses?.icon)}
+                    />
+                  )}
                 </div>
-              )}
+                <div class="mt-0.5">
+                  {title && <h3 class={twMerge('text-xl font-bold', titleClass, itemClasses?.title)}>{title}</h3>}
+                  {description && (
+                    <p
+                      class={twMerge(`${title ? 'mt-3' : ''} text-muted`, descriptionClass, itemClasses?.description)}
+                      set:html={description}
+                    />
+                  )}
+                  {callToAction && (
+                    <div class={twMerge(`${title || description ? 'mt-3' : ''}`, actionClass, itemClasses?.actionClass)}>
+                      <Button variant="link" {...callToAction} />
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
-      ))}
-    </div>
+      )}
+
+      {/* ============================================================
+          layout = 'chapters' — full-width editorial list with hairline rules.
+          Chapter number rendered as .chapter-num (styled via CSS token).
+          No card chrome, icons suppressed by default unless item.icon set.
+          ============================================================ */}
+      {layout === 'chapters' && (
+        <div class={twMerge('w-full', containerClass)}>
+          {items.map(({ title, description, icon, chapter, callToAction, classes: itemClasses = {} }, index) => (
+            <div
+              class={twMerge(
+                'flex gap-8 border-t border-hairline py-12 first:border-t-0 first:pt-0',
+                panelClass,
+                itemClasses?.panel
+              )}
+            >
+              <span class={twMerge('chapter-num shrink-0 w-16', itemClasses?.chapter)}>
+                {chapter ?? String(index + 1).padStart(2, '0')}
+              </span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start gap-3">
+                  {icon !== null && icon && (
+                    <Icon
+                      name={icon}
+                      class={twMerge('w-6 h-6 shrink-0 mt-1', defaultIconClass, itemClasses?.icon)}
+                    />
+                  )}
+                  <div class="flex-1">
+                    {title && <h3 class={twMerge('text-xl font-bold mb-3', titleClass, itemClasses?.title)}>{title}</h3>}
+                    {description && (
+                      <p
+                        class={twMerge('text-muted leading-relaxed', descriptionClass, itemClasses?.description)}
+                        set:html={description}
+                      />
+                    )}
+                    {callToAction && (
+                      <div class={twMerge('mt-4', actionClass, itemClasses?.actionClass)}>
+                        <Button variant="link" {...callToAction} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ============================================================
+          layout = 'log' — monospace dense terminal block.
+          Items render as <li> with › prompt prefix. No icons, no cards.
+          ============================================================ */}
+      {layout === 'log' && (
+        <ul class={twMerge('list-none font-mono text-sm leading-relaxed space-y-2', containerClass)}>
+          {items.map(({ title, description, callToAction, classes: itemClasses = {} }) => (
+            <li class={twMerge('grid gap-4', panelClass, itemClasses?.panel)} style="grid-template-columns: 1.5em 1fr;">
+              <span class="text-eyebrow font-bold select-none" aria-hidden="true">›</span>
+              <div>
+                {title && (
+                  <span class={twMerge('font-medium', titleClass, itemClasses?.title)}>{title}</span>
+                )}
+                {description && (
+                  <span
+                    class={twMerge('text-muted ml-2', descriptionClass, itemClasses?.description)}
+                    set:html={` — ${description}`}
+                  />
+                )}
+                {callToAction && (
+                  <span class={twMerge('ml-2', actionClass, itemClasses?.actionClass)}>
+                    <Button variant="link" {...callToAction} />
+                  </span>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
   )
 }

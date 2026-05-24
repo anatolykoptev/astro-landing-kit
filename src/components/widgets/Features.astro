@@ -10,6 +10,8 @@ const {
   tagline = await Astro.slots.render('tagline'),
   items = [],
   columns = 2,
+  layout = 'grid',
+  align = 'center',
 
   defaultIcon,
 
@@ -21,11 +23,12 @@ const {
 ---
 
 <WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-5xl ${classes?.container ?? ''}`} bg={bg}>
-  <Headline title={title} subtitle={subtitle} tagline={tagline} classes={classes?.headline as Record<string, string>} />
+  <Headline title={title} subtitle={subtitle} tagline={tagline} align={align} classes={classes?.headline as Record<string, string>} />
   <ItemGrid
     items={items}
     columns={columns}
     defaultIcon={defaultIcon}
+    layout={layout}
     classes={{
       container: '',
       title: 'md:text-[1.3rem]',

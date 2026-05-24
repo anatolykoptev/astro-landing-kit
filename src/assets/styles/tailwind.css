@@ -3,6 +3,103 @@
 @import "../../design/pm7-bridge.css";
 @plugin "@tailwindcss/typography";
 
+/* =====================================================================
+ * Kit safelist — guarantees responsive layout utilities used by widgets
+ * are compiled even when the kit is consumed via a `file:` symlink that
+ * Tailwind v4's scanner does not follow by default.
+ *
+ * Without this, sites that link the kit through `file:../../src/landing-kit`
+ * (the workspace pattern) silently lose every dynamic grid / width class
+ * the widgets emit (`lg:grid-cols-3`, `sm:w-1/2`, etc.) and fall back to
+ * stacked `display:block` layouts. Symptom: 3-up grids collapse to single
+ * column on desktop, identical issue across all consumer sites.
+ *
+ * Audit source: `grep -rhoE '(lg|md|sm|xl):(grid-cols-[0-9]+|w-1/[0-9]+|...)'
+ *                  src/components/`.
+ * Update if a widget introduces a new responsive variant.
+ * ===================================================================== */
+/* Grid layout */
+@source inline("grid grid-cols-1 grid-cols-2 grid-cols-3 grid-cols-4 grid-cols-12");
+@source inline("sm:grid-cols-1 sm:grid-cols-2 sm:grid-cols-3");
+@source inline("md:grid-cols-2 md:grid-cols-3 md:grid-cols-4");
+@source inline("lg:grid-cols-3 lg:grid-cols-4");
+@source inline("xl:grid-cols-3");
+
+/* Width fractions + col-span */
+@source inline("sm:w-1/2 md:w-1/4 lg:w-1/2");
+@source inline("col-span-1 col-span-2 col-span-3 col-span-4 col-span-12");
+@source inline("sm:col-span-1 md:col-span-1 md:col-span-3 lg:col-span-1 lg:col-span-2 lg:col-span-4 xl:col-span-1");
+
+/* Flex layout — direction, wrap, basis */
+@source inline("flex flex-row flex-col flex-wrap flex-nowrap flex-row-reverse flex-auto flex-none flex-grow flex-shrink-0");
+@source inline("sm:flex-row sm:flex-col sm:flex-nowrap md:flex-row md:flex-col");
+@source inline("items-center items-start items-end items-stretch");
+@source inline("justify-center justify-start justify-end justify-between justify-around justify-self-center justify-self-end");
+@source inline("sm:justify-center sm:justify-start sm:justify-end sm:justify-between");
+@source inline("self-center self-start self-end md:self-center");
+
+/* Gap (base + responsive) */
+@source inline("gap-1 gap-2 gap-3 gap-4 gap-6 gap-8 gap-10 gap-12 gap-16 gap-20");
+@source inline("gap-x-4 gap-x-6 gap-x-8 gap-x-12 gap-x-24 gap-y-2 gap-y-4 gap-y-6 gap-y-8 gap-y-12");
+@source inline("sm:gap-4 sm:gap-6 sm:gap-8 md:gap-4 md:gap-6 md:gap-8 md:gap-12 md:gap-16 lg:gap-6 lg:gap-8");
+
+/* Padding (base + responsive — sections use these heavily) */
+@source inline("p-0 p-1 p-2 p-3 p-4 p-5 p-6 p-8");
+@source inline("px-0 px-1 px-2 px-3 px-4 px-5 px-6 px-8");
+@source inline("py-0 py-1 py-2 py-3 py-4 py-5 py-6 py-8 py-12 py-16 py-20");
+@source inline("pt-0 pt-1 pt-4 pt-8 pt-10 pt-12 pt-16 pt-20");
+@source inline("pb-0 pb-4 pb-8 pb-10 pb-12 pb-16 pb-20");
+@source inline("md:px-4 md:px-6 md:px-8 md:py-8 md:py-12 md:py-16 md:py-20 md:py-4");
+@source inline("md:pt-4 md:pt-8 md:pt-12 md:pt-16 md:pb-8 md:pb-12 md:pb-16");
+@source inline("sm:px-4 sm:px-6 sm:py-4 sm:py-8 lg:py-12 lg:py-16 lg:py-20");
+
+/* Margin (base + responsive) */
+@source inline("m-0 m-2 m-4 m-auto");
+@source inline("mx-0 mx-4 mx-5 mx-auto my-0 my-2 my-4 my-8 my-10");
+@source inline("mt-0 mt-1 mt-2 mt-3 mt-4 mt-5 mt-6 mt-8 mt-10 mt-12");
+@source inline("mb-0 mb-1 mb-2 mb-4 mb-6 mb-8 mb-10 mb-12 mb-16 mb-20");
+@source inline("md:mx-auto md:my-0 md:mb-0 md:mb-8 md:mb-10 md:mb-12 md:mt-0 md:mt-4");
+@source inline("sm:mx-0 sm:mt-0 sm:mb-0");
+
+/* Max-width — container + content */
+@source inline("max-w-xs max-w-sm max-w-md max-w-lg max-w-xl max-w-2xl max-w-3xl max-w-4xl max-w-5xl max-w-6xl max-w-7xl max-w-none max-w-full");
+@source inline("sm:max-w-md sm:max-w-lg sm:max-w-xl md:max-w-2xl md:max-w-3xl");
+
+/* Width / height */
+@source inline("w-0 w-3 w-4 w-5 w-6 w-7 w-8 w-10 w-12 w-16 w-20 w-full w-auto w-screen w-1/2 w-1/3 w-2/3");
+@source inline("sm:w-auto sm:w-full md:w-auto");
+@source inline("h-3 h-4 h-5 h-6 h-7 h-8 h-10 h-12 h-16 h-64 h-72 h-80 h-full h-auto h-screen");
+@source inline("min-w-[200px] min-w-[220px] md:min-w-[200px]");
+
+/* Text — sizes + alignment + transforms */
+@source inline("text-xs text-sm text-base text-lg text-xl text-2xl text-3xl text-4xl text-5xl text-6xl");
+@source inline("md:text-base md:text-lg md:text-xl md:text-2xl md:text-3xl md:text-4xl md:text-5xl md:text-6xl");
+@source inline("lg:text-lg lg:text-xl lg:text-2xl lg:text-3xl lg:text-4xl lg:text-5xl");
+@source inline("text-left text-center text-right rtl:text-right rtl:text-left");
+@source inline("font-light font-normal font-medium font-semibold font-bold font-extrabold font-heading");
+@source inline("tracking-tight tracking-tighter tracking-wide tracking-widest leading-tight leading-tighter leading-snug leading-normal leading-relaxed");
+@source inline("uppercase lowercase capitalize");
+
+/* Display + position */
+@source inline("block inline-block inline flex inline-flex hidden");
+@source inline("sm:block sm:hidden sm:flex sm:inline-flex md:block md:hidden md:flex");
+@source inline("relative absolute fixed sticky static");
+@source inline("inset-0 top-0 left-0 right-0 bottom-0 z-50 -z-[1]");
+
+/* Borders + radius */
+@source inline("border border-0 border-2 border-b border-t border-l border-r border-none");
+@source inline("rounded rounded-sm rounded-md rounded-lg rounded-xl rounded-2xl rounded-full rounded-b");
+
+/* ItemGrid layout variants (chapters / log) */
+@source inline("chapter-num list-none font-mono");
+
+/* Misc layout */
+@source inline("overflow-hidden overflow-visible overflow-auto");
+@source inline("pointer-events-none pointer-events-auto cursor-pointer");
+@source inline("opacity-0 opacity-50 opacity-70 opacity-100");
+@source inline("scroll-mt-[72px] scroll-mt-16 scroll-mt-20");
+@source inline("not-prose dark");
+
 @variant dark (&:where(.dark, .dark *));
 @variant intersect (&:not([no-intersect]));
 
@@ -12,6 +109,13 @@
   --color-accent: var(--aw-color-accent);
   --color-default: var(--aw-color-text-default);
   --color-muted: var(--aw-color-text-muted);
+
+  /* Semantic design tokens — consumers override these via --aw-* vars.
+   * Widget templates use these class names instead of literal color scales,
+   * so a consumer can re-skin without touching .astro files. */
+  --color-eyebrow: var(--aw-color-eyebrow, var(--aw-color-primary));
+  --color-card: var(--aw-color-bg-card, var(--aw-color-bg-page, #ffffff));
+  --color-hairline: var(--aw-color-hairline, var(--aw-color-text-muted, oklch(0.5 0 0)));
 
   --font-family-sans: var(--aw-font-sans, ui-sans-serif), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-family-serif: var(--aw-font-serif, ui-serif), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
@@ -38,8 +142,17 @@
   .text-page {
     color: var(--aw-color-text-page);
   }
-  .text-muted {
-    color: var(--aw-color-text-muted);
+
+  /* Chapter number — used by ItemGrid 'chapters' layout */
+  .chapter-num {
+    font-family: var(--aw-font-mono, ui-monospace, monospace);
+    font-size: 0.6875rem; /* 11px */
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--aw-color-eyebrow, var(--aw-color-primary));
+    line-height: 1;
+    align-self: flex-start;
+    padding-top: 0.75rem;
   }
 }
 

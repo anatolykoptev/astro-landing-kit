@@ -7,6 +7,7 @@ const {
   subtitle = await Astro.slots.render('subtitle'),
   tagline,
   classes = {},
+  align = 'center',
 } = Astro.props;
 
 const {
@@ -14,13 +15,15 @@ const {
   title: titleClass = 'text-3xl md:text-4xl ',
   subtitle: subtitleClass = 'text-xl',
 } = classes;
+
+const alignClass = align === 'left' ? 'text-left' : 'text-center mx-auto';
 ---
 
 {
   (title || subtitle || tagline) && (
-    <div class={twMerge('mb-8 md:mx-auto md:mb-12 text-center', containerClass)}>
+    <div class={twMerge(`mb-8 md:mb-12 ${alignClass}`, containerClass)}>
       {tagline && (
-        <p class="text-base text-secondary dark:text-blue-200 font-bold tracking-wide uppercase" set:html={tagline} />
+        <p class="text-base text-eyebrow font-bold tracking-wide uppercase" set:html={tagline} />
       )}
       {title && (
         <h2

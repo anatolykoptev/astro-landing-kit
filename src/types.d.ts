@@ -110,6 +110,7 @@ export interface Headline {
   subtitle?: string;
   tagline?: string;
   classes?: Record<string, string>;
+  align?: 'left' | 'center';
 }
 
 interface TeamMember {
@@ -135,7 +136,10 @@ export interface Stat {
 export interface Item {
   title?: string;
   description?: string;
-  icon?: string;
+  /** Icon name (astro-icon). Pass null to suppress icon rendering entirely. */
+  icon?: string | null;
+  /** Chapter number string rendered by 'chapters' layout (e.g. "01"). Auto-generated if omitted. */
+  chapter?: string;
   classes?: Record<string, string>;
   callToAction?: CallToAction;
   image?: Image;
@@ -194,6 +198,13 @@ export interface ItemGrid {
   columns?: number;
   defaultIcon?: string;
   classes?: Record<string, string>;
+  /**
+   * Layout variant.
+   * - 'grid'     — default card-grid with icon+text (backwards-compat)
+   * - 'chapters' — full-width editorial list, hairline rules, chapter numbers
+   * - 'log'      — monospace terminal-style dense block with › prefix
+   */
+  layout?: 'grid' | 'chapters' | 'log';
 }
 
 export interface Collapse {
@@ -217,6 +228,7 @@ export interface Hero extends Omit<Headline, 'classes'>, Omit<Widget, 'isDark' |
   content?: string;
   actions?: string | CallToAction[];
   image?: string | unknown;
+  align?: 'left' | 'center';
 }
 
 export interface Team extends Omit<Headline, 'classes'>, Widget {
@@ -225,6 +237,7 @@ export interface Team extends Omit<Headline, 'classes'>, Widget {
 
 export interface Stats extends Omit<Headline, 'classes'>, Widget {
   stats?: Array<Stat>;
+  align?: 'left' | 'center';
 }
 
 export interface Pricing extends Omit<Headline, 'classes'>, Widget {
@@ -252,6 +265,8 @@ export interface Features extends Omit<Headline, 'classes'>, Widget {
   isReversed?: boolean;
   isBeforeContent?: boolean;
   isAfterContent?: boolean;
+  layout?: 'grid' | 'chapters' | 'log';
+  align?: 'left' | 'center';
 }
 
 export interface Faqs extends Omit<Headline, 'classes'>, Widget {
@@ -266,6 +281,7 @@ export interface Steps extends Omit<Headline, 'classes'>, Widget {
   callToAction?: string | CallToAction;
   image?: string | Image;
   isReversed?: boolean;
+  align?: 'left' | 'center';
 }
 
 export interface Content extends Omit<Headline, 'classes'>, Widget {

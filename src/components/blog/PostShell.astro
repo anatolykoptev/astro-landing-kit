@@ -1,0 +1,90 @@
+---
+/**
+ * PostShell.astro — composable blog-post shell with NO opinionated styling.
+ *
+ * Renders post header (eyebrow + title + excerpt) and tag list,
+ * with a body <slot /> in between. All elements carry stable
+ * `.post-*` class names so consumer sites style via plain CSS targeting:
+ *
+ *   .post-page, .post-head, .post-eyebrow, .post-title, .post-excerpt,
+ *   .post-body, .post-foot, .post-tags
+ *
+ * Use this when you want kit's blog structure but your own visual theme
+ * (instead of kit's <SinglePost /> which ships AstroWind Tailwind prose).
+ *
+ * Example consumer usage:
+ *
+ *   ---
+ *   import PostShell from '@krolik/landing-kit/blog/PostShell';
+ *   import { getStaticPathsBlogPost } from '@krolik/landing-kit/utils/blog';
+ *   import { getFormattedDate } from '@krolik/landing-kit/utils/utils';
+ *   export const getStaticPaths = getStaticPathsBlogPost;
+ *   const { post } = Astro.props;
+ *   const { Content } = post;
+ *   ---
+ *   <PostShell post={post} backHref="/writing" backLabel="← Writing">
+ *     <Content />
+ *   </PostShell>
+ *
+ * Styling lives in the consumer site's CSS, not here.
+ */
+
+import { getFormattedDate } from '~/utils/utils';
+import type { Post } from '~/types';
+
+export interface Props {
+  post: Post;
+  backHref?: string;
+  backLabel?: string;
+  showAuthor?: boolean;
+  showTags?: boolean;
+}
+
+const {
+  post,
+  backHref,
+  backLabel = '← All posts',
+  showAuthor = false,
+  showTags = true,
+} = Astro.props;
+---
+
+<article class="post-page">
+  <header class="post-head">
+    <p class="post-eyebrow">
+      {backHref && (
+        <a href={backHref} class="post-back">{backLabel}</a>
+      )}
+      {backHref && post.publishDate && <span class="post-sep">·</span>}
+      {post.publishDate && (
+        <time datetime={post.publishDate.toISOString()}>
+          {getFormattedDate(post.publishDate)}
+        </time>
+      )}
+      {showAuthor && post.author && (
+        <Fragment>
+          <span class="post-sep">·</span>
+          <span class="post-author">{post.author}</span>
+        </Fragment>
+      )}
+    </p>
+
+    <h1 class="post-title">{post.title}</h1>
+
+    {post.excerpt && <p class="post-excerpt">{post.excerpt}</p>}
+  </header>
+
+  <div class="post-body">
+    <slot />
+  </div>
+
+  {showTags && post.tags && post.tags.length > 0 && (
+    <footer class="post-foot">
+      <ul class="post-tags">
+        {post.tags.map((tag: { slug: string; title: string } | string) => (
+          <li>{typeof tag === 'string' ? tag : tag.title}</li>
+        ))}
+      </ul>
+    </footer>
+  )}
+</article>

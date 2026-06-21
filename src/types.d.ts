@@ -205,6 +205,11 @@ export interface ItemGrid {
    * - 'log'      — monospace terminal-style dense block with › prefix
    */
   layout?: 'grid' | 'chapters' | 'log';
+  /**
+   * Separator rendered between title and description in the 'log' layout.
+   * Defaults to ' · ' (space-middot-space, em-dash-free).
+   */
+  descriptionSeparator?: string;
 }
 
 export interface Collapse {

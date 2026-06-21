@@ -4,7 +4,7 @@ import { twMerge } from 'tailwind-merge';
 import Button from './Button.astro';
 import { Icon } from 'astro-icon/components';
 
-const { items = [], columns, defaultIcon = '', classes = {}, layout = 'grid' } = Astro.props;
+const { items = [], columns, defaultIcon = '', classes = {}, layout = 'grid', descriptionSeparator = ' · ' } = Astro.props;
 
 const {
   container: containerClass = '',
@@ -131,7 +131,7 @@ const {
                 {description && (
                   <span
                     class={twMerge('text-muted ml-2', descriptionClass, itemClasses?.description)}
-                    set:html={` — ${description}`}
+                    set:html={`${descriptionSeparator}${description}`}
                   />
                 )}
                 {callToAction && (

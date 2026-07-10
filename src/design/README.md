@@ -16,7 +16,7 @@ Parses a structured `DESIGN.md` (awesome-design-md format) and generates Tailwin
 
 ```ts
 // design/index.ts
-export function parseDesignMd(content: string): DesignTokens
+export function parseDesignMd(content: string, sourcePath?: string): DesignTokens
 export function generateThemeCss(tokens: DesignTokens): string
 export function generateDarkModeOverrides(tokens: DesignTokens): string
 export function generatePm7Overrides(tokens: DesignTokens): string
@@ -43,6 +43,23 @@ export default defineConfig({
   integrations: [designMdIntegration({ designMdPath: './DESIGN.md' })],
 });
 ```
+
+## Color bullet format
+
+Section 2 (`## 2. Colors`) bullets look like `* **Name** (VALUE) — role`. `VALUE` accepts
+a 6-digit hex code (`#RRGGBB`) or a single-level `oklch(...)`/`rgb(...)`/`rgba(...)`/
+`hsl(...)`/`hsla(...)` function call — value-format tolerance only, the bullet/section
+structure itself is unchanged.
+
+## Failure behavior
+
+A `DESIGN.md` that parses to **zero colors** — wrong heading, wrong bullet format, or an
+unsupported document structure (e.g. a token table instead of bullets) — is a loud,
+thrown error naming the source file, not a silent fallback. This applies both to
+`parseDesignMd()` directly and to the Astro integration (`designMdIntegration`), which no
+longer catches-and-warns on a parse failure: a build with a broken `DESIGN.md` fails
+instead of shipping an unthemed site with no signal. A **missing** `DESIGN.md` is not an
+error — the integration falls back to the default theme and logs an info line.
 
 ## Dependencies
 

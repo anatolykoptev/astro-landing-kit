@@ -28,7 +28,13 @@ export interface TypographyToken {
 
 const WEIGHT_RE = /Weight\s+(\d+)/;
 
-export function parseDesignMd(content: string): DesignTokens {
+// Accepts a hex code, or a single-level color function call (oklch/rgb/rgba/hsl/hsla)
+// as the color VALUE inside a "* **Name** (VALUE) — role" bullet. Value-format
+// tolerance only — the surrounding bullet/section structure is unchanged.
+const COLOR_LINE_RE =
+  /\*\s+\*\*(.+?)\*\*\s+\((#[0-9A-Fa-f]{6}|(?:oklch|rgb|rgba|hsl|hsla)\([^()]*\))\)\s*—\s*(.+)/;
+
+export function parseDesignMd(content: string, sourcePath?: string): DesignTokens {
   const name = content.match(/^#\s+Design System:\s*(.+)/m)?.[1]?.trim() ?? 'Unknown';
 
   const density = parseInt(content.match(/Density:\s*(\d+)/)?.[1] ?? '5');
@@ -38,10 +44,18 @@ export function parseDesignMd(content: string): DesignTokens {
   const colors: ColorToken[] = [];
   const colorSection = extractSection(content, '2');
   for (const line of colorSection.split('\n')) {
-    const match = line.match(/\*\s+\*\*(.+?)\*\*\s+\((#[0-9A-Fa-f]{6})\)\s*—\s*(.+)/);
+    const match = line.match(COLOR_LINE_RE);
     if (match) {
       colors.push({ name: match[1], hex: match[2], role: match[3].trim() });
     }
+  }
+
+  if (colors.length === 0) {
+    throw new Error(
+      `parseDesignMd: no colors found in ${sourcePath ?? 'DESIGN.md'} — expected a ` +
+        '"## 2. Colors" section with bullets like "* **Name** (#RRGGBB) — role" ' +
+        '(hex, oklch(...), rgb(...), or hsl(...) values are accepted).',
+    );
   }
 
   const typography: TypographyToken[] = [];

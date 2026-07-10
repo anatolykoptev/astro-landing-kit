@@ -22,20 +22,19 @@ export default function designMdIntegration(options: DesignIntegrationOptions = 
 
         let themeCss = '/* No DESIGN.md found */';
 
-        try {
-          if (fs.existsSync(designMdPath)) {
-            const content = fs.readFileSync(designMdPath, 'utf-8');
-            const tokens = parseDesignMd(content);
-            const theme = generateThemeCss(tokens);
-            const dark = generateDarkModeOverrides(tokens);
-            themeCss = theme + (dark ? '\n' + dark : '');
-            buildLogger.info(`Applied design: ${tokens.name} (${tokens.colors.length} colors)`);
-            addWatchFile(new URL(designMdPath, config.root));
-          } else {
-            buildLogger.info('No DESIGN.md found — using default theme');
-          }
-        } catch (err) {
-          buildLogger.warn(`Failed to parse DESIGN.md: ${err}`);
+        // No try/catch here on purpose: a DESIGN.md that exists but fails to parse
+        // (e.g. zero colors) must fail the build loudly — see src/design/README.md —
+        // not get swallowed into a silently-unthemed site.
+        if (fs.existsSync(designMdPath)) {
+          const content = fs.readFileSync(designMdPath, 'utf-8');
+          const tokens = parseDesignMd(content, designMdPath);
+          const theme = generateThemeCss(tokens);
+          const dark = generateDarkModeOverrides(tokens);
+          themeCss = theme + (dark ? '\n' + dark : '');
+          buildLogger.info(`Applied design: ${tokens.name} (${tokens.colors.length} colors)`);
+          addWatchFile(new URL(designMdPath, config.root));
+        } else {
+          buildLogger.info('No DESIGN.md found — using default theme');
         }
 
         updateConfig({

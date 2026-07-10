@@ -1,4 +1,5 @@
 ---
+import '~/design/theme-layers.css';
 import '~/assets/styles/tailwind.css';
 
 import { I18N } from 'astrowind:config';
@@ -32,9 +33,12 @@ const { language, textDirection } = I18N;
     <CommonMeta />
     <Favicons />
     <CustomStyles />
-    <!-- DesignTheme MUST stay directly after CustomStyles: it injects the DESIGN.md
-         --aw-color-* overrides, which win over the CustomStyles defaults by cascade
-         order. No-op (renders nothing) unless the design integration is mounted. -->
+    <!-- HIGH-2 fix: DesignTheme no longer depends on rendering after CustomStyles for
+         correctness — theme-layers.css (imported above, first) pins DESIGN.md's cascade
+         layer above CustomStyles' regardless of DOM order, so a future reorder here
+         can't silently revert a branded consumer to the kit's teal defaults. Kept after
+         CustomStyles for readability only. No-op unless the design integration is
+         mounted. -->
     <DesignTheme />
     <ApplyColorMode />
     <Metadata {...metadata} />

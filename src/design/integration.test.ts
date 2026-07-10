@@ -2,14 +2,16 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import designMdIntegration from './integration';
+import designMdIntegration, { DESIGN_THEME_LAYER } from './integration';
 
 function makeHookContext(rootDir: string) {
+  const buildLogger = { info: vi.fn(), warn: vi.fn() };
   return {
     config: { root: new URL(`file://${rootDir}/`) },
     updateConfig: vi.fn(),
     addWatchFile: vi.fn(),
-    logger: { fork: () => ({ info: vi.fn(), warn: vi.fn() }) },
+    logger: { fork: () => buildLogger },
+    buildLogger,
   };
 }
 
@@ -82,6 +84,70 @@ describe('designMdIntegration', () => {
     expect(mod).toContain('--aw-color-primary');
     expect(mod).toContain('oklch(0.55 0.22 300)');
     expect(mod).not.toContain('@theme');
+  });
+
+  // HIGH-1 regression: the generated CSS must be wrapped in the highest-priority named
+  // layer so it always wins over CustomStyles defaults AND an optionally-imported
+  // theme.css, regardless of head/DOM order.
+  it('wraps the generated theme in the landing-kit-design-theme cascade layer', () => {
+    const { dir, designMdPath } = tmpDesign(
+      '# Design System: Proof\n\n## 2. Colors\n\n* **Primary** (#7C3AED) — Primary brand color\n'
+    );
+    const setup = getSetupHook(designMdIntegration({ designMd: designMdPath }));
+    const ctx = makeHookContext(dir);
+
+    setup(ctx as any);
+    const mod = loadThemeSource(ctx);
+
+    expect(DESIGN_THEME_LAYER).toBe('landing-kit-design-theme');
+    expect(mod).toContain(`@layer ${DESIGN_THEME_LAYER} {`);
+    expect(mod).toContain('--aw-color-primary: #7C3AED;');
+  });
+
+  // CRITICAL regression: a bad (but hex-verifiable) surface/text pairing must warn, not
+  // ship silently.
+  it('logs a WCAG contrast warning for a low-contrast hex surface/text pairing', () => {
+    const { dir, designMdPath } = tmpDesign(
+      '# Design System: LowContrast\n\n## 2. Colors\n\n' +
+        '* **Primary** (#7C3AED) — Primary brand color\n' +
+        '* **Gray1** (#777777) — Surface background\n' +
+        '* **Gray2** (#888888) — Body text foreground\n'
+    );
+    const setup = getSetupHook(designMdIntegration({ designMd: designMdPath }));
+    const ctx = makeHookContext(dir);
+
+    setup(ctx as any);
+
+    expect(ctx.buildLogger.warn).toHaveBeenCalledWith(expect.stringMatching(/WCAG AA/));
+  });
+
+  // CRITICAL regression: a non-hex pairing must be reported as unverifiable, never as a
+  // silent pass.
+  it('logs an unverifiable-contrast note (not a silent pass) for a non-hex surface/text pairing', () => {
+    const { dir, designMdPath } = tmpDesign(
+      '# Design System: Oklch\n\n## 2. Colors\n\n' +
+        '* **Primary** (oklch(0.55 0.22 300)) — Primary brand color\n' +
+        '* **Surface** (oklch(0.2 0 0)) — Surface background\n' +
+        '* **Ink** (oklch(0.22 0 0)) — Body text foreground\n'
+    );
+    const setup = getSetupHook(designMdIntegration({ designMd: designMdPath }));
+    const ctx = makeHookContext(dir);
+
+    setup(ctx as any);
+
+    expect(ctx.buildLogger.warn).toHaveBeenCalledWith(expect.stringMatching(/[Cc]ould not verify contrast/));
+  });
+
+  it('does not warn about contrast when no paired surface/text override happens', () => {
+    const { dir, designMdPath } = tmpDesign(
+      '# Design System: PrimaryOnly\n\n## 2. Colors\n\n* **Primary** (#7C3AED) — Primary brand color\n'
+    );
+    const setup = getSetupHook(designMdIntegration({ designMd: designMdPath }));
+    const ctx = makeHookContext(dir);
+
+    setup(ctx as any);
+
+    expect(ctx.buildLogger.warn).not.toHaveBeenCalled();
   });
 
   it('leaves the theme-source export empty when there is no DESIGN.md (backward-compatible default)', () => {

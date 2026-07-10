@@ -4,10 +4,11 @@
  *
  * `designThemeCss` is empty by default (src/design/theme-source.ts); the design
  * integration (src/design/integration.ts) fills it at build time when a DESIGN.md is
- * present. This component MUST render immediately after <CustomStyles /> in Layout.astro
- * so its `--aw-color-*` overrides win by cascade order (CustomStyles defaults first,
- * DESIGN.md overrides after). When the integration is not mounted, `designThemeCss` is
- * '' and nothing is emitted.
+ * present, already wrapped in the `landing-kit-design-theme` cascade layer — the
+ * highest-priority layer declared by src/design/theme-layers.css. That layer priority
+ * (not render/DOM order) is what guarantees this always wins over CustomStyles.astro's
+ * defaults and an optionally-imported theme.css. When the integration is not mounted,
+ * `designThemeCss` is '' and nothing is emitted.
  */
 import { designThemeCss } from '~/design/theme-source';
 ---

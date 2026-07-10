@@ -201,6 +201,12 @@
   .btn-primary:hover {
     background-color: var(--aw-color-secondary);
     border-color: var(--aw-color-secondary);
+    /* HIGH-3 fix: a DESIGN.md with only a Primary color makes --aw-color-secondary
+     * fall back to --aw-color-primary (theme-generator.ts), so background-color/
+     * border-color above become a no-op on hover. filter works on the rendered pixels,
+     * not the CSS color value, so it gives visible feedback regardless of whether
+     * secondary differs from primary AND regardless of color format (hex/oklch/rgb). */
+    filter: brightness(0.92);
   }
 
   .btn-secondary {

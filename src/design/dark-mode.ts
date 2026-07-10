@@ -3,7 +3,8 @@
  * DesignTokens color roles. Emitted alongside generateThemeCss()'s :root block and
  * injected after CustomStyles.astro, so it overrides the kit's own `.dark` defaults.
  */
-import type { DesignTokens, ColorToken } from './parser';
+import type { DesignTokens } from './parser';
+import { classifyColorRoles } from './color-roles';
 
 /**
  * Parse a `#rgb` / `#rrggbb` hex into HSL. Returns `null` for any NON-hex value
@@ -61,13 +62,10 @@ function isDarkDesign(tokens: DesignTokens): boolean {
 export function generateSmartDarkMode(tokens: DesignTokens): string {
   if (tokens.colors.length < 2) return '';
 
-  const surfaces: ColorToken[] = [];
-  const texts: ColorToken[] = [];
-  for (const c of tokens.colors) {
-    const role = c.role.toLowerCase();
-    if (/surface|background|cream|parchment|light|white|warm/.test(role)) surfaces.push(c);
-    else if (/text|foreground|dark|deep|forest|body/.test(role)) texts.push(c);
-  }
+  // MEDIUM fix: surface/text classification now comes from the ONE shared classifier
+  // (color-roles.ts) instead of a second, slightly divergent regex set kept in sync by
+  // hand with theme-generator.ts's.
+  const { surfaces, texts } = classifyColorRoles(tokens.colors);
 
   if (surfaces.length === 0 || texts.length === 0) {
     return '/* Auto dark mode skipped — DESIGN.md needs both a surface-role and a text-role color to swap; override .dark manually */';

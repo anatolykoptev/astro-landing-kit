@@ -2,13 +2,24 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { AstroIntegration } from 'astro';
 import { parseDesignMd } from './parser';
-import { generateThemeCss } from './theme-generator';
+import { generateThemeCss, checkThemeContrast } from './theme-generator';
 import { generateSmartDarkMode } from './dark-mode';
 
 export interface DesignIntegrationOptions {
   /** Path to DESIGN.md, resolved relative to the Astro project root. Default: `./DESIGN.md`. */
   designMd?: string;
 }
+
+/**
+ * HIGH-1 fix: the highest-priority named cascade layer in the 3-tier `--aw-color-*`
+ * precedence chain declared by src/design/theme-layers.css:
+ *   landing-kit-defaults (CustomStyles.astro) < landing-kit-theme-starter (theme.css)
+ *   < landing-kit-design-theme (this integration).
+ * Cascade-layer priority is independent of DOM/import order, so DESIGN.md wins
+ * regardless of where a consumer happens to `@import` theme.css or render
+ * <CustomStyles />/<DesignTheme /> — see src/design/README.md "Precedence".
+ */
+export const DESIGN_THEME_LAYER = 'landing-kit-design-theme';
 
 /**
  * Matches the always-resolvable fallback module `src/design/theme-source.ts` that
@@ -22,13 +33,15 @@ function isThemeSourceModule(id: string): boolean {
 }
 
 /**
- * DESIGN.md → theme integration (the ONE canonical apply path).
+ * DESIGN.md → theme integration (the ONE canonical GENERATION path — see
+ * src/design/README.md "Precedence" for the full 3-source picture including theme.css).
  *
  * Opt-in: a consumer adds `designMdIntegration()` to their `astro.config` integrations.
  * When mounted with a DESIGN.md present, it parses the file and overrides the
- * `designThemeCss` export of `theme-source.ts`; <DesignTheme /> (rendered right after
- * <CustomStyles /> in Layout.astro) injects that CSS as an inline <style>, so the
- * DESIGN.md `--aw-color-*` values override the CustomStyles defaults by cascade order.
+ * `designThemeCss` export of `theme-source.ts`, wrapped in the `landing-kit-design-theme`
+ * cascade layer (see DESIGN_THEME_LAYER); <DesignTheme /> injects that CSS as an inline
+ * <style>. Because it's the highest-priority named layer, it wins over CustomStyles
+ * defaults AND an optionally-imported theme.css regardless of render/import order.
  *
  * When NOT mounted, `theme-source.ts` keeps its `export const designThemeCss = ''`,
  * <DesignTheme /> injects nothing, and the site renders exactly the CustomStyles
@@ -54,8 +67,32 @@ export default function designMdIntegration(options: DesignIntegrationOptions = 
           const tokens = parseDesignMd(content, designMdPath);
           const theme = generateThemeCss(tokens);
           const dark = generateSmartDarkMode(tokens);
-          themeCss = theme + (dark ? '\n' + dark : '') + '\n';
+          const combined = theme + (dark ? '\n' + dark : '');
+          // HIGH-1 fix: wrap in the highest-priority named layer so this ALWAYS wins
+          // over CustomStyles defaults and an optionally-imported theme.css, regardless
+          // of head/DOM order — see DESIGN_THEME_LAYER above.
+          themeCss = `@layer ${DESIGN_THEME_LAYER} {\n${combined}\n}\n`;
           buildLogger.info(`Applied design "${tokens.name}" (${tokens.colors.length} colors) → --aw-color-* overrides`);
+
+          // CRITICAL fix: build-time WCAG contrast warning for the paired bg/text
+          // override (see theme-generator.ts checkThemeContrast). Warn, don't fail the
+          // build — a bad but intentional pairing is the author's call, but it must not
+          // be silent.
+          const contrast = checkThemeContrast(tokens);
+          if (contrast) {
+            if (contrast.ratio === null) {
+              buildLogger.warn(
+                `Could not verify contrast for --aw-color-bg-page (${contrast.bg}) vs ` +
+                  `--aw-color-text-default (${contrast.text}) — non-hex/rgb value; check manually.`
+              );
+            } else if (!contrast.meetsAA) {
+              buildLogger.warn(
+                `--aw-color-bg-page (${contrast.bg}) vs --aw-color-text-default (${contrast.text}) ` +
+                  `is ${contrast.ratio.toFixed(2)}:1 — below WCAG AA's 4.5:1 for body text.`
+              );
+            }
+          }
+
           addWatchFile(designMdPath);
         } else {
           buildLogger.info(`No DESIGN.md at ${designMdRel} — using kit defaults (CustomStyles.astro)`);

@@ -1,0 +1,56 @@
+# Automated releases via release-please.
+#
+# Flow (no manual version/tag steps):
+#   1. Land conventional commits on `master` (feat:/fix:/perf:/docs:/... — breaking
+#      via `!` or a `BREAKING CHANGE:` footer — this repo's history already uses
+#      conventional-commit prefixes).
+#   2. release-please opens/updates a "chore(master): release X.Y.Z" PR that bumps
+#      package.json + prepends CHANGELOG.md from those commits.
+#   3. Merging that PR creates the `vX.Y.Z` tag + GitHub Release.
+#
+# Single package (@krolik/landing-kit) → plain vX.Y.Z tags
+# (include-component-in-tag:false), same shape as oxpulse-sfu-kit's config.
+#
+# Versioning: 0.x pre-1.0 (bump-minor-pre-major + bump-patch-for-minor-pre-major) —
+# feat/fix bump PATCH, a breaking change bumps MINOR. Do NOT `git tag` by hand:
+# a manual tag desyncs .release-please-manifest.json.
+#
+# NO publish job: this package is consumed via a pinned git dependency
+# (github:anatolykoptev/landing-kit#<sha>) by every consumer, not npm. This
+# workflow only manages version + changelog + git tag + release PR — once it
+# lands, consumers can pin a semver TAG instead of a raw commit SHA.
+#
+# Bootstrap note: no vX.Y.Z tags exist yet on this repo (history uses
+# conventional-commit messages but was never formally tagged/released). The
+# FIRST release-please run has no prior tag to diff from, so its first release
+# PR's CHANGELOG.md will summarize the full existing feat/fix history as the
+# initial entry — expected one-time bootstrap noise, not a bug. Every run after
+# that first merge is incremental only.
+#
+# Runner: self-hosted per fleet CI rule (GitHub-hosted Actions are paid, never
+# used fleet-wide) — runs on the krolik self-hosted runner once one is
+# registered for this repo. NONE is registered yet as of this workflow's
+# creation (0 runners on the repo at setup time) — flagged in the
+# release-please-setup audit report. NOTE: this repo's pre-existing
+# actions.yaml CI also runs on ubuntu-latest today — a pre-existing gap, out of
+# scope for this PR.
+
+name: release-please
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: [self-hosted, krolik]
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

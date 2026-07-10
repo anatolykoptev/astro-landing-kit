@@ -12,6 +12,7 @@ import tailwindcss from '@tailwindcss/vite';
 import type { AstroIntegration } from 'astro';
 
 import astrowind from './vendor/integration';
+import designMdIntegration from './src/design/integration';
 
 import { readingTimeRemarkPlugin, responsiveTablesRehypePlugin, lazyImagesRehypePlugin } from './src/utils/frontmatter';
 
@@ -26,6 +27,10 @@ export default defineConfig({
 
   integrations: [
     svelte(),
+    // DESIGN.md → --aw-color-* theme pipeline (opt-in per consumer; here the kit
+    // dogfoods its own pipeline). No DESIGN.md at the project root → no-op, kit renders
+    // the CustomStyles.astro defaults.
+    designMdIntegration(),
     sitemap(),
     mdx(),
     icon({

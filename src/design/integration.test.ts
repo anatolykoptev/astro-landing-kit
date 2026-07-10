@@ -19,7 +19,18 @@ function getSetupHook(integration: ReturnType<typeof designMdIntegration>) {
   return hook;
 }
 
-describe('designMdIntegration — zero colors must fail the build, not warn-and-continue', () => {
+// Pull the design-theme Vite plugin the integration registered via updateConfig,
+// and run its `load` hook against the theme-source module id — this is the exact path
+// <DesignTheme /> resolves at build time.
+function loadThemeSource(ctx: ReturnType<typeof makeHookContext>): string | undefined {
+  const call = (ctx.updateConfig.mock.calls as any[]).find((c) => c[0]?.vite?.plugins?.length);
+  if (!call) throw new Error('integration did not register a vite plugin');
+  const plugin = call[0].vite.plugins[0];
+  const out = plugin.load('/anywhere/src/design/theme-source.ts');
+  return typeof out === 'string' ? out : undefined;
+}
+
+describe('designMdIntegration', () => {
   const tmpDirs: string[] = [];
 
   afterEach(() => {
@@ -28,28 +39,73 @@ describe('designMdIntegration — zero colors must fail the build, not warn-and-
     }
   });
 
-  it('throws instead of silently falling back to the default theme when DESIGN.md has no colors', () => {
+  function tmpDesign(contents: string): { dir: string; designMdPath: string } {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'landing-kit-design-'));
     tmpDirs.push(dir);
     const designMdPath = path.join(dir, 'DESIGN.md');
-    fs.writeFileSync(designMdPath, '# Design System: Empty\n\n## 2. Colors\n\nno bullets here\n');
+    if (contents) fs.writeFileSync(designMdPath, contents);
+    return { dir, designMdPath };
+  }
 
-    const integration = designMdIntegration({ designMd: designMdPath });
-    const ctx = makeHookContext(dir);
-    const setup = getSetupHook(integration);
+  it('throws instead of silently falling back to the default theme when DESIGN.md has no colors', () => {
+    const { dir, designMdPath } = tmpDesign('# Design System: Empty\n\n## 2. Colors\n\nno bullets here\n');
+    const setup = getSetupHook(designMdIntegration({ designMd: designMdPath }));
 
-    expect(() => setup(ctx as any)).toThrow(/DESIGN\.md/);
+    expect(() => setup(makeHookContext(dir) as any)).toThrow(/DESIGN\.md/);
   });
 
   it('still falls back quietly when no DESIGN.md exists at all (not a format error)', () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'landing-kit-design-'));
-    tmpDirs.push(dir);
-    const designMdPath = path.join(dir, 'DESIGN.md');
+    const { dir, designMdPath } = tmpDesign('');
+    const setup = getSetupHook(designMdIntegration({ designMd: designMdPath }));
 
-    const integration = designMdIntegration({ designMd: designMdPath });
+    expect(() => setup(makeHookContext(dir) as any)).not.toThrow();
+  });
+
+  // BUG-3 regression: the successful parse → generate → virtual-module-load branch was
+  // never exercised, so the pipeline could be dead end-to-end and still show green.
+  it('exposes generated --aw-color-* overrides via the theme-source module for a valid DESIGN.md', () => {
+    const { dir, designMdPath } = tmpDesign(
+      '# Design System: Proof\n\n## 2. Colors\n\n' +
+        '* **Primary** (oklch(0.55 0.22 300)) — Primary brand color\n' +
+        '* **Surface** (oklch(0.98 0.01 300)) — Background surface\n'
+    );
+    const setup = getSetupHook(designMdIntegration({ designMd: designMdPath }));
     const ctx = makeHookContext(dir);
-    const setup = getSetupHook(integration);
 
-    expect(() => setup(ctx as any)).not.toThrow();
+    setup(ctx as any);
+    const mod = loadThemeSource(ctx);
+
+    expect(mod).toBeTruthy();
+    expect(mod).toContain('designThemeCss');
+    // The distinctive DESIGN.md accent reaches the var widgets read (--aw-color-primary),
+    // NOT the pre-fix Tailwind name (--color-primary / @theme) nothing reads.
+    expect(mod).toContain('--aw-color-primary');
+    expect(mod).toContain('oklch(0.55 0.22 300)');
+    expect(mod).not.toContain('@theme');
+  });
+
+  it('leaves the theme-source export empty when there is no DESIGN.md (backward-compatible default)', () => {
+    const { dir, designMdPath } = tmpDesign('');
+    const setup = getSetupHook(designMdIntegration({ designMd: designMdPath }));
+    const ctx = makeHookContext(dir);
+
+    setup(ctx as any);
+    const mod = loadThemeSource(ctx);
+
+    // Plugin still registered, but the generated CSS is empty → <DesignTheme /> injects nothing.
+    expect(mod).toContain('designThemeCss = ""');
+    expect(mod).not.toContain('--aw-color-');
+  });
+
+  it('does not intercept unrelated module ids', () => {
+    const { dir, designMdPath } = tmpDesign('');
+    const setup = getSetupHook(designMdIntegration({ designMd: designMdPath }));
+    const ctx = makeHookContext(dir);
+
+    setup(ctx as any);
+    const call = (ctx.updateConfig.mock.calls as any[]).find((c) => c[0]?.vite?.plugins?.length);
+    const plugin = call[0].vite.plugins[0];
+
+    expect(plugin.load('/anywhere/src/components/Hero.astro')).toBeUndefined();
   });
 });

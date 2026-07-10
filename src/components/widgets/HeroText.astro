@@ -26,7 +26,11 @@ const {
 
 const isLeft = align === 'left';
 const headlineAlign = isLeft ? 'text-left' : 'text-center mx-auto';
-const actionsAlign = isLeft ? 'sm:justify-start' : 'sm:justify-center';
+// Actions honor `align` — see Hero.astro. No unconditional m-auto/clamp that
+// fights a left-aligned CTA row.
+const actionsClass = isLeft
+  ? 'flex flex-col sm:flex-row gap-4 sm:justify-start'
+  : 'flex flex-col sm:flex-row gap-4 sm:justify-center mx-auto max-w-xs sm:max-w-none';
 const fadeIn = animate ? 'intersect-once motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade' : '';
 ---
 
@@ -61,9 +65,7 @@ const fadeIn = animate ? 'intersect-once motion-safe:md:opacity-0 motion-safe:md
               />
             )
           }
-          <div
-            class:list={['max-w-xs sm:max-w-md m-auto flex flex-nowrap flex-col sm:flex-row gap-4', actionsAlign, fadeIn]}
-          >
+          <div class:list={[actionsClass, fadeIn]}>
             {
               callToAction && (
                 <div class="flex w-full sm:w-auto">

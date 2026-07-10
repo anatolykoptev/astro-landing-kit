@@ -248,11 +248,13 @@ export interface Stats extends Omit<Headline, 'classes'>, Widget {
 
 export interface Pricing extends Omit<Headline, 'classes'>, Widget {
   prices?: Array<Price>;
+  animate?: boolean;
 }
 
 export interface Testimonials extends Omit<Headline, 'classes'>, Widget {
   testimonials?: Array<Testimonial>;
   callToAction?: CallToAction;
+  animate?: boolean;
 }
 
 export interface Brands extends Omit<Headline, 'classes'>, Widget {
@@ -278,6 +280,7 @@ export interface Features extends Omit<Headline, 'classes'>, Widget {
 export interface Faqs extends Omit<Headline, 'classes'>, Widget {
   iconUp?: string;
   iconDown?: string;
+  defaultIcon?: string;
   items?: Array<Item>;
   columns?: number;
 }
@@ -288,6 +291,7 @@ export interface Steps extends Omit<Headline, 'classes'>, Widget {
   image?: string | Image;
   isReversed?: boolean;
   align?: 'left' | 'center';
+  animate?: boolean;
 }
 
 export interface Content extends Omit<Headline, 'classes'>, Widget {

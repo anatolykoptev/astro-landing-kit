@@ -34,7 +34,11 @@ const animateClasses = animate
   <div
     class:list={[
       twMerge(
-        `relative mx-auto max-w-7xl px-4 md:px-6 py-12 md:py-16 lg:py-20 text-default ${animateClasses}`,
+        // `aw-section` supplies the default vertical rhythm (see tailwind.css):
+        // symmetric py that collapses its doubled top gap when sections stack.
+        // A consumer's `containerClass` py-*/pt-* utility still wins (utilities
+        // layer > components layer), keeping the override path intact.
+        `relative mx-auto max-w-7xl px-4 md:px-6 aw-section text-default ${animateClasses}`,
         containerClass
       ),
       { dark: isDark },

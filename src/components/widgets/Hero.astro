@@ -22,7 +22,13 @@ const {
 
 const isLeft = align === 'left';
 const headlineAlign = isLeft ? 'text-left' : 'text-center mx-auto';
-const actionsAlign = isLeft ? 'flex-col sm:flex-row sm:justify-start' : 'flex-col sm:flex-row sm:justify-center';
+// Actions must honor `align`: left-aligned heroes keep the CTA row flush under
+// the lede (no auto-centering, no artificial width clamp); centered heroes stay
+// centered. On mobile a narrow clamp keeps stacked buttons from stretching edge
+// to edge, but it must not apply once the row is a horizontal flex on ≥sm.
+const actionsClass = isLeft
+  ? 'flex flex-col sm:flex-row gap-4 sm:justify-start'
+  : 'flex flex-col sm:flex-row gap-4 sm:justify-center mx-auto max-w-xs sm:max-w-none';
 const fadeIn = animate ? 'intersect-once motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade' : '';
 ---
 
@@ -63,7 +69,7 @@ const fadeIn = animate ? 'intersect-once motion-safe:md:opacity-0 motion-safe:md
           }
           {
             actions && (
-              <div class:list={['max-w-xs sm:max-w-md m-auto flex flex-nowrap gap-4', actionsAlign, fadeIn]}>
+              <div class:list={[actionsClass, fadeIn]}>
                 {Array.isArray(actions) ? (
                   actions.map((action) => (
                     <div class="flex w-full sm:w-auto">

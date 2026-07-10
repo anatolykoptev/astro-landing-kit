@@ -22,14 +22,14 @@
   --aw-font-serif: 'Inter Variable', ui-serif, Georgia, serif;
   --aw-font-heading: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 
-  /* Text colors */
-  --aw-color-text-heading: rgb(0 0 0);
+  /* Text colors — near-black, not pure #000, to soften the default render */
+  --aw-color-text-heading: oklch(0.22 0 0);
   --aw-color-text-default: rgb(16 16 16);
   --aw-color-text-muted: rgb(16 16 16 / 66%);
   --aw-color-text-page: rgb(16 16 16);
 
-  /* Backgrounds */
-  --aw-color-bg-page: rgb(255 255 255);
+  /* Backgrounds — near-white, not pure #fff */
+  --aw-color-bg-page: oklch(0.99 0 0);
   --aw-color-bg-page-dark: rgb(3 6 32);
 }
 

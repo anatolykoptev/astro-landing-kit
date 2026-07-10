@@ -141,37 +141,25 @@
 }
 
 /* =====================================================================
- * Canonical spacing system — 8-point grid (4px base), 11 named steps.
+ * Canonical section rhythm — one token, 8-point-grid-aligned.
  *
- * The industry-standard 8pt scale (Apple HIG / Material 8dp): every gap is a
- * multiple of 4/8px, so vertical rhythm reads deliberate at any size. These
- * are plain CSS custom properties (not a Tailwind utility namespace) so kit
- * CSS can `var()` them and consumers can override any step in their own
- * unlayered `:root` (later same-specificity wins). They map 1:1 onto Tailwind's
- * native spacing utilities (which are the SAME 4px grid), documented in
- * ./README.md — e.g. --space-6 == gap-8/p-8 == 32px.
+ * Widgets already sit on Tailwind's native 4px-base spacing scale via its
+ * utilities (gap-8, mb-12, p-6, …) — that IS the 8pt grid (Tailwind's default
+ * --spacing unit is 0.25rem/4px), so no separate --space-* custom-property
+ * scale is declared here: nothing in this kit reads one, and shipping unused
+ * tokens invites a consumer to "override" a value nothing consumes. See
+ * ./README.md for the Tailwind-equivalence reference table.
  *
- * Tokens are unlayered on purpose: a consumer's `:root { --section-y: … }`
- * override must win over this base without fighting @layer ordering.
- * ===================================================================== */
+ * --section-y is the one REAL, wired knob: WidgetWrapper's `.aw-section` and
+ * the heroes (Hero/HeroText/Hero2) both read it, so overriding it in a
+ * consumer's unlayered :root re-tempos the whole page's vertical rhythm.
+ * Floor keeps phones from crowding; ceiling caps the desktop gap; the 10vw
+ * ramp is tuned so the tablet band (~560-1040px viewport) doesn't dip below
+ * the old flat desktop value on the way up (see README "Tablet band" note).
+ * Unlayered on purpose: a consumer override must win over this base without
+ * fighting @layer ordering. */
 :root {
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
-  --space-7: 48px;
-  --space-8: 64px;
-  --space-9: 80px;
-  --space-10: 96px;
-  --space-11: 128px;
-
-  /* Section vertical rhythm — ONE clamp drives section padding at every
-   * breakpoint (replaces the old ad-hoc py-12/md:py-16/lg:py-20). Floor keeps
-   * the phone-width band from crowding; ceiling caps the desktop gap. Tune
-   * this single token to re-tempo the whole page. */
-  --section-y: clamp(56px, 8vw, 104px);
+  --section-y: clamp(56px, 10vw, 104px);
 }
 
 @layer utilities {

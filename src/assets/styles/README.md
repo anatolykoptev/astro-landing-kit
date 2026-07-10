@@ -58,59 +58,72 @@ No JS API. CSS import only.
 | `--aw-font-sans` | Sans-serif font stack |
 | `--aw-font-serif` | Serif font stack |
 | `--aw-font-heading` | Heading font stack |
-| `--space-1` … `--space-11` | 8pt spacing scale (see below) |
-| `--section-y` | Section vertical rhythm (clamp) |
+| `--section-y` | Section vertical rhythm (clamp) — the one wired spacing token |
 
 ## Spacing system
 
-The kit spaces everything on a **canonical 8-point grid** — the industry
-standard (Apple HIG, Material 8dp, most professional design systems). Every gap
-is a multiple of 4/8px, so the vertical rhythm reads deliberate: **tight within a
-group, generous between sections**, at every breakpoint including mobile. The
-tokens are declared unlayered on `:root` in `tailwind.css` and are overridable
-from a consumer's own unlayered `:root` (later same-specificity wins).
+The kit spaces everything on Tailwind's native **4px-base grid** — the same
+math as the industry-standard 8-point scale (Apple HIG, Material 8dp): every
+gap a multiple of 4/8px, so the rhythm reads deliberate: **tight within a
+group, generous between sections**, at every breakpoint including mobile.
 
-### The scale — 11 named steps
+**There is intentionally no separate `--space-*` custom-property scale.**
+Widgets already sit on the grid via Tailwind's own spacing utilities (`gap-8`,
+`mb-12`, `p-6`, …) — introducing a parallel set of CSS variables that nothing
+in the kit reads would be dead weight a consumer could "override" with no
+effect. If you want to re-scale intra-widget spacing, override the Tailwind
+theme's `--spacing` unit yourself, or pass `classes.container`/`classes.items`
+overrides per widget (every widget forwards these — see each widget's props).
 
-| Token | Value | Tailwind equiv | Typical use |
-|-------|-------|----------------|-------------|
-| `--space-1` | 4px | `*-1` | Tiny gaps: status dots, inline icon nudges |
-| `--space-2` | 8px | `*-2` | Compact inline gaps: chips, badge padding |
-| `--space-3` | 12px | `*-3` | Tight list gaps, title→description |
-| `--space-4` | 16px | `*-4` | Standard inner padding, title→subtitle |
-| `--space-5` | 24px | `*-6` | Card padding (compact), CTA action-row gap |
-| `--space-6` | 32px | `*-8` | Card padding, base grid gap, section-head margin (mobile) |
-| `--space-7` | 48px | `*-12` | Large grid gaps, section-head margin (desktop) |
-| `--space-8` | 64px | `*-16` | Hero sub-block bottom pad (desktop) |
-| `--space-9` | 80px | `*-20` | Reserved (tall dividers) |
-| `--space-10` | 96px | `*-24` | Reserved (generous section air) |
-| `--space-11` | 128px | `*-32` | Reserved (full-page spacers) |
+The reference table below is **informational** (which Tailwind utility to
+reach for at each step) — not a set of overridable tokens:
 
-The scale is realized **two coherent ways — both the same 4px grid:**
+| 4px-grid step | Tailwind utility | Typical use in this kit |
+|---|---|---|
+| 4px | `*-1` | Tiny gaps: status dots, inline icon nudges |
+| 8px | `*-2` | Compact inline gaps: chips, badge padding |
+| 12px | `*-3` | Tight list gaps, title→description |
+| 16px | `*-4` | Standard inner padding, title→subtitle, page gutter (mobile) |
+| 24px | `*-6` | CTA card padding, action-row gap, page gutter (≥md) |
+| 32px | `*-8` | Card padding, base grid gap, section-head margin (mobile) |
+| 48px | `*-12` | Large grid gaps, section-head margin (desktop) |
+| 64px | `*-16` | Hero sub-block bottom pad (desktop) |
 
-1. **Named `--space-*` custom properties** — for direct `var()` use in kit CSS
-   and for consumer override.
-2. **Tailwind's native spacing utilities** — `gap-8`, `mb-12`, `p-6`, … resolve
-   to the identical 4px-base grid (Tailwind's default `--spacing` is `0.25rem`).
-   `--space-6` == `gap-8`/`p-8` == 32px, `--space-7` == `gap-12`/`mb-12` == 48px
-   (see the *Tailwind equiv* column). Widgets use the Tailwind utilities for
-   intra-section spacing — the framework-idiomatic way to sit on the grid,
-   without fighting it via arbitrary values.
-
-### Section rhythm — one clamp
+### Section rhythm — the one real token
 
 ```css
---section-y: clamp(56px, 8vw, 104px);
+--section-y: clamp(56px, 10vw, 104px);
 ```
 
-A **single canonical token** drives section top+bottom padding at every
-breakpoint, replacing the old ad-hoc `py-12 / md:py-16 / lg:py-20` spread across
-three media queries. It floors at **56px** on mobile (tight enough not to crowd,
-never a desktop-sized gap crammed onto a phone) and ceils at **104px** on desktop
-(generous band separation), tracking `8vw` in between. Tune this one token to
-re-tempo the whole page. `WidgetWrapper` renders `.aw-section { padding-block:
-var(--section-y) }`; the heroes (not `WidgetWrapper`) consume the same token via
-`py-[var(--section-y)]`, so the whole page shares one rhythm.
+This is the **only** spacing custom property the kit ships, because it's the
+only one anything reads: `WidgetWrapper` renders `.aw-section { padding-block:
+var(--section-y) }`, and the heroes (`Hero`/`HeroText`/`Hero2`, which don't use
+`WidgetWrapper`) consume the same token via `py-[var(--section-y)]` — so the
+whole page shares one rhythm, and overriding this one line re-tempos every
+section, everywhere, at once. It replaces the old ad-hoc `py-12 / md:py-16 /
+lg:py-20` spread across three media queries.
+
+- **Floor 56px** below a ~560px viewport (phones) — tight enough not to crowd,
+  never a desktop-sized gap crammed onto a phone.
+- **Ceiling 104px** above a ~1040px viewport (desktop) — generous band
+  separation.
+- **Ramps linearly (`10vw`) between those two widths** — which is exactly the
+  tablet band (~560–1040px, i.e. roughly 768–1024px viewports). This
+  coefficient was tuned (from an earlier `8vw`) specifically so the tablet
+  band doesn't dip below the old desktop value on the way up — see "Tablet
+  band" below.
+
+### Tablet band — why `10vw`, not `8vw`
+
+The kit's default `Hero` had a **flat 80px** padding for any viewport ≥768px
+(`py-12 md:py-20`, no `lg:` step) under the old ad-hoc rules. A first pass at
+this clamp used `8vw`, which put the tablet band (~768px) at only `61.44px` —
+a **-23% dip** right at the phone→tablet transition, i.e. Hero would visibly
+get *tighter* switching from mobile to tablet before opening back up on
+desktop. `10vw` fixes this: at 768px the clamp evaluates to `76.8px` (-4% vs
+the old flat 80px — within normal responsive variance, not a visible cramp),
+and by 1024px it's `102.4px` (+28%, already almost at the desktop ceiling). See
+"Enumerated shifts" below for the full breakpoint table.
 
 **Adjacency rule (no doubled gaps).** A single symmetric value cannot *both*
 give a filled (`isDark`/`bg`) band enough internal padding *and* avoid a doubled
@@ -131,20 +144,41 @@ hardcoded values.
 ### Horizontal gutter
 
 `WidgetWrapper` uses `px-4 md:px-6` — **16px** page-edge gutter on mobile, **24px**
-on ≥md (the standard marketing gutters; both land on the grid, `--space-4` /
-`--space-5`). Left as Tailwind utilities on purpose: they already sit on the grid,
-and a consumer can override them per-widget via `containerClass`.
+on ≥md (the standard marketing gutters; both land on the 4px grid). Left as
+Tailwind utilities on purpose — no token needed, and a consumer can override
+them per-widget via `containerClass`.
 
 ### Overriding
 
 ```css
 :root {
-  --section-y: clamp(48px, 7vw, 88px); /* tighter overall tempo */
-  --space-6: 40px;                     /* re-scale a single step */
+  --section-y: clamp(48px, 7vw, 88px); /* tighter overall tempo, same shape */
 }
 ```
 
-Because kit CSS reads these via `var()`, one override cascades everywhere.
+Because `.aw-section` and the heroes both read `var(--section-y)`, one override
+cascades everywhere the token is used — the whole page re-tempos from one line.
+
+### Enumerated default-render shifts (vs. the pre-PR kit)
+
+| Breakpoint | WidgetWrapper sections (before → after) | Hero (before → after) |
+|---|---|---|
+| Mobile ~390px | 0px¹ → **56px** | 48px → **56px** (+17%) |
+| Tablet ~768px | 64px → **76.8px** (+20%) | 80px → **76.8px** (**-4%**, negligible) |
+| Tablet/laptop ~1024px | 80px → **102.4px** (+28%) | 80px → **102.4px** (+28%) |
+| Desktop ≥1040px (e.g. 1440px) | 80px → **104px** (+30%) | 80px → **104px** (+30%) |
+
+¹ The pre-PR `.aw-section` mobile rule never actually compiled — a stray `*/`
+inside its own CSS comment closed the comment early and silently ate the base
+(<768px) padding rule (see commit history). So mobile sections rendered at
+**0px** padding on the unpatched kit, not the 48px the code intended; "after" is
+both the retune *and* a bug fix. Hero's own padding wasn't affected by that bug
+(it's a plain `<section>`, not a `.aw-section`), so its mobile 48px→56px number
+above is purely the retune.
+
+**Net**: roughly **+20–30% more section air on tablet/desktop**, a restored
+(and slightly tightened) mobile floor, and — the point of the `10vw` tune — no
+breakpoint where the page gets visibly *tighter* than before on the way up.
 
 > Note: this spacing reference lives here (not in a root `DESIGN.md`) because in
 > this repo the root `DESIGN.md` path is claimed by the color theme integration

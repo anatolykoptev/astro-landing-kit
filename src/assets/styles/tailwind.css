@@ -52,6 +52,10 @@
 @source inline("md:px-4 md:px-6 md:px-8 md:py-8 md:py-12 md:py-16 md:py-20 md:py-4");
 @source inline("md:pt-4 md:pt-8 md:pt-12 md:pt-16 md:pb-8 md:pb-12 md:pb-16");
 @source inline("sm:px-4 sm:px-6 sm:py-4 sm:py-8 lg:py-12 lg:py-16 lg:py-20");
+/* Canonical section rhythm — the heroes (not WidgetWrapper) consume the
+ * --section-y clamp directly as an arbitrary utility; safelist it so the
+ * class survives the `file:` symlink consumer build. */
+@source inline("py-[var(--section-y)] pt-[var(--section-y)] pb-[var(--section-y)]");
 
 /* Margin (base + responsive) */
 @source inline("m-0 m-2 m-4 m-auto");
@@ -99,6 +103,13 @@
 @source inline("opacity-0 opacity-50 opacity-70 opacity-100");
 @source inline("scroll-mt-[72px] scroll-mt-16 scroll-mt-20");
 @source inline("not-prose dark");
+/* Section wrapper component class — the canonical-rhythm carrier. Tailwind v4
+ * tree-shakes simple custom classes in @layer components unless detected in
+ * content; the scanner does not reach node_modules on `file:` symlink consumer
+ * builds, so safelist it (same reason as the widget layout utilities above).
+ * Without this the .aw-section{ padding-block } rule silently drops and every
+ * section loses its vertical rhythm. */
+@source inline("aw-section");
 
 @variant dark (&:where(.dark, .dark *));
 @variant intersect (&:not([no-intersect]));
@@ -127,6 +138,28 @@
     0% { opacity: 0; transform: translateY(2rem); }
     100% { opacity: 1; transform: translateY(0); }
   }
+}
+
+/* =====================================================================
+ * Canonical section rhythm — one token, 8-point-grid-aligned.
+ *
+ * Widgets already sit on Tailwind's native 4px-base spacing scale via its
+ * utilities (gap-8, mb-12, p-6, …) — that IS the 8pt grid (Tailwind's default
+ * --spacing unit is 0.25rem/4px), so no separate --space-* custom-property
+ * scale is declared here: nothing in this kit reads one, and shipping unused
+ * tokens invites a consumer to "override" a value nothing consumes. See
+ * ./README.md for the Tailwind-equivalence reference table.
+ *
+ * --section-y is the one REAL, wired knob: WidgetWrapper's `.aw-section` and
+ * the heroes (Hero/HeroText/Hero2) both read it, so overriding it in a
+ * consumer's unlayered :root re-tempos the whole page's vertical rhythm.
+ * Floor keeps phones from crowding; ceiling caps the desktop gap; the 10vw
+ * ramp is tuned so the tablet band (~560-1040px viewport) doesn't dip below
+ * the old flat desktop value on the way up (see README "Tablet band" note).
+ * Unlayered on purpose: a consumer override must win over this base without
+ * fighting @layer ordering. */
+:root {
+  --section-y: clamp(56px, 10vw, 104px);
 }
 
 @layer utilities {
@@ -159,33 +192,33 @@
 @layer components {
   /* ---------------------------------------------------------------------
    * Section vertical rhythm — WidgetWrapper renders `.aw-section`.
-   * Default padding equals the previous py-12 / md:py-16 / lg:py-20, so a
-   * section in isolation is visually unchanged. The TOP pad is driven by a
-   * custom property so it can collapse to 0 when one section directly
-   * follows another — removing the doubled bottom+top gap that turned a
-   * stack of widgets into a monotonous wall of whitespace. Filled (isDark)
-   * sections keep their top pad so the color band has breathing room.
-   * Consumers still override spacing with a py-*/pt-* utility on
-   * containerClass: utilities layer beats this components-layer rule.
-   * ------------------------------------------------------------------- */
+   *
+   * One canonical clamp (--section-y) drives top AND bottom padding at every
+   * breakpoint, replacing the old three ad-hoc media-query blocks
+   * (py-12 / md:py-16 / lg:py-20, hardcoded rem). Symmetric by default so a
+   * section in isolation — and every filled (isDark) band — gets equal air.
+   *
+   * Tailwind v4 tree-shakes a bare custom class in @layer components unless the
+   * class is detected in content — and the scanner does not reach node_modules
+   * on `file:` symlink consumer builds. So `.aw-section` is safelisted via
+   * `@source inline("aw-section")` above (same reason as the widget layout
+   * utilities); without it this rule silently drops and every section loses its
+   * vertical rhythm.
+   *
+   * Adjacency rule: a single symmetric value cannot both give a filled band
+   * enough INTERNAL padding AND avoid a DOUBLED gap where two open sections
+   * stack. So when an open (light) section directly follows another section,
+   * its top pad collapses to 0 and the two share ONE --section-y of rhythm
+   * instead of two — what keeps a stack of widgets from becoming a wall of
+   * whitespace, especially on mobile. Filled (isDark) bands keep their top pad
+   * (symmetric air). The collapse is a complex selector with higher specificity
+   * than the base, so it wins; a py-* / pt-* utility on containerClass still
+   * overrides both (utilities layer beats this components-layer rule). */
   .aw-section {
-    padding-top: var(--aw-section-pt, 3rem);
-    padding-bottom: 3rem;
-  }
-  @media (min-width: 768px) {
-    .aw-section {
-      padding-top: var(--aw-section-pt, 4rem);
-      padding-bottom: 4rem;
-    }
-  }
-  @media (min-width: 1024px) {
-    .aw-section {
-      padding-top: var(--aw-section-pt, 5rem);
-      padding-bottom: 5rem;
-    }
+    padding-block: var(--section-y);
   }
   section + section > .aw-section:not(.dark) {
-    --aw-section-pt: 0px;
+    padding-top: 0;
   }
 
   .btn {

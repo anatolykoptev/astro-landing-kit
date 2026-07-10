@@ -85,7 +85,7 @@ describe('generateThemeCss — CRITICAL: surface-only DESIGN.md must not invisib
     expect(css).toContain('--aw-color-text-heading: #F5F0E8;');
   });
 
-  it('a lone text color (no Surface) is still safe to apply alone — default bg-page is untouched', () => {
+  it('applies a lone text color (no Surface) that is verified high-contrast against the default bg-page', () => {
     const tokens = parseDesignMd(
       md('* **Primary** (#7C3AED) — Primary brand color\n* **Ink** (#1E1B2E) — Body text foreground')
     );
@@ -93,6 +93,33 @@ describe('generateThemeCss — CRITICAL: surface-only DESIGN.md must not invisib
 
     expect(css).toContain('--aw-color-text-default: #1E1B2E;');
     expect(css).not.toMatch(/--aw-color-bg-page:/);
+  });
+
+  // MAJOR-1 regression: the REVERSE of the bg-page gate above was open — a lone text
+  // color was emitted with NO check against the default bg-page it actually renders on.
+  // A dark-first DESIGN.md naming a light body-text color (whose intended Surface bullet
+  // used an off-whitelist role word the classifier dropped) silently produced light text
+  // on the default light bg — invisible, with no signal. This is the exact repro: only a
+  // Primary + a light "Body text foreground" color, no Surface at all.
+  it('SKIPS a lone text color that would be low-contrast against the default bg-page (MAJOR-1)', () => {
+    const tokens = parseDesignMd(
+      md('* **Primary** (#7C3AED) — Primary brand color\n* **Paper** (#F5F0E8) — Body text foreground')
+    );
+    const css = generateThemeCss(tokens);
+
+    expect(css).not.toMatch(/--aw-color-text-default:/);
+    expect(css).not.toMatch(/--aw-color-bg-page:/);
+  });
+
+  it('SKIPS a lone oklch/hsl text color that cannot be verified against the default bg-page (fail-safe, not a silent pass)', () => {
+    const tokens = parseDesignMd(
+      md(
+        '* **Primary** (oklch(0.55 0.22 300)) — Primary brand color\n* **Ink** (oklch(0.3 0.02 300)) — Body text foreground'
+      )
+    );
+    const css = generateThemeCss(tokens);
+
+    expect(css).not.toMatch(/--aw-color-text-default:/);
   });
 });
 
@@ -136,9 +163,50 @@ describe('generateThemeCss — HIGH-4: --aw-color-bg-page-dark reflects the bran
 
     expect(css).not.toMatch(/--aw-color-bg-page-dark:/);
   });
+
+  // FOLD-IN regression: the explicit-dark-role pick used to trust the "dark" name/role
+  // substring alone with no luminance check — a role like "dark accent for borders"
+  // could hijack the whole site's dark-mode chrome with a color that isn't actually dark
+  // (or isn't a background at all). Now gated by the same ≤0.2 luminance threshold the
+  // derived path already enforces.
+  it('rejects an explicit "dark"-named color that is not actually dark enough (luminance > 0.2)', () => {
+    // Primary here is a light blue (relative luminance ~0.53, > 0.2) — deliberately NOT
+    // #7C3AED, whose luminance (~0.13) happens to already clear the 0.2 "dark enough"
+    // bar and would confound this test by qualifying as its own fallback pick.
+    const tokens = parseDesignMd(
+      md('* **Primary** (#93C5FD) — Primary brand color\n* **Silverish** (#CCCCCC) — Dark accent for borders')
+    );
+    const css = generateThemeCss(tokens);
+
+    expect(css).not.toMatch(/--aw-color-bg-page-dark:/);
+  });
+
+  it('falls through to the derived-darkest pick when the explicit "dark"-named color is too light', () => {
+    const tokens = parseDesignMd(
+      md(
+        '* **Primary** (#7C3AED) — Primary brand color\n' +
+          '* **Silverish** (#CCCCCC) — Dark accent for borders\n' +
+          '* **Ink** (#0A0A0F) — Body text'
+      )
+    );
+    const css = generateThemeCss(tokens);
+
+    expect(css).toContain('--aw-color-bg-page-dark: #0A0A0F;');
+  });
+
+  it('does not trust an unverifiable oklch "dark"-named color on the label alone', () => {
+    const tokens = parseDesignMd(
+      md(
+        '* **Primary** (oklch(0.55 0.22 300)) — Primary brand color\n* **Midnight** (oklch(0.1 0 0)) — Dark background chrome'
+      )
+    );
+    const css = generateThemeCss(tokens);
+
+    expect(css).not.toMatch(/--aw-color-bg-page-dark:/);
+  });
 });
 
-describe('checkThemeContrast — build-time WCAG check for the paired surface/text override', () => {
+describe('checkThemeContrast — build-time WCAG check for whatever override generateThemeCss is about to apply', () => {
   it('returns null when no paired override happens (nothing new to check)', () => {
     const tokens = parseDesignMd(md('* **Primary** (#7C3AED) — Primary brand color'));
     expect(checkThemeContrast(tokens)).toBeNull();
@@ -155,6 +223,7 @@ describe('checkThemeContrast — build-time WCAG check for the paired surface/te
     expect(check).not.toBeNull();
     expect(check!.ratio).not.toBeNull();
     expect(check!.meetsAA).toBe(false);
+    expect(check!.againstDefaultBg).toBe(false);
   });
 
   it('passes a genuinely high-contrast hex pairing', () => {
@@ -167,6 +236,47 @@ describe('checkThemeContrast — build-time WCAG check for the paired surface/te
 
     expect(check).not.toBeNull();
     expect(check!.meetsAA).toBe(true);
+    expect(check!.againstDefaultBg).toBe(false);
+  });
+
+  // MAJOR-1: the lone-text branch — no Surface bullet, so the check runs against the
+  // kit's own default bg-page reference instead of a DESIGN.md surface value.
+  it('checks a lone text color against the default bg-page reference and reports a pass', () => {
+    const tokens = parseDesignMd(
+      md('* **Primary** (#7C3AED) — Primary brand color\n* **Ink** (#1E1B2E) — Body text foreground')
+    );
+    const check = checkThemeContrast(tokens);
+
+    expect(check).not.toBeNull();
+    expect(check!.againstDefaultBg).toBe(true);
+    expect(check!.ratio).not.toBeNull();
+    expect(check!.meetsAA).toBe(true);
+  });
+
+  it('checks a lone text color against the default bg-page reference and reports a fail', () => {
+    const tokens = parseDesignMd(
+      md('* **Primary** (#7C3AED) — Primary brand color\n* **Paper** (#F5F0E8) — Body text foreground')
+    );
+    const check = checkThemeContrast(tokens);
+
+    expect(check).not.toBeNull();
+    expect(check!.againstDefaultBg).toBe(true);
+    expect(check!.ratio).not.toBeNull();
+    expect(check!.meetsAA).toBe(false);
+  });
+
+  it('reports unverifiable (ratio null) for a lone oklch/hsl text color, never a silent pass', () => {
+    const tokens = parseDesignMd(
+      md(
+        '* **Primary** (oklch(0.55 0.22 300)) — Primary brand color\n* **Ink** (oklch(0.3 0.02 300)) — Body text foreground'
+      )
+    );
+    const check = checkThemeContrast(tokens);
+
+    expect(check).not.toBeNull();
+    expect(check!.againstDefaultBg).toBe(true);
+    expect(check!.ratio).toBeNull();
+    expect(check!.meetsAA).toBe(false);
   });
 
   it('reports unverifiable (ratio null) instead of a false pass for non-hex/rgb pairs', () => {

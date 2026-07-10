@@ -31,11 +31,10 @@ Why `--aw-color-*` and not Tailwind `@theme { --color-* }`: every widget, `tailw
 `--aw-color-*`. Overriding those re-skins everything; overriding the Tailwind names would
 miss `.btn-primary`, `.bg-page`, pm7, etc.
 
-## Precedence — three SOURCES of `--aw-color-*`, one guaranteed order
+## Precedence — three SOURCES of `--aw-color-*`
 
-There are three places `--aw-color-*` can come from, and — separately from the one
-generation path above — their relative priority is fixed by `src/design/theme-layers.css`
-via named CSS cascade layers, **not** by import/DOM order:
+There are three places `--aw-color-*` can come from. Their INTENDED relative priority is
+expressed via named CSS cascade layers, declared once by `src/design/theme-layers.css`:
 
 | Priority (low → high) | Layer name | Source | Nature |
 |---|---|---|---|
@@ -43,22 +42,39 @@ via named CSS cascade layers, **not** by import/DOM order:
 | 2 | `landing-kit-theme-starter` | `src/assets/styles/theme.css` | opt-in, consumer `@import`s it manually |
 | 3 | `landing-kit-design-theme` | this integration | opt-in, generated from `DESIGN.md` |
 
-Per the CSS Cascading Level 5 spec, layer priority is fixed by the order layer NAMES are
-first encountered, independent of where each layer's rules physically appear later. That
-means:
+Per the CSS Cascading Level 5 spec, a named layer's priority is fixed by the order its
+NAME is first encountered while the browser parses the page's cascade — **not** by where
+that layer's actual rule bodies physically sit. `theme-layers.css`'s bare
+`@layer landing-kit-defaults, landing-kit-theme-starter, landing-kit-design-theme;`
+statement is what establishes that order, and it **must be the first stylesheet
+`Layout.astro` imports** (it's the import at `Layout.astro:2` — do not move it later).
 
-- A consumer who imports `theme.css` gets its palette over the kit defaults, **no matter
-  where** in their build they `@import` it.
-- A consumer who ALSO mounts the design integration gets the `DESIGN.md` theme over
-  `theme.css`, again regardless of order.
-- A consumer's own **un-layered** `:root { --aw-color-primary: ... }` override (the
-  pattern shown in `src/assets/styles/README.md`) still wins over all three layers —
-  un-layered rules always beat any named layer per spec. This is intentional: an explicit
-  manual override is the most specific signal a consumer can give.
-- `theme-layers.css` is imported FIRST in `Layout.astro`, before any of the three
-  layers' actual rules, so this order is locked in before anything else is parsed. A
-  future reorder of `<CustomStyles />` / `<DesignTheme />` in `Layout.astro` (or a fork of
-  it) cannot silently revert a branded consumer to the kit defaults.
+**What this reliably guarantees:** `CustomStyles.astro`'s defaults vs the `DESIGN.md`
+theme. Both render from the SAME `Layout.astro` document in the SAME build, so their
+layer-name-first-encounter order is fixed by our own component render order — a future
+accidental reorder of `<CustomStyles />` / `<DesignTheme />` can't silently flip
+precedence, because named-layer priority (not DOM position) is what the browser
+evaluates.
+
+**What this does NOT unconditionally guarantee:** where a consumer's OWN
+`@import "@krolik/landing-kit/styles/theme.css"` lands in their build's final bundled CSS
+relative to `theme-layers.css`'s declaration is outside this kit's control — a bundler
+could, in principle, emit `theme.css`'s `@layer landing-kit-theme-starter { ... }` body in
+a position where that layer name is first encountered before our pre-declaration runs,
+which would establish a different relative order than intended for that one layer. In
+practice this holds correctly when `theme.css` is imported from within the same
+Astro page/layout tree as `Layout.astro` (this kit's own dogfood setup, and the common
+consumer pattern of a global stylesheet import in a shared layout) — verified against a
+real build with `theme.css` imported from a page alongside a mounted DESIGN.md theme. If
+`theme.css`'s palette is ever observed NOT losing to a mounted DESIGN.md theme, check that
+nothing in the consumer's build defines/references `landing-kit-theme-starter` or
+`landing-kit-design-theme` before `theme-layers.css` is parsed.
+
+A consumer's own **un-layered** `:root { --aw-color-primary: ... }` override (the pattern
+shown in `src/assets/styles/README.md`) still reliably wins over all three layers,
+regardless of the above — un-layered rules always beat any named layer, unconditionally,
+per spec. This is intentional: an explicit manual override is the most specific signal a
+consumer can give.
 
 ## Opt-in (and backward compatibility)
 
@@ -110,30 +126,51 @@ structure itself is unchanged. Role words route to targets (via the shared
 `classifyColorRoles()` in `color-roles.ts`, used by both `theme-generator.ts` and
 `dark-mode.ts` so the two never diverge): the first color is `primary` (also
 `secondary`/`accent` unless a `Secondary`/`Accent` color is named); `surface`/`background`/
-`cream`/`parchment`/`light`/`white`/`warm` → `bg-page`; `text`/`foreground`/`body`/`dark`/
-`deep`/`forest` → `text-default`; `muted` → `text-muted`; `heading`/`display`/`title` →
-`text-heading`.
+`cream`/`parchment`/`light`/`white`/`warm`/`paper`/`canvas`/`base`/`page`/`panel` →
+`bg-page`; `text`/`foreground`/`body`/`dark`/`deep`/`forest` → `text-default`; `muted` →
+`text-muted`; `heading`/`display`/`title` → `text-heading`. A role that ALSO mentions
+`border`/`highlight`/`divider`/`shadow` is treated as decoration and routed to neither
+bucket (still eligible for the `accent` pick) — otherwise e.g. "dark accent for borders"
+would hijack the body-text slot merely for containing "dark".
 
-**Surface/text pairing (load-bearing):** `--aw-color-bg-page` is only overridden when a
-text-role color is ALSO present in the same `DESIGN.md` — a `Surface` bullet with no
-`text`/`foreground`/`body` bullet does **not** flip the background, because the default
-`--aw-color-text-default` would stay near-black against it (~1.07:1 contrast, invisible
-body text). A lone text/heading color is safe to apply alone; the default background
-stays the kit's known-light default.
+**Surface/text pairing (load-bearing, both directions):** `--aw-color-bg-page` is only
+overridden when a text-role color is ALSO present in the same `DESIGN.md` — a `Surface`
+bullet with no `text`/`foreground`/`body` bullet does **not** flip the background,
+because the default `--aw-color-text-default` would stay near-black against it (~1.07:1
+contrast, invisible body text). The REVERSE is mirrored too: a lone text-role color (no
+`Surface` — e.g. its intended surface bullet used a role word the classifier doesn't
+recognize) is only applied when it's verified (or at least not verified UNSAFE) against
+the kit's own default `bg-page`; a light lone text color, or one in a format this checker
+can't parse (oklch/hsl), is skipped rather than silently rendering invisible on the
+default light background. Either skip is logged via the contrast check below, never
+silent.
 
 **Dark background:** `--aw-color-bg-page-dark` (dark-mode chrome — footers, headers,
 mobile menus) is set from an explicit dark-role color (a bullet whose name/role contains
-the word "dark") or, failing that, derived from the darkest classifiable (hex/rgb) color
-in the palette, if it's dark enough to serve as one. Otherwise the kit default
-(`rgb(3 6 32)`) is kept.
+the word "dark") **only if that color is itself dark enough** (the same ≤0.2 relative
+luminance gate the derived pick uses — a "dark accent for borders" bullet can't hijack
+the whole site's dark chrome with a color that isn't actually dark, or isn't a background
+at all). Failing an explicit pick, it's derived from the darkest classifiable (hex/rgb)
+color in the palette. An oklch/hsl "dark"-named color is not trusted on the label alone
+(unverifiable) — it falls through to the derived pick, which also requires a
+parseable/dark-enough value. Otherwise the kit default (`rgb(3 6 32)`) is kept.
 
 ## Contrast check (build-time, non-blocking)
 
-When a paired surface+text override fires, the build logs a WCAG AA warning (ratio below
-4.5:1) via `checkThemeContrast()`. This only verifies hex/rgb values — an oklch/hsl pair
-logs "could not verify contrast", never a false pass. This is a **warning, not a build
-failure**: an intentionally low-contrast pairing is the DESIGN.md author's call, but it
-must never be silent.
+`checkThemeContrast()` runs against whichever override `generateThemeCss` is about to
+apply:
+- **Surface + text both present** → checks the two DESIGN.md values against each other.
+  Logs a WCAG AA warning (ratio below 4.5:1) but still APPLIES both — an intentionally
+  low-contrast pairing where the author explicitly chose both ends is their call.
+- **Text only, no Surface** → checks the lone text value against the kit's own default
+  `bg-page` (an estimate — there's no oklch→sRGB converter here, see Dependencies below).
+  Unlike the paired case, an unsafe or unverifiable result here means `generateThemeCss`
+  **skips** the override (see "Surface/text pairing" above) — this half-pairing was never
+  something the author explicitly authored on both ends, so the fail-safe default wins.
+
+This only verifies hex/rgb values — an oklch/hsl pair or lone value logs "could not
+verify contrast", never a false pass. Never silent, but only the paired case is a
+"warning, not a failure" in the sense of still shipping as authored.
 
 ## Failure behavior
 

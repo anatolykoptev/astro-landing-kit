@@ -7,9 +7,17 @@ import { fileURLToPath } from 'node:url';
 // repo (vitest + node environment only — see CLAUDE.md / package.json), so this verifies
 // the SOURCE-level contract the cascade-layer fix depends on: the three --aw-color-*
 // sources are each wrapped in their named layer, and the priority-declaring statement
-// lists them lowest-to-highest in the order theme-layers.css's doc comment promises.
-// True cross-source cascade resolution is guaranteed by the CSS Cascading Level 5 spec
-// (cited in theme-layers.css), not re-derived here.
+// lists them lowest-to-highest in the order theme-layers.css's doc comment promises, in
+// Astro SOURCE order (not the built <head> emission order — that depends on Vite's own
+// bundling, which this suite does not control or verify).
+//
+// MAJOR-2: this is a NECESSARY but not SUFFICIENT proof. CustomStyles.astro vs
+// DesignTheme.astro (same Layout.astro document, same build) is reliably order-safe by
+// construction — that 2-way relationship is what these tests + the CSS Cascading Level 5
+// spec (cited in theme-layers.css) together establish. The 3-way relationship involving a
+// consumer's OWN separately-imported theme.css is NOT something a source-index check (or
+// the spec alone) can prove — see src/design/README.md "Precedence" for the honest
+// version of that claim, and the real adversarial build referenced there.
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const read = (rel: string) => fs.readFileSync(path.join(here, rel), 'utf-8');

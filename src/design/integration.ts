@@ -74,21 +74,27 @@ export default function designMdIntegration(options: DesignIntegrationOptions = 
           themeCss = `@layer ${DESIGN_THEME_LAYER} {\n${combined}\n}\n`;
           buildLogger.info(`Applied design "${tokens.name}" (${tokens.colors.length} colors) → --aw-color-* overrides`);
 
-          // CRITICAL fix: build-time WCAG contrast warning for the paired bg/text
-          // override (see theme-generator.ts checkThemeContrast). Warn, don't fail the
-          // build — a bad but intentional pairing is the author's call, but it must not
-          // be silent.
+          // CRITICAL / MAJOR-1 fix: build-time WCAG contrast warning for whichever
+          // override generateThemeCss is about to apply (see theme-generator.ts
+          // checkThemeContrast) — either a paired Surface+text pairing, or a lone text
+          // color checked against the kit's own default bg-page. Warn, don't fail the
+          // build for the paired case (a bad but intentional pairing is the author's
+          // call); the lone-text case is already fail-safe-skipped by generateThemeCss
+          // when unsafe, so this warning explains WHY it was skipped.
           const contrast = checkThemeContrast(tokens);
           if (contrast) {
+            const bgLabel = contrast.againstDefaultBg ? contrast.bg : `--aw-color-bg-page (${contrast.bg})`;
             if (contrast.ratio === null) {
               buildLogger.warn(
-                `Could not verify contrast for --aw-color-bg-page (${contrast.bg}) vs ` +
-                  `--aw-color-text-default (${contrast.text}) — non-hex/rgb value; check manually.`
+                `Could not verify contrast for ${bgLabel} vs --aw-color-text-default (${contrast.text}) ` +
+                  `— non-hex/rgb value; check manually.` +
+                  (contrast.againstDefaultBg ? ' The lone text override was skipped as a precaution.' : '')
               );
             } else if (!contrast.meetsAA) {
               buildLogger.warn(
-                `--aw-color-bg-page (${contrast.bg}) vs --aw-color-text-default (${contrast.text}) ` +
-                  `is ${contrast.ratio.toFixed(2)}:1 — below WCAG AA's 4.5:1 for body text.`
+                `${bgLabel} vs --aw-color-text-default (${contrast.text}) is ${contrast.ratio.toFixed(2)}:1 ` +
+                  `— below WCAG AA's 4.5:1 for body text.` +
+                  (contrast.againstDefaultBg ? ' The lone text override was skipped as a precaution.' : '')
               );
             }
           }

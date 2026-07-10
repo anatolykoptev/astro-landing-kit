@@ -23,15 +23,27 @@ export interface RoleClassification {
 
 const MUTED_RE = /muted/;
 const HEADING_RE = /heading|display|title/;
-const SURFACE_RE = /surface|background|cream|parchment|light|white|warm/;
+// FOLD-IN fix: decoration-purpose words are checked BEFORE surface/text so a role like
+// "dark accent for borders" or "warm border accent" doesn't get miscategorized as body
+// text / a background color merely because it also contains "dark"/"warm" — those
+// substrings are legitimate surface/text signals ONLY when the color isn't ALSO a
+// border/highlight/divider/shadow decoration. Tested AFTER heading (a heading role can
+// legitimately say "font accent" without being a decoration — "accent" alone is not a
+// decoration keyword here) and independently of the accent/secondary picks below (a
+// decoration color can still become the `accent` pick via ACCENT_RE/name match).
+const DECORATION_RE = /border|highlight|divider|shadow/;
+// Widened per review: paper/canvas/base/page/panel are common awesome-design-md surface
+// descriptors that were previously dropped, silently failing to apply a themed background.
+const SURFACE_RE = /surface|background|cream|parchment|light|white|warm|paper|canvas|base|page|panel/;
 const TEXT_RE = /text|foreground|dark|deep|forest|body/;
 const ACCENT_RE = /accent/;
 
 /**
- * Classifies each color into at most one of muted / heading / surface / text (priority
- * order, first match wins, mirroring the original per-file heuristics) plus the
- * independent name-based secondary/accent picks. A color can be BOTH e.g. "secondary"
- * (by name) AND "text" (by role) — those two facets don't compete for the same slot.
+ * Classifies each color into at most one of muted / heading / decoration(dropped) /
+ * surface / text (priority order, first match wins, mirroring the original per-file
+ * heuristics) plus the independent name-based secondary/accent picks. A color can be
+ * BOTH e.g. "secondary" (by name) AND "text" (by role) — those two facets don't compete
+ * for the same slot.
  */
 export function classifyColorRoles(colors: ColorToken[]): RoleClassification {
   const surfaces: ColorToken[] = [];
@@ -54,6 +66,9 @@ export function classifyColorRoles(colors: ColorToken[]): RoleClassification {
     }
     if (HEADING_RE.test(role)) {
       heading ??= c;
+      continue;
+    }
+    if (DECORATION_RE.test(role)) {
       continue;
     }
     if (SURFACE_RE.test(role)) {

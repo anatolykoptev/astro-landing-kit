@@ -39,18 +39,41 @@ export function relativeLuminance([r, g, b]: [number, number, number]): number {
   return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
 }
 
+/** WCAG contrast ratio formula given two ALREADY-COMPUTED relative luminances (each
+ * 0-1). Split out from `contrastRatio()` so a caller with one known/hardcoded luminance
+ * (see `DEFAULT_BG_PAGE_LUMINANCE_ESTIMATE` below) doesn't need a fake parseable color
+ * string just to run the same math. */
+export function contrastRatioFromLuminances(l1: number, l2: number): number {
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
 /** WCAG contrast ratio (1 = no contrast, 21 = max) between two color values, or `null`
  * when either value isn't in a format this checker can parse (oklch/hsl/named). */
 export function contrastRatio(a: string, b: string): number | null {
   const ca = parseChannels(a);
   const cb = parseChannels(b);
   if (!ca || !cb) return null;
-  const la = relativeLuminance(ca);
-  const lb = relativeLuminance(cb);
-  const lighter = Math.max(la, lb);
-  const darker = Math.min(la, lb);
-  return (lighter + 0.05) / (darker + 0.05);
+  return contrastRatioFromLuminances(relativeLuminance(ca), relativeLuminance(cb));
 }
 
 /** WCAG AA minimum contrast ratio for normal-size body text. */
 export const WCAG_AA_NORMAL_TEXT = 4.5;
+
+/**
+ * MAJOR-1 fix: approximate WCAG relative luminance of the kit's own default light-mode
+ * `--aw-color-bg-page` (`oklch(0.99 0.005 265)`, CustomStyles.astro). There is no
+ * oklch→sRGB converter here (no color-space library — see design/README.md
+ * Dependencies), so this is a documented ESTIMATE: at OKLab lightness 0.99 with
+ * negligible chroma (0.005), the color reads as visually indistinguishable from white
+ * (WCAG relative luminance 1.0). A slightly conservative 0.97 is used so a marginal real
+ * value isn't treated as safer than it actually is. Used to contrast-check a LONE
+ * text-role override (no paired Surface bullet) against the bg it will actually render
+ * on — see theme-generator.ts's `checkThemeContrast`.
+ */
+export const DEFAULT_BG_PAGE_LUMINANCE_ESTIMATE = 0.97;
+
+/** Human-readable label for the reference above, used in check results / log messages
+ * in place of an actual CSS color value — there isn't one, it's an estimate. */
+export const DEFAULT_BG_PAGE_LABEL = 'kit default --aw-color-bg-page (~oklch(0.99 0.005 265))';

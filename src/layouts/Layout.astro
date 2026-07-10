@@ -1,4 +1,10 @@
 ---
+// MAJOR-2: theme-layers.css declares the --aw-color-* cascade-layer priority order
+// (landing-kit-defaults < landing-kit-theme-starter < landing-kit-design-theme). It MUST
+// stay the FIRST stylesheet import in this file — moving it later risks one of those
+// layer names being first-encountered elsewhere before this declaration runs, which
+// would establish a different priority than intended. See src/design/README.md
+// "Precedence" for exactly what this import order does and does not guarantee.
 import '~/design/theme-layers.css';
 import '~/assets/styles/tailwind.css';
 

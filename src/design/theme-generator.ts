@@ -11,7 +11,17 @@
  */
 import type { DesignTokens, ColorToken } from './parser';
 import { classifyColorRoles } from './color-roles';
-import { contrastRatio, relativeLuminance, parseChannels, WCAG_AA_NORMAL_TEXT } from './contrast';
+import {
+  contrastRatio,
+  contrastRatioFromLuminances,
+  relativeLuminance,
+  parseChannels,
+  WCAG_AA_NORMAL_TEXT,
+  DEFAULT_BG_PAGE_LUMINANCE_ESTIMATE,
+  DEFAULT_BG_PAGE_LABEL,
+} from './contrast';
+
+const DARK_ENOUGH_LUMINANCE = 0.2;
 
 export function generateThemeCss(tokens: DesignTokens): string {
   const colors = tokens.colors;
@@ -32,9 +42,16 @@ export function generateThemeCss(tokens: DesignTokens): string {
   // near-black default → ~1.07:1 contrast → invisible body text sitewide. bg-page is
   // now only overridden when a text-role color is ALSO present to pair with it
   // (mirrors generateSmartDarkMode's `surfaces.length === 0 || texts.length === 0`
-  // gate). A lone text/heading color is still safe to apply alone — the default
-  // bg-page stays the kit's known-light default.
+  // gate).
   const pairSurfaceAndText = !!(surface && text);
+
+  // MAJOR-1 fix: the REVERSE case was still open — a lone text-role color (no paired
+  // Surface) was emitted unconditionally, with no check against what it will actually
+  // render on: the kit's own default bg-page. A dark-first DESIGN.md naming a LIGHT
+  // body-text color, whose Surface bullet uses an off-whitelist role word the
+  // classifier drops, silently produced light-on-light invisible body text. Compute the
+  // one check up front and reuse it below.
+  const contrast = checkThemeContrast(tokens);
 
   const lines: string[] = [];
   lines.push(`/* Generated from DESIGN.md: ${tokens.name} — overrides CustomStyles.astro --aw-color-* defaults */`);
@@ -50,7 +67,15 @@ export function generateThemeCss(tokens: DesignTokens): string {
     // the default (dark) heading color would stay invisible against a new dark bg too.
     lines.push(`  --aw-color-text-heading: ${(roles.heading ?? text).hex};`);
   } else {
-    if (text) lines.push(`  --aw-color-text-default: ${text.hex};`);
+    if (text) {
+      // Fail-safe, mirroring the bg-page gate above: only apply a lone text-default
+      // override when it's verified to meet WCAG AA against the default bg-page.
+      // Skip (keep the kit's own known-safe default near-black text) when it would be
+      // low-contrast OR unverifiable (oklch/hsl) — integration.ts's WCAG warning
+      // (checkThemeContrast) explains why, never silent.
+      const loneTextIsSafe = contrast?.meetsAA === true;
+      if (loneTextIsSafe) lines.push(`  --aw-color-text-default: ${text.hex};`);
+    }
     if (roles.heading) lines.push(`  --aw-color-text-heading: ${roles.heading.hex};`);
   }
   if (roles.muted) lines.push(`  --aw-color-text-muted: ${roles.muted.hex};`);
@@ -68,11 +93,25 @@ export function generateThemeCss(tokens: DesignTokens): string {
   return lines.join('\n');
 }
 
+/**
+ * FOLD-IN fix: the explicit-dark-role pick used to trust the "dark" name/role substring
+ * alone, with NO luminance check — a `**Charcoal** (#333) — dark accent for borders`
+ * bullet could hijack the ENTIRE site's dark-mode chrome even though its role is a
+ * border decoration, not a background. Now requires the same ≤0.2 luminance gate
+ * `pickDarkestClassifiable` already enforces; an unverifiable (oklch/hsl) "dark"-named
+ * color is not trusted on the label alone and falls through to the derived pick instead.
+ */
 function pickExplicitDarkSurface(colors: ColorToken[]): ColorToken | undefined {
-  return colors.find((c) => /\bdark\b/.test(c.role.toLowerCase()) || /\bdark\b/.test(c.name.toLowerCase()));
+  const candidates = colors.filter(
+    (c) => /\bdark\b/.test(c.role.toLowerCase()) || /\bdark\b/.test(c.name.toLowerCase())
+  );
+  for (const c of candidates) {
+    const channels = parseChannels(c.hex);
+    if (!channels) continue;
+    if (relativeLuminance(channels) <= DARK_ENOUGH_LUMINANCE) return c;
+  }
+  return undefined;
 }
-
-const DARK_ENOUGH_LUMINANCE = 0.2;
 
 function pickDarkestClassifiable(colors: ColorToken[]): ColorToken | undefined {
   let best: { token: ColorToken; lum: number } | undefined;
@@ -87,31 +126,62 @@ function pickDarkestClassifiable(colors: ColorToken[]): ColorToken | undefined {
 }
 
 export interface ContrastCheck {
-  /** WCAG contrast ratio, or `null` when the bg/text pair uses a non-hex/rgb value this
+  /** WCAG contrast ratio, or `null` when the pair uses a non-hex/rgb value this
    * lightweight checker can't verify (oklch/hsl) — NOT the same as "passed". */
   ratio: number | null;
   bg: string;
   text: string;
   meetsAA: boolean;
+  /** `true` when `bg` is the kit's own default bg-page ESTIMATE (see
+   * DEFAULT_BG_PAGE_LABEL) rather than an explicit DESIGN.md Surface color — i.e. this
+   * check is for a LONE text override (MAJOR-1), not a paired surface+text override. */
+  againstDefaultBg: boolean;
 }
 
 /**
- * CRITICAL fix: a build-time WCAG check for the paired bg/text override above. Returns
- * `null` when no paired override happens (nothing new to check — the default pairing is
- * assumed already contrast-safe). Callers (integration.ts) warn when `meetsAA` is false,
- * and separately note when `ratio` is `null` (unverifiable, not a pass).
+ * A build-time WCAG check for whatever surface/text override `generateThemeCss` is about
+ * to apply:
+ * - Surface AND text both present → checks the two DESIGN.md values against each other
+ *   (the CRITICAL-fix paired case).
+ * - Text only, no Surface (MAJOR-1) → checks the lone text value against the kit's own
+ *   default bg-page (an estimate — see DEFAULT_BG_PAGE_LUMINANCE_ESTIMATE), since that
+ *   is what it will actually render on.
+ * - Otherwise (no text at all, or Surface-only which is already gated off and never
+ *   applied) → `null`, nothing new to check.
+ *
+ * Callers (integration.ts, generateThemeCss) warn when `meetsAA` is false, and
+ * separately note when `ratio` is `null` (unverifiable, never treated as a pass).
  */
 export function checkThemeContrast(tokens: DesignTokens): ContrastCheck | null {
   const roles = classifyColorRoles(tokens.colors);
   const surface = roles.surfaces[0];
   const text = roles.texts[0];
-  if (!surface || !text) return null;
 
-  const ratio = contrastRatio(surface.hex, text.hex);
-  return {
-    ratio,
-    bg: surface.hex,
-    text: text.hex,
-    meetsAA: ratio !== null && ratio >= WCAG_AA_NORMAL_TEXT,
-  };
+  if (surface && text) {
+    const ratio = contrastRatio(surface.hex, text.hex);
+    return {
+      ratio,
+      bg: surface.hex,
+      text: text.hex,
+      meetsAA: ratio !== null && ratio >= WCAG_AA_NORMAL_TEXT,
+      againstDefaultBg: false,
+    };
+  }
+
+  if (!surface && text) {
+    const channels = parseChannels(text.hex);
+    if (!channels) {
+      return { ratio: null, bg: DEFAULT_BG_PAGE_LABEL, text: text.hex, meetsAA: false, againstDefaultBg: true };
+    }
+    const ratio = contrastRatioFromLuminances(relativeLuminance(channels), DEFAULT_BG_PAGE_LUMINANCE_ESTIMATE);
+    return {
+      ratio,
+      bg: DEFAULT_BG_PAGE_LABEL,
+      text: text.hex,
+      meetsAA: ratio >= WCAG_AA_NORMAL_TEXT,
+      againstDefaultBg: true,
+    };
+  }
+
+  return null;
 }

@@ -86,4 +86,40 @@ describe('classifyColorRoles — MEDIUM: the one shared classifier used by theme
     expect(roles.secondary).toBeUndefined();
     expect(roles.accent).toBeUndefined();
   });
+
+  it('recognizes the widened surface keyword set (paper/canvas/base/page/panel)', () => {
+    const colors = [
+      token('Paper', '#FFFDF5', 'Paper page background'),
+      token('Canvas', '#F8F5EE', 'Canvas base surface'),
+      token('Panel', '#EDE7DA', 'Panel background'),
+    ];
+    const roles = classifyColorRoles(colors);
+    expect(roles.surfaces).toHaveLength(3);
+  });
+
+  // FOLD-IN regression: the classifier's widened keyword set ("dark" now also matches
+  // in TEXT_RE, "warm" in SURFACE_RE) could miscategorize a border/highlight/divider/
+  // shadow decoration color as body text or a background, merely because its role ALSO
+  // contains "dark"/"warm". A decoration-purpose word takes precedence.
+  it('a "dark accent for borders" role is NOT miscategorized as body text', () => {
+    const colors = [token('Charcoal', '#333333', 'Dark accent for borders')];
+    const roles = classifyColorRoles(colors);
+    expect(roles.texts).toHaveLength(0);
+    expect(roles.accent?.name).toBe('Charcoal');
+  });
+
+  it('a "warm border accent" role is NOT miscategorized as a background surface', () => {
+    const colors = [token('Rustic', '#B08968', 'Warm border accent')];
+    const roles = classifyColorRoles(colors);
+    expect(roles.surfaces).toHaveLength(0);
+    expect(roles.accent?.name).toBe('Rustic');
+  });
+
+  it('a heading role mentioning "font accent" still classifies as heading, not decoration', () => {
+    // Guards against an overzealous decoration-word check swallowing a legitimate
+    // heading role that happens to say "accent" without meaning a border/highlight.
+    const colors = [token('Titan', '#111111', 'Display heading font accent')];
+    const roles = classifyColorRoles(colors);
+    expect(roles.heading?.name).toBe('Titan');
+  });
 });

@@ -1,106 +1,187 @@
 /**
- * Generates Tailwind v4 @theme CSS from parsed DesignTokens.
+ * Generates the DESIGN.md → CSS theme override block.
+ *
+ * Emits a plain `:root { --aw-color-* }` block — NOT a Tailwind `@theme` block —
+ * because it is injected as a runtime inline <style> (wrapped in the
+ * `landing-kit-design-theme` cascade layer — see integration.ts) rather than being
+ * processed by Tailwind at build time. `--aw-color-*` are the exact custom properties
+ * the widgets + tailwind.css read (tailwind.css's `@theme { --color-primary:
+ * var(--aw-color-primary) }` and pm7-bridge.css both derive from these), so overriding
+ * them re-skins every component.
  */
-import type { DesignTokens } from './parser';
+import type { DesignTokens, ColorToken } from './parser';
+import { classifyColorRoles } from './color-roles';
+import {
+  contrastRatio,
+  contrastRatioFromLuminances,
+  relativeLuminance,
+  parseChannels,
+  WCAG_AA_NORMAL_TEXT,
+  DEFAULT_BG_PAGE_LUMINANCE_ESTIMATE,
+  DEFAULT_BG_PAGE_LABEL,
+} from './contrast';
 
-function kebab(str: string): string {
-  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-}
+const DARK_ENOUGH_LUMINANCE = 0.2;
 
 export function generateThemeCss(tokens: DesignTokens): string {
-  const lines: string[] = [];
+  const colors = tokens.colors;
+  const primary = colors[0];
+  const roles = classifyColorRoles(colors);
 
-  lines.push(`/* Generated from DESIGN.md: ${tokens.name} */`);
-  lines.push('');
-  lines.push('@theme {');
+  // secondary/accent default to primary so a DESIGN.md with only a primary color
+  // still fully displaces the CustomStyles teal defaults (e.g. btn-primary hover,
+  // which reads --aw-color-secondary) instead of leaking the kit's brand.
+  const secondary = roles.secondary ?? primary;
+  const accent = roles.accent ?? primary;
+  const surface = roles.surfaces[0];
+  const text = roles.texts[0];
 
-  // Colors
-  if (tokens.colors.length > 0) {
-    lines.push('  /* Colors */');
-    const primary = tokens.colors[0];
-    lines.push(`  --color-primary: ${primary.hex};`);
-    for (const c of tokens.colors.slice(1)) {
-      lines.push(`  --color-${kebab(c.name)}: ${c.hex};`);
-    }
-    lines.push('');
-  }
+  // CRITICAL fix: --aw-color-bg-page and --aw-color-text-default used to be two
+  // UNCOUPLED optional overrides. A DESIGN.md naming only a dark Surface (no
+  // text/foreground/body bullet) set bg-page dark while text-default stayed at its
+  // near-black default → ~1.07:1 contrast → invisible body text sitewide. bg-page is
+  // now only overridden when a text-role color is ALSO present to pair with it
+  // (mirrors generateSmartDarkMode's `surfaces.length === 0 || texts.length === 0`
+  // gate).
+  const pairSurfaceAndText = !!(surface && text);
 
-  // Fonts
-  lines.push('  /* Typography */');
-  lines.push(`  --font-display: "${tokens.fonts.display}", system-ui, sans-serif;`);
-  lines.push(`  --font-body: "${tokens.fonts.body}", system-ui, sans-serif;`);
-  lines.push(`  --font-mono: "${tokens.fonts.mono}", ui-monospace, monospace;`);
-  lines.push('');
-
-  // Font sizes from scale
-  if (Object.keys(tokens.scale).length > 0) {
-    lines.push('  /* Scale */');
-    for (const [key, value] of Object.entries(tokens.scale)) {
-      const cleanValue = value.replace(/\s*\/.*/, ''); // "1rem / 1.6" → "1rem"
-      lines.push(`  --text-${key}: ${cleanValue};`);
-    }
-    lines.push('');
-  }
-
-  // Border radius
-  lines.push('  /* Shape */');
-  lines.push(`  --radius-btn: ${tokens.borderRadius};`);
-  lines.push(`  --radius-card: ${tokens.borderRadius === '9999px' ? '1.5rem' : tokens.borderRadius};`);
-  lines.push('');
-
-  // Motion
-  lines.push('  /* Motion */');
-  const duration = tokens.motion.motion >= 7 ? '540ms' : tokens.motion.motion >= 4 ? '300ms' : '150ms';
-  lines.push(`  --duration-enter: ${duration};`);
-  lines.push(`  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);`);
-
-  lines.push('}');
-
-  return lines.join('\n');
-}
-
-/** Generate pm7 CSS custom property overrides from design tokens */
-export function generatePm7Overrides(tokens: DesignTokens): string {
-  if (tokens.colors.length === 0) return '';
+  // MAJOR-1 fix: the REVERSE case was still open — a lone text-role color (no paired
+  // Surface) was emitted unconditionally, with no check against what it will actually
+  // render on: the kit's own default bg-page. A dark-first DESIGN.md naming a LIGHT
+  // body-text color, whose Surface bullet uses an off-whitelist role word the
+  // classifier drops, silently produced light-on-light invisible body text. Compute the
+  // one check up front and reuse it below.
+  const contrast = checkThemeContrast(tokens);
 
   const lines: string[] = [];
-  lines.push('');
-  lines.push('/* pm7-ui overrides from DESIGN.md */');
+  lines.push(`/* Generated from DESIGN.md: ${tokens.name} — overrides CustomStyles.astro --aw-color-* defaults */`);
   lines.push(':root {');
+  lines.push(`  --aw-color-primary: ${primary.hex};`);
+  lines.push(`  --aw-color-secondary: ${secondary.hex};`);
+  lines.push(`  --aw-color-accent: ${accent.hex};`);
 
-  const primary = tokens.colors[0];
-  lines.push(`  --pm7-primary: ${primary.hex};`);
+  if (pairSurfaceAndText) {
+    lines.push(`  --aw-color-bg-page: ${surface.hex};`);
+    lines.push(`  --aw-color-text-default: ${text.hex};`);
+    // Heading follows body text when DESIGN.md doesn't name one explicitly — otherwise
+    // the default (dark) heading color would stay invisible against a new dark bg too.
+    lines.push(`  --aw-color-text-heading: ${(roles.heading ?? text).hex};`);
+  } else {
+    if (text) {
+      // Fail-safe, mirroring the bg-page gate above: only apply a lone text-default
+      // override when it's verified to meet WCAG AA against the default bg-page.
+      // Skip (keep the kit's own known-safe default near-black text) when it would be
+      // low-contrast OR unverifiable (oklch/hsl) — integration.ts's WCAG warning
+      // (checkThemeContrast) explains why, never silent.
+      const loneTextIsSafe = contrast?.meetsAA === true;
+      if (loneTextIsSafe) lines.push(`  --aw-color-text-default: ${text.hex};`);
+    }
+    if (roles.heading) lines.push(`  --aw-color-text-heading: ${roles.heading.hex};`);
+  }
+  if (roles.muted) lines.push(`  --aw-color-text-muted: ${roles.muted.hex};`);
 
-  const surface = tokens.colors.find(c => c.role.toLowerCase().includes('surface') || c.role.toLowerCase().includes('background'));
-  if (surface) lines.push(`  --pm7-background: ${surface.hex};`);
-
-  const text = tokens.colors.find(c => c.role.toLowerCase().includes('text') || c.role.toLowerCase().includes('foreground'));
-  if (text) lines.push(`  --pm7-foreground: ${text.hex};`);
-
-  const muted = tokens.colors.find(c => c.role.toLowerCase().includes('muted') || c.role.toLowerCase().includes('secondary text'));
-  if (muted) lines.push(`  --pm7-muted: ${muted.hex};`);
-
-  const border = tokens.colors.find(c => c.role.toLowerCase().includes('border') || c.role.toLowerCase().includes('divider'));
-  if (border) lines.push(`  --pm7-border: ${border.hex};`);
+  // HIGH-4 fix: --aw-color-bg-page-dark was never emitted, so a branded consumer got
+  // rebranded buttons/text but stock-navy dark chrome (footer/header/mobile menu —
+  // tailwind.css .bg-dark). Prefer an explicit dark-role token; else derive from the
+  // darkest classifiable (hex/rgb) color, but only if it's actually dark enough to
+  // serve as a dark-mode surface (avoids picking a light gray as a fake "dark" bg).
+  const bgDark = pickExplicitDarkSurface(colors) ?? pickDarkestClassifiable(colors);
+  if (bgDark) lines.push(`  --aw-color-bg-page-dark: ${bgDark.hex};`);
 
   lines.push('}');
+
   return lines.join('\n');
 }
 
-export function generateDarkModeOverrides(tokens: DesignTokens): string {
-  if (tokens.colors.length < 2) return '';
-
-  const lines: string[] = [];
-  lines.push('');
-  lines.push('@variant dark {');
-  lines.push('  @theme {');
-  // In dark mode, swap surface/text if we detect light/dark roles
-  const hasLight = tokens.colors.some(c => c.role.toLowerCase().includes('surface') || c.role.toLowerCase().includes('background'));
-  if (hasLight) {
-    lines.push('    /* Dark mode overrides — customize per design */');
+/**
+ * FOLD-IN fix: the explicit-dark-role pick used to trust the "dark" name/role substring
+ * alone, with NO luminance check — a `**Charcoal** (#333) — dark accent for borders`
+ * bullet could hijack the ENTIRE site's dark-mode chrome even though its role is a
+ * border decoration, not a background. Now requires the same ≤0.2 luminance gate
+ * `pickDarkestClassifiable` already enforces; an unverifiable (oklch/hsl) "dark"-named
+ * color is not trusted on the label alone and falls through to the derived pick instead.
+ */
+function pickExplicitDarkSurface(colors: ColorToken[]): ColorToken | undefined {
+  const candidates = colors.filter(
+    (c) => /\bdark\b/.test(c.role.toLowerCase()) || /\bdark\b/.test(c.name.toLowerCase())
+  );
+  for (const c of candidates) {
+    const channels = parseChannels(c.hex);
+    if (!channels) continue;
+    if (relativeLuminance(channels) <= DARK_ENOUGH_LUMINANCE) return c;
   }
-  lines.push('  }');
-  lines.push('}');
+  return undefined;
+}
 
-  return lines.join('\n');
+function pickDarkestClassifiable(colors: ColorToken[]): ColorToken | undefined {
+  let best: { token: ColorToken; lum: number } | undefined;
+  for (const c of colors) {
+    const channels = parseChannels(c.hex);
+    if (!channels) continue;
+    const lum = relativeLuminance(channels);
+    if (lum > DARK_ENOUGH_LUMINANCE) continue;
+    if (!best || lum < best.lum) best = { token: c, lum };
+  }
+  return best?.token;
+}
+
+export interface ContrastCheck {
+  /** WCAG contrast ratio, or `null` when the pair uses a non-hex/rgb value this
+   * lightweight checker can't verify (oklch/hsl) — NOT the same as "passed". */
+  ratio: number | null;
+  bg: string;
+  text: string;
+  meetsAA: boolean;
+  /** `true` when `bg` is the kit's own default bg-page ESTIMATE (see
+   * DEFAULT_BG_PAGE_LABEL) rather than an explicit DESIGN.md Surface color — i.e. this
+   * check is for a LONE text override (MAJOR-1), not a paired surface+text override. */
+  againstDefaultBg: boolean;
+}
+
+/**
+ * A build-time WCAG check for whatever surface/text override `generateThemeCss` is about
+ * to apply:
+ * - Surface AND text both present → checks the two DESIGN.md values against each other
+ *   (the CRITICAL-fix paired case).
+ * - Text only, no Surface (MAJOR-1) → checks the lone text value against the kit's own
+ *   default bg-page (an estimate — see DEFAULT_BG_PAGE_LUMINANCE_ESTIMATE), since that
+ *   is what it will actually render on.
+ * - Otherwise (no text at all, or Surface-only which is already gated off and never
+ *   applied) → `null`, nothing new to check.
+ *
+ * Callers (integration.ts, generateThemeCss) warn when `meetsAA` is false, and
+ * separately note when `ratio` is `null` (unverifiable, never treated as a pass).
+ */
+export function checkThemeContrast(tokens: DesignTokens): ContrastCheck | null {
+  const roles = classifyColorRoles(tokens.colors);
+  const surface = roles.surfaces[0];
+  const text = roles.texts[0];
+
+  if (surface && text) {
+    const ratio = contrastRatio(surface.hex, text.hex);
+    return {
+      ratio,
+      bg: surface.hex,
+      text: text.hex,
+      meetsAA: ratio !== null && ratio >= WCAG_AA_NORMAL_TEXT,
+      againstDefaultBg: false,
+    };
+  }
+
+  if (!surface && text) {
+    const channels = parseChannels(text.hex);
+    if (!channels) {
+      return { ratio: null, bg: DEFAULT_BG_PAGE_LABEL, text: text.hex, meetsAA: false, againstDefaultBg: true };
+    }
+    const ratio = contrastRatioFromLuminances(relativeLuminance(channels), DEFAULT_BG_PAGE_LUMINANCE_ESTIMATE);
+    return {
+      ratio,
+      bg: DEFAULT_BG_PAGE_LABEL,
+      text: text.hex,
+      meetsAA: ratio >= WCAG_AA_NORMAL_TEXT,
+      againstDefaultBg: true,
+    };
+  }
+
+  return null;
 }

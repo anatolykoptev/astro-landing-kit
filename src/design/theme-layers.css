@@ -1,0 +1,22 @@
+/**
+ * @krolik/landing-kit — --aw-color-* precedence declaration.
+ *
+ * HIGH-1 / HIGH-2 fix: there are three possible SOURCES of --aw-color-* overrides:
+ *   1. landing-kit-defaults      — src/components/CustomStyles.astro (kit-neutral teal,
+ *                                  always present, lowest priority)
+ *   2. landing-kit-theme-starter — src/assets/styles/theme.css (opt-in manual brand
+ *                                  starter a consumer `@import`s into their own stylesheet)
+ *   3. landing-kit-design-theme  — src/design/integration.ts (DESIGN.md-generated,
+ *                                  highest priority — DESIGN.md always wins when present)
+ *
+ * This bare `@layer` statement (no body) declares that priority order ONCE. Per the CSS
+ * Cascading Level 5 spec, relative layer priority is fixed by the order layer NAMES are
+ * first encountered — NOT by where each layer's actual rules physically appear later.
+ * That makes the precedence chain hold regardless of:
+ *   - whether a consumer imports theme.css before or after Layout's own styles,
+ *   - a future edit that reorders <CustomStyles /> / <DesignTheme /> in Layout.astro.
+ *
+ * This file MUST be the first stylesheet Layout.astro imports, so this order is
+ * established before any of the three layers' bodies are parsed.
+ */
+@layer landing-kit-defaults, landing-kit-theme-starter, landing-kit-design-theme;

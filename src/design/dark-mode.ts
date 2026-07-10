@@ -1,13 +1,34 @@
 /**
- * Smart dark/light mode resolver — generates CSS overrides from DesignTokens color roles.
+ * Smart dark-mode resolver — generates a `.dark { --aw-color-* }` override from
+ * DesignTokens color roles. Emitted alongside generateThemeCss()'s :root block and
+ * injected after CustomStyles.astro, so it overrides the kit's own `.dark` defaults.
  */
-import type { DesignTokens, ColorToken } from './parser';
+import type { DesignTokens } from './parser';
+import { classifyColorRoles } from './color-roles';
 
-function hexToHsl(hex: string): { h: number; s: number; l: number } {
-  const r = parseInt(hex.slice(1, 3), 16) / 255;
-  const g = parseInt(hex.slice(3, 5), 16) / 255;
-  const b = parseInt(hex.slice(5, 7), 16) / 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+/**
+ * Parse a `#rgb` / `#rrggbb` hex into HSL. Returns `null` for any NON-hex value
+ * (oklch/rgb/hsl function syntax, accepted since the parser's #12 tolerance change).
+ *
+ * The pre-#12 code assumed `#rrggbb` and ran `parseInt(value.slice(1,3), 16)` on an
+ * `oklch(...)` string → `NaN` → every downstream light/dark comparison silently went
+ * false, misclassifying the design. Callers MUST treat `null` as "lightness unknown"
+ * and exclude it from the classification rather than letting it poison a comparison.
+ */
+function hexToHsl(value: string): { h: number; s: number; l: number } | null {
+  const m = /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/.exec(value.trim());
+  if (!m) return null;
+  let hex = m[1];
+  if (hex.length === 3)
+    hex = hex
+      .split('')
+      .map((ch) => ch + ch)
+      .join('');
+  const r = parseInt(hex.slice(0, 2), 16) / 255;
+  const g = parseInt(hex.slice(2, 4), 16) / 255;
+  const b = parseInt(hex.slice(4, 6), 16) / 255;
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b);
   const l = (max + min) / 2;
   if (max === min) return { h: 0, s: 0, l };
   const d = max - min;
@@ -19,58 +40,47 @@ function hexToHsl(hex: string): { h: number; s: number; l: number } {
   return { h: h * 360, s, l };
 }
 
-function isLightColor(hex: string): boolean {
-  return hexToHsl(hex).l > 0.6;
+/** `true` = light, `false` = dark, `null` = unknown (non-hex value we can't classify
+ * without a color library, which we deliberately don't add — see the RF-firewall /
+ * no-new-dep constraint). */
+function isLightColor(value: string): boolean | null {
+  const hsl = hexToHsl(value);
+  return hsl === null ? null : hsl.l > 0.6;
 }
 
 function isDarkDesign(tokens: DesignTokens): boolean {
   const nameLower = tokens.name.toLowerCase();
-  if (nameLower.includes('dark') || nameLower.includes('night') || nameLower.includes('noir')) return true;
-  const lightColors = tokens.colors.filter(c => isLightColor(c.hex));
-  return lightColors.length <= tokens.colors.length * 0.3;
+  if (/dark|night|noir/.test(nameLower)) return true;
+  // Reason only over colors we can classify; non-hex values are ignored, never
+  // silently counted as dark (which is what the NaN bug used to do).
+  const classifiable = tokens.colors.map((c) => isLightColor(c.hex)).filter((v): v is boolean => v !== null);
+  if (classifiable.length === 0) return false;
+  const lightCount = classifiable.filter(Boolean).length;
+  return lightCount <= classifiable.length * 0.3;
 }
 
 export function generateSmartDarkMode(tokens: DesignTokens): string {
   if (tokens.colors.length < 2) return '';
 
-  const lines: string[] = [''];
-  const dark = isDarkDesign(tokens);
+  // MEDIUM fix: surface/text classification now comes from the ONE shared classifier
+  // (color-roles.ts) instead of a second, slightly divergent regex set kept in sync by
+  // hand with theme-generator.ts's.
+  const { surfaces, texts } = classifyColorRoles(tokens.colors);
 
-  // Classify colors by role
-  const surfaces: ColorToken[] = [];
-  const texts: ColorToken[] = [];
-
-  for (const c of tokens.colors) {
-    const role = c.role.toLowerCase();
-    if (/surface|background|cream|parchment|light|white|warm/.test(role)) surfaces.push(c);
-    else if (/text|foreground|dark|deep|forest|body/.test(role)) texts.push(c);
+  if (surfaces.length === 0 || texts.length === 0) {
+    return '/* Auto dark mode skipped — DESIGN.md needs both a surface-role and a text-role color to swap; override .dark manually */';
   }
 
-  if (surfaces.length === 0 && texts.length === 0) {
-    lines.push('/* No surface/text role colors detected — add dark mode manually */');
-    return lines.join('\n');
-  }
-
-  const variant = dark ? 'light' : 'dark';
-  lines.push(`@variant ${variant} {`);
-  lines.push('  @theme {');
-
-  if (surfaces.length > 0 && texts.length > 0) {
-    lines.push(`    /* Swap: surfaces ↔ texts for ${variant} mode */`);
-    lines.push(`    --color-surface: ${texts[0].hex};`);
-    lines.push(`    --color-text: ${surfaces[0].hex};`);
-  } else if (surfaces.length > 0) {
-    lines.push(`    /* Only surface colors detected — dark text fallback */`);
-    lines.push(`    --color-surface: #0f0f0f;`);
-    lines.push(`    --color-text: ${surfaces[0].hex};`);
-  } else {
-    lines.push(`    /* Only text colors detected — light surface fallback */`);
-    lines.push(`    --color-surface: ${texts[0].hex};`);
-    lines.push(`    --color-text: #f5f5f5;`);
-  }
-
-  // Keep primary accent — usually works in both modes
-  lines.push('  }');
+  // Swap surface ↔ text for dark mode. The swap uses the raw token VALUES verbatim,
+  // so it is safe for hex and non-hex (oklch/rgb/hsl) alike — only the classification
+  // heuristic below needs hex, and it degrades gracefully when it can't classify.
+  const reads = isDarkDesign(tokens) ? 'dark' : 'light';
+  const lines: string[] = [];
+  lines.push(`/* Auto dark mode — swap surface ↔ text (design reads as ${reads}) */`);
+  lines.push('.dark {');
+  lines.push(`  --aw-color-bg-page: ${texts[0].hex};`);
+  lines.push(`  --aw-color-text-default: ${surfaces[0].hex};`);
+  lines.push(`  --aw-color-text-heading: ${surfaces[0].hex};`);
   lines.push('}');
 
   return lines.join('\n');

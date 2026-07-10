@@ -7,7 +7,7 @@ Tailwind v4 base stylesheet and canonical theme tokens.
 Two CSS files:
 
 - **tailwind.css** — Tailwind v4 entry point. Imports base, typography plugin, sets Tailwind `@theme` mappings to `--aw-color-*` CSS variables, and defines utility/component classes (`btn`, `btn-primary`, etc.). Consumed by `Layout.astro` — already wired in.
-- **theme.css** — Canonical color token starter. Import this in your consumer to apply a ready-made neutral-teal palette that you can then override per brand.
+- **theme.css** — Canonical color token starter. Import this in your consumer to apply a ready-made neutral-teal palette that you can then override per brand. Wrapped in the `landing-kit-theme-starter` cascade layer — see `src/design/README.md` "Precedence" for how this ranks against `CustomStyles.astro` defaults and an opt-in `DESIGN.md` theme.
 
 ## theme.css usage
 
@@ -29,6 +29,10 @@ Or import in an Astro layout:
 import '@krolik/landing-kit/styles/theme.css';
 ---
 ```
+
+The override block above is un-layered, so it wins over `theme.css` (and even over a
+`DESIGN.md` theme, if the design integration is also mounted) regardless of import order
+— un-layered CSS always beats any named cascade layer.
 
 ## tailwind.css usage
 

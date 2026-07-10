@@ -33,10 +33,16 @@ import '@fontsource-variable/inter';
     --aw-color-secondary: rgb(5 150 105);
     --aw-color-accent: rgb(16 185 129);
 
-    --aw-color-text-heading: rgb(0 0 0);
+    /* Near-black / near-white, not pure #000/#fff — a faint cool tint
+       (chroma 0.005-0.008, hue ~265) matching the kit's own dark-navy lean
+       (see --aw-color-bg-page-dark below and the slate-family dark: classes
+       used throughout the widgets). This is the kit's zero-config default —
+       CustomStyles.astro, not src/assets/styles/theme.css (that file is an
+       opt-in starter the build never imports on its own). */
+    --aw-color-text-heading: oklch(0.22 0.006 265);
     --aw-color-text-default: rgb(16 16 16);
     --aw-color-text-muted: rgb(16 16 16 / 66%);
-    --aw-color-bg-page: rgb(255 255 255);
+    --aw-color-bg-page: oklch(0.99 0.005 265);
 
     --aw-color-bg-page-dark: rgb(3 6 32);
 

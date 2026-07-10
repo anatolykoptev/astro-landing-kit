@@ -7,9 +7,10 @@ export interface Props {
   items?: Array<Item>;
   defaultIcon?: string;
   classes?: Record<string, string>;
+  animate?: boolean;
 }
 
-const { items = [], classes = {}, defaultIcon } = Astro.props as Props;
+const { items = [], classes = {}, defaultIcon, animate = false } = Astro.props as Props;
 
 const {
   container: containerClass = '',
@@ -18,6 +19,12 @@ const {
   description: descriptionClass = '',
   icon: defaultIconClass = 'text-primary dark:text-slate-200 border-primary dark:border-blue-700',
 } = classes;
+
+// Opt-in fade, matching Hero/WidgetWrapper (v0.2.0). When off (default) items
+// render at full opacity — the fade set `opacity-0` as a base and relied on the
+// intersection animation to reveal content, so a default Steps render (or one
+// without the observer running) showed invisible timeline entries.
+const fadeIn = animate ? 'intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade' : '';
 ---
 
 {
@@ -25,11 +32,7 @@ const {
     <div class={containerClass}>
       {items.map(({ title, description, icon, classes: itemClasses = {} }, index = 0) => (
         <div
-          class={twMerge(
-            'flex intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade',
-            panelClass,
-            itemClasses?.panel
-          )}
+          class={twMerge('flex', fadeIn, panelClass, itemClasses?.panel)}
         >
           <div class="flex flex-col items-center mr-4 rtl:mr-0 rtl:ml-4">
             <div>

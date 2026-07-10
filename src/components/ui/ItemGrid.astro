@@ -71,7 +71,8 @@ const {
       {/* ============================================================
           layout = 'chapters' — full-width editorial list with hairline rules.
           Chapter number rendered as .chapter-num (styled via CSS token).
-          No card chrome, icons suppressed by default unless item.icon set.
+          No card chrome. Icon renders when item.icon or defaultIcon is set;
+          item.icon = null suppresses it even when defaultIcon is set.
           ============================================================ */}
       {layout === 'chapters' && (
         <div class={twMerge('w-full', containerClass)}>
@@ -88,9 +89,9 @@ const {
               </span>
               <div class="flex-1 min-w-0">
                 <div class="flex items-start gap-3">
-                  {icon !== null && icon && (
+                  {icon !== null && (icon || defaultIcon) && (
                     <Icon
-                      name={icon}
+                      name={(icon || defaultIcon) as string}
                       class={twMerge('w-6 h-6 shrink-0 mt-1', defaultIconClass, itemClasses?.icon)}
                     />
                   )}
@@ -117,17 +118,27 @@ const {
 
       {/* ============================================================
           layout = 'log' — monospace dense terminal block.
-          Items render as <li> with › prompt prefix. No icons, no cards.
+          Items render as <li> with › prompt prefix. No card chrome; icon
+          only renders when item.icon or defaultIcon is set (same
+          icon-or-defaultIcon-with-null-override contract as 'grid'/'chapters').
           ============================================================ */}
       {layout === 'log' && (
         <ul class={twMerge('list-none font-mono text-sm leading-relaxed space-y-2', containerClass)}>
-          {items.map(({ title, description, callToAction, classes: itemClasses = {} }) => (
+          {items.map(({ title, description, icon, callToAction, classes: itemClasses = {} }) => (
             <li class={twMerge('grid gap-4', panelClass, itemClasses?.panel)} style="grid-template-columns: 1.5em 1fr;">
               <span class="text-eyebrow font-bold select-none" aria-hidden="true">›</span>
               <div>
-                {title && (
-                  <span class={twMerge('font-medium', titleClass, itemClasses?.title)}>{title}</span>
-                )}
+                <span class="inline-flex items-center gap-1.5">
+                  {icon !== null && (icon || defaultIcon) && (
+                    <Icon
+                      name={(icon || defaultIcon) as string}
+                      class={twMerge('w-4 h-4 shrink-0', defaultIconClass, itemClasses?.icon)}
+                    />
+                  )}
+                  {title && (
+                    <span class={twMerge('font-medium', titleClass, itemClasses?.title)}>{title}</span>
+                  )}
+                </span>
                 {description && (
                   <span
                     class={twMerge('text-muted ml-2', descriptionClass, itemClasses?.description)}

@@ -11,12 +11,17 @@ const {
   tagline = '',
   testimonials = [],
   callToAction,
+  animate = false,
 
   id,
   isDark = false,
   classes = {},
   bg = await Astro.slots.render('bg'),
 } = Astro.props;
+
+// Opt-in fade (v0.2.0) — off by default so testimonial cards are never left
+// invisible (opacity-0) when the intersection observer does not run.
+const fadeIn = animate ? 'intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade' : '';
 ---
 
 <WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-6xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
@@ -26,7 +31,7 @@ const {
     {
       testimonials &&
         testimonials.map(({ title, testimonial, name, job, image }) => (
-          <div class="flex h-auto intersect-once motion-safe:md:intersect:animate-fade motion-safe:md:opacity-0 intersect-quarter">
+          <div class:list={['flex h-auto', fadeIn]}>
             <div class="flex flex-col p-4 md:p-6 rounded-md shadow-xl dark:shadow-none dark:border dark:border-slate-600">
               {title && <h2 class="text-lg font-medium leading-6 pb-4">{title}</h2>}
               {testimonial && (

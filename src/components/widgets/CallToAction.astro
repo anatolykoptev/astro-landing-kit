@@ -51,8 +51,8 @@ const isLeft = align === 'left';
       actions && (
         <div
           class:list={[
-            'max-w-xs sm:max-w-md m-auto flex flex-nowrap flex-col sm:flex-row gap-4 mt-6',
-            isLeft ? 'sm:justify-start' : 'sm:justify-center',
+            'flex flex-col sm:flex-row gap-4 mt-6',
+            isLeft ? 'sm:justify-start' : 'sm:justify-center mx-auto max-w-xs sm:max-w-none',
           ]}
         >
           {Array.isArray(actions) ? (

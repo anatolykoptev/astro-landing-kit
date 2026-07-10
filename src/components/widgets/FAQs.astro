@@ -11,6 +11,11 @@ const {
   items = [],
   columns = 2,
 
+  // Default to no icon so FAQs render out-of-box for consumers that have not
+  // installed/configured @iconify-json/tabler. Pass e.g. "tabler:chevron-right"
+  // to restore an icon (requires the tabler icon set in the consumer's setup).
+  defaultIcon = '',
+
   id,
   isDark = false,
   classes = {},
@@ -23,7 +28,7 @@ const {
   <ItemGrid
     items={items}
     columns={columns}
-    defaultIcon="tabler:chevron-right"
+    defaultIcon={defaultIcon}
     classes={{
       container: `${columns === 1 ? 'max-w-4xl' : ''} gap-y-8 md:gap-y-12`,
       panel: 'max-w-none',

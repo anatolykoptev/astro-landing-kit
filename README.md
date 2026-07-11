@@ -67,4 +67,4 @@ Every module is independently importable. No required "framework" entry point. U
 - `--aw-color-primary` legacy leak fixed: the old AstroWind variable no longer bleeds into consumer stylesheets.
 - `PageLayout` now wraps page content in a `<main>` landmark; consumers must **not** add a second `<main>` wrapper inside the default slot.
 
-**PR #TBD** — `sw` module added: versioned service-worker integration (`@krolik/landing-kit/sw`), modeled on oxpulse-chat's SW pattern. Auto-derives the cache name from the consumer repo's git SHA — no manual version bump. See [src/sw/README.md](src/sw/README.md) for the adopt snippet and the reload-on-activate caveat.
+**PR #19** — `sw` module added: versioned service-worker integration (`@krolik/landing-kit/sw`), modeled on oxpulse-chat's SW pattern. Auto-derives the cache name from the consumer repo's git SHA — no manual version bump. See [src/sw/README.md](src/sw/README.md) for the adopt snippet and the reload-on-activate caveat.

@@ -27,7 +27,9 @@ jobs:
     runs-on: [self-hosted, krolik]
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      # checkout@v5 — native node24 action runtime (v4 targets deprecated
+      # node20 and only runs via the runner's forced-node24 shim + warning).
+      - uses: actions/checkout@v5
 
       # The runner's systemd service has a bare PATH (/usr/bin first) where
       # node is the system v22. Select the box's nvm node 24 explicitly and

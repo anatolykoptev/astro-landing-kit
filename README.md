@@ -16,6 +16,7 @@ Composable Astro + Svelte primitives for marketing sites. Pick what you need.
 | [images](src/utils/README.md) | Astro image optimization helpers + unpic CDN support | stable |
 | [styles](src/assets/styles/README.md) | Tailwind v4 base stylesheet | stable |
 | [design](src/design/README.md) | DESIGN.md → CSS theme tokens, pm7 catalog | krolik-private |
+| [sw](src/sw/README.md) | Versioned service-worker integration (auto cache-bust, force-refresh stale tabs) | stable |
 | [integration](vendor/README.md) | astrowindIntegration: config.yaml loader for Astro | krolik-private |
 
 ## Install
@@ -65,3 +66,5 @@ Every module is independently importable. No required "framework" entry point. U
 - `maskIconColor` prop added to `Favicons.astro` for SVG mask-icon color control.
 - `--aw-color-primary` legacy leak fixed: the old AstroWind variable no longer bleeds into consumer stylesheets.
 - `PageLayout` now wraps page content in a `<main>` landmark; consumers must **not** add a second `<main>` wrapper inside the default slot.
+
+**PR #TBD** — `sw` module added: versioned service-worker integration (`@krolik/landing-kit/sw`), modeled on oxpulse-chat's SW pattern. Auto-derives the cache name from the consumer repo's git SHA — no manual version bump. See [src/sw/README.md](src/sw/README.md) for the adopt snippet and the reload-on-activate caveat.

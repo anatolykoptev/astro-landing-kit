@@ -30,7 +30,7 @@ Supported `StructuredDataConfig.type` values: `Organization`, `ProfessionalServi
 ## Example
 
 ```ts
-import { buildJsonLd } from '@krolik/landing-kit/seo';
+import { buildJsonLd } from 'astro-landing-kit/seo';
 
 const html = buildJsonLd(
   [

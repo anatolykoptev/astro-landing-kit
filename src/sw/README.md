@@ -27,7 +27,7 @@ landing page has no live session state to protect).
 
 ```ts
 // astro.config.ts
-import serviceWorkerIntegration from '@krolik/landing-kit/sw';
+import serviceWorkerIntegration from 'astro-landing-kit/sw';
 
 export default defineConfig({
   integrations: [serviceWorkerIntegration()],

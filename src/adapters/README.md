@@ -36,8 +36,8 @@ export async function loadJson(slug: string, basePath?: string): Promise<Landing
 ## Example
 
 ```ts
-import { loadJson } from '@krolik/landing-kit/adapters/json';
-import type { LandingPage } from '@krolik/landing-kit/adapters/types';
+import { loadJson } from 'astro-landing-kit/adapters/json';
+import type { LandingPage } from 'astro-landing-kit/adapters/types';
 
 const page: LandingPage = await loadJson('home', 'src/content');
 ```

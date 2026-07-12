@@ -43,7 +43,7 @@ Correct usage:
 
 ```astro
 ---
-import PageLayout from '@krolik/landing-kit/layouts/PageLayout';
+import PageLayout from 'astro-landing-kit/layouts/PageLayout';
 const meta = { title: 'Home', description: 'Welcome' };
 ---
 <PageLayout metadata={meta}>

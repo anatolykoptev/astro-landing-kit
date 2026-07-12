@@ -1,4 +1,4 @@
-# @krolik/landing-kit
+# astro-landing-kit
 
 Composable Astro + Svelte primitives for marketing sites. Pick what you need.
 
@@ -22,20 +22,20 @@ Composable Astro + Svelte primitives for marketing sites. Pick what you need.
 ## Install
 
 ```bash
-npm install @krolik/landing-kit
+npm i astro-landing-kit
 # or local workspace reference:
-# "dependencies": { "@krolik/landing-kit": "file:../../src/landing-kit" }
+# "dependencies": { "astro-landing-kit": "file:../../src/astro-landing-kit" }
 ```
 
 ## Quickstart
 
 ```astro
 ---
-import PageLayout from '@krolik/landing-kit/layouts/PageLayout';
-import Hero from '@krolik/landing-kit/widgets/Hero';
-import FAQs from '@krolik/landing-kit/widgets/FAQs';
-import { buildJsonLd } from '@krolik/landing-kit/seo';
-import { loadJson } from '@krolik/landing-kit/adapters/json';
+import PageLayout from 'astro-landing-kit/layouts/PageLayout';
+import Hero from 'astro-landing-kit/widgets/Hero';
+import FAQs from 'astro-landing-kit/widgets/FAQs';
+import { buildJsonLd } from 'astro-landing-kit/seo';
+import { loadJson } from 'astro-landing-kit/adapters/json';
 
 const page = await loadJson('home', 'src/content');
 const jsonLd = buildJsonLd(page.meta.structuredData ?? [], {
@@ -67,4 +67,6 @@ Every module is independently importable. No required "framework" entry point. U
 - `--aw-color-primary` legacy leak fixed: the old AstroWind variable no longer bleeds into consumer stylesheets.
 - `PageLayout` now wraps page content in a `<main>` landmark; consumers must **not** add a second `<main>` wrapper inside the default slot.
 
-**PR #19** — `sw` module added: versioned service-worker integration (`@krolik/landing-kit/sw`), modeled on oxpulse-chat's SW pattern. Auto-derives the cache name from the consumer repo's git SHA — no manual version bump. See [src/sw/README.md](src/sw/README.md) for the adopt snippet and the reload-on-activate caveat.
+**PR #19** — `sw` module added: versioned service-worker integration (`astro-landing-kit/sw`), modeled on oxpulse-chat's SW pattern. Auto-derives the cache name from the consumer repo's git SHA — no manual version bump. See [src/sw/README.md](src/sw/README.md) for the adopt snippet and the reload-on-activate caveat.
+
+**PR #26** — renamed from `@krolik/landing-kit` (git-only dependency) to `astro-landing-kit`, published to the public npm registry. GitHub repo renamed to match (`anatolykoptev/astro-landing-kit`); old git URLs still resolve via GitHub's redirect but new consumers should install from npm.

@@ -57,7 +57,7 @@ precedence, because named-layer priority (not DOM position) is what the browser
 evaluates.
 
 **What this does NOT unconditionally guarantee:** where a consumer's OWN
-`@import "@krolik/landing-kit/styles/theme.css"` lands in their build's final bundled CSS
+`@import "astro-landing-kit/styles/theme.css"` lands in their build's final bundled CSS
 relative to `theme-layers.css`'s declaration is outside this kit's control — a bundler
 could, in principle, emit `theme.css`'s `@layer landing-kit-theme-starter { ... }` body in
 a position where that layer name is first encountered before our pre-declaration runs,
@@ -82,7 +82,7 @@ The integration is **opt-in**. Add it to your `astro.config`:
 
 ```ts
 // astro.config.mjs
-import designMdIntegration from '@krolik/landing-kit/design/integration';
+import designMdIntegration from 'astro-landing-kit/design/integration';
 
 export default defineConfig({
   integrations: [

@@ -24,6 +24,7 @@
     "./styles/*": "./src/assets/styles/*",
     "./design": "./src/design/index.ts",
     "./design/integration": "./src/design/integration.ts",
+    "./sw": "./src/sw/integration.ts",
     "./integration": "./vendor/integration/index.ts",
     "./components/FontPreload": "./src/components/FontPreload.astro",
     "./components/*": "./src/components/*.astro"

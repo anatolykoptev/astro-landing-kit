@@ -20,3 +20,14 @@ npm install && npm run dev
 
 ## Content
 Sites provide content via adapters. Default: JSON files in `content/`.
+
+## Consumer compatibility
+
+Consumers pin this kit by git-sha or `#semver:^X.Y.Z` (never published to a
+registry — see package.json). **v0.3.0+ requires the consumer's own `astro`
+to be `^7.0.0`** (peer-required by `@astrojs/svelte@9` / `@astrojs/mdx@7`,
+pulled in by the kit's Astro 6→7 bump). A consumer still on Astro 6 must NOT
+widen its kit semver range past `^0.2.x` until it bumps its own `astro`
+dependency in the same change — mixing an Astro-6 site with an Astro-7 kit
+is unsupported and will fail to build. Bump each consumer's astro version
+deliberately, one repo at a time; do not fleet-sweep.

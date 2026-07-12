@@ -108,15 +108,15 @@ export function checkThemeContrast(tokens: DesignTokens): ContrastCheck | null
 export default designMdIntegration  // AstroIntegration
 ```
 
-## Color bullet format
+## Color formats
 
-Section 2 (`## 2. Colors`) bullets look like `* **Name** (VALUE) — role`. `VALUE` accepts
+The parser accepts either numbered `## 2. Colors` bullets or a `## Color`/`## Colors` markdown table with name, value, and purpose columns. Table headers are descriptive rather than fixed; the color-value column is detected by syntax.
+
+Bullets look like `* **Name** (VALUE) — role`. `VALUE` accepts
 a 6-digit hex code (`#RRGGBB`) or a single-level `oklch(...)`/`rgb(...)`/`rgba(...)`/
-`hsl(...)`/`hsla(...)` function call — value-format tolerance only, the bullet/section
-structure itself is unchanged. Role words route to targets (via the shared
+`hsl(...)`/`hsla(...)` function call. Role words route to targets (via the shared
 `classifyColorRoles()` in `color-roles.ts`, used by both `theme-generator.ts` and
-`dark-mode.ts` so the two never diverge): the first color is `primary` (also
-`secondary`/`accent` unless a `Secondary`/`Accent` color is named); `surface`/`background`/
+`dark-mode.ts` so the two never diverge): a named `Primary` wins, then a named/role `Accent`, then the first color; `secondary` falls back through `Secondary`, `primary-strong`/`accent-strong`, then primary. `surface`/`background`/
 `cream`/`parchment`/`light`/`white`/`warm`/`paper`/`canvas`/`base`/`page`/`panel` →
 `bg-page`; `text`/`foreground`/`body`/`dark`/`deep`/`forest` → `text-default`; `muted` →
 `text-muted`; `heading`/`display`/`title` → `text-heading`. A role that ALSO mentions
@@ -165,8 +165,7 @@ verify contrast", never a false pass. Never silent, but only the paired case is 
 
 ## Failure behavior
 
-A `DESIGN.md` that parses to **zero colors** — wrong heading, wrong bullet format, or an
-unsupported document structure (e.g. a token table instead of bullets) — is a loud, thrown
+A `DESIGN.md` that parses to **zero colors** — wrong heading or no valid bullet/table rows — is a loud, thrown
 error naming the source file, not a silent fallback. This applies both to
 `parseDesignMd()` directly and to the integration, which does not catch-and-warn: a build
 with a broken `DESIGN.md` fails instead of shipping an unthemed site. A **missing**

@@ -10,6 +10,19 @@
   "homepage": "https://github.com/anatolykoptev/astro-landing-kit#readme",
   "bugs": "https://github.com/anatolykoptev/astro-landing-kit/issues",
   "license": "MIT",
+  "files": [
+    "src",
+    "!src/**/*.test.ts",
+    "!src/pages",
+    "!src/content",
+    "!src/content.config.ts",
+    "vendor",
+    "README.md",
+    "LICENSE.md",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "DESIGN.md"
+  ],
   "types": "./src/adapters/types.ts",
   "exports": {
     "./layouts/PageLayout": "./src/layouts/PageLayout.astro",

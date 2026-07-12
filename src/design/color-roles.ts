@@ -15,6 +15,8 @@ export interface RoleClassification {
   texts: ColorToken[];
   heading?: ColorToken;
   muted?: ColorToken;
+  /** Color named exactly "Primary" (case-insensitive). */
+  primary?: ColorToken;
   /** Color named exactly "Secondary" (case-insensitive). */
   secondary?: ColorToken;
   /** Color named "Accent" or whose role mentions "accent". */
@@ -50,13 +52,15 @@ export function classifyColorRoles(colors: ColorToken[]): RoleClassification {
   const texts: ColorToken[] = [];
   let heading: ColorToken | undefined;
   let muted: ColorToken | undefined;
+  let primary: ColorToken | undefined;
   let secondary: ColorToken | undefined;
   let accent: ColorToken | undefined;
 
   for (const c of colors) {
     const role = c.role.toLowerCase();
-    const name = c.name.toLowerCase();
+    const name = c.name.toLowerCase().replace(/^--/, '');
 
+    if (!primary && name === 'primary') primary = c;
     if (!secondary && name === 'secondary') secondary = c;
     if (!accent && (name === 'accent' || ACCENT_RE.test(role))) accent = c;
 
@@ -81,5 +85,5 @@ export function classifyColorRoles(colors: ColorToken[]): RoleClassification {
     }
   }
 
-  return { surfaces, texts, heading, muted, secondary, accent };
+  return { surfaces, texts, heading, muted, primary, secondary, accent };
 }

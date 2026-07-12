@@ -27,6 +27,21 @@ describe('generateThemeCss — emits --aw-color-* that widgets + tailwind.css ac
     expect(css).toContain(':root {');
   });
 
+  it('uses a named accent as primary when a semantic color table starts with its page surface', () => {
+    const tokens = parseDesignMd(
+      '# Brand\n\n## Color\n\n| Role | Value | Use |\n|---|---|---|\n| --bg | #FFFDF5 | Page background surface |\n| --surface | #F7F2EA | Raised card surface |\n| --ink | #101010 | Body text foreground |\n| --hairline | #DDD5CA | Borders and dividers |\n| --accent | #C4512D | Primary brand accent |\n| --accent-strong | #96391F | Strong action accent |\n| --on-accent | #FFFDF5 | Text on accent fills |\n',
+    );
+    const css = generateThemeCss(tokens);
+
+    expect(css).toContain('--aw-color-primary: #C4512D;');
+    expect(css).toContain('--aw-color-secondary: #96391F;');
+    expect(css).toContain('--aw-color-on-primary: #FFFDF5;');
+    expect(css).toContain('--aw-color-bg-page: #FFFDF5;');
+    expect(css).toContain('--aw-color-bg-card: #F7F2EA;');
+    expect(css).toContain('--aw-color-border: #DDD5CA;');
+    expect(css).toContain('--aw-color-text-default: #101010;');
+  });
+
   it('defaults secondary + accent to primary so no kit teal leaks when DESIGN.md gives only a primary', () => {
     const tokens = parseDesignMd(md('* **Primary** (#7C3AED) — Primary brand color'));
     const css = generateThemeCss(tokens);

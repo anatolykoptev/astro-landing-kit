@@ -249,12 +249,18 @@
   }
 
   .btn {
-    @apply inline-flex items-center justify-center rounded-full border-gray-400 border bg-transparent font-medium text-center text-base leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 hover:bg-gray-100 hover:border-gray-600 dark:text-slate-300 dark:border-slate-500 dark:hover:bg-slate-800 dark:hover:border-slate-800 cursor-pointer;
+    @apply inline-flex items-center justify-center rounded-full border bg-transparent font-medium text-center text-base leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 cursor-pointer;
     color: var(--aw-color-text-page);
+    border-color: var(--aw-color-border);
+  }
+  .btn:hover {
+    background-color: var(--aw-color-surface-hover);
+    border-color: var(--aw-color-text-muted);
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-full border bg-transparent font-semibold text-center text-base leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 cursor-pointer text-white hover:text-white dark:text-white;
+    @apply inline-flex items-center justify-center rounded-full border font-semibold text-center text-base leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 cursor-pointer;
+    color: var(--aw-color-on-primary);
     background-color: var(--aw-color-primary);
     border-color: var(--aw-color-primary);
   }
@@ -270,13 +276,27 @@
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-full border-gray-400 border bg-transparent font-medium text-center text-base leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 hover:bg-gray-100 hover:border-gray-600 dark:text-slate-300 dark:border-slate-500 dark:hover:bg-slate-800 dark:hover:border-slate-800 cursor-pointer;
+    @apply inline-flex items-center justify-center rounded-full border bg-transparent font-medium text-center text-base leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 cursor-pointer;
     color: var(--aw-color-text-page);
+    border-color: var(--aw-color-border);
+  }
+  .btn-secondary:hover {
+    background-color: var(--aw-color-surface-hover);
+    border-color: var(--aw-color-text-muted);
   }
 
   .btn-tertiary {
-    @apply inline-flex items-center justify-center rounded-full bg-transparent font-medium text-center text-base leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 border-none shadow-none hover:text-gray-900 dark:text-gray-400 dark:hover:text-white cursor-pointer;
+    @apply inline-flex items-center justify-center rounded-full bg-transparent font-medium text-center text-base leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 border-none shadow-none cursor-pointer;
     color: var(--aw-color-text-muted);
+  }
+  .btn-tertiary:hover {
+    color: var(--aw-color-text-heading);
+  }
+
+  :where(.btn, .btn-primary, .btn-secondary, .btn-tertiary):focus-visible {
+    outline: 2px solid var(--aw-color-focus-ring);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--aw-color-focus-offset);
   }
 }
 
@@ -286,7 +306,7 @@
 }
 @media (min-width: 768px) {
   #header.scroll > div:first-child {
-    background-color: rgb(255 255 255 / 0.9);
+    background-color: color-mix(in oklch, var(--aw-color-bg-page) 90%, transparent);
     backdrop-filter: blur(12px);
   }
 }
@@ -294,12 +314,12 @@
 #header.scroll.dark > div:first-child {
   background-color: var(--aw-color-bg-page);
   box-shadow: none;
-  border-bottom: 1px solid rgb(107 114 128 / 0.2);
+  border-bottom: 1px solid var(--aw-color-border);
 }
 @media (min-width: 768px) {
   .dark #header.scroll > div:first-child,
   #header.scroll.dark > div:first-child {
-    background-color: #030621e6;
+    background-color: color-mix(in oklch, var(--aw-color-bg-page-dark) 90%, transparent);
   }
 }
 
@@ -326,6 +346,9 @@
   stroke-width: 2.4;
 }
 
+[data-aw-toggle-menu] > [aria-hidden='true'] {
+  background-color: var(--aw-color-text-heading);
+}
 [data-aw-toggle-menu] path {
   @apply transition;
 }

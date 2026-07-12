@@ -23,6 +23,11 @@
     --aw-color-primary: rgb(16 185 129); /* emerald-500  */
     --aw-color-secondary: rgb(5 150 105); /* emerald-600  */
     --aw-color-accent: rgb(16 185 129); /* emerald-500  */
+    --aw-color-on-primary: oklch(0.99 0 0);
+    --aw-color-focus-ring: var(--aw-color-primary);
+    --aw-color-focus-offset: var(--aw-color-bg-page);
+    --aw-color-border: rgb(16 16 16 / 25%);
+    --aw-color-surface-hover: rgb(16 16 16 / 6%);
 
     /* Typography */
     --aw-font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
@@ -51,5 +56,7 @@
     --aw-color-text-page: rgb(229 236 246);
 
     --aw-color-bg-page: rgb(3 6 32);
+    --aw-color-border: rgb(229 236 246 / 28%);
+    --aw-color-surface-hover: rgb(229 236 246 / 10%);
   }
 }

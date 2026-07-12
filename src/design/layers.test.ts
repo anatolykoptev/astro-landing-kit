@@ -62,6 +62,18 @@ describe('cascade-layer precedence for --aw-color-*', () => {
   });
 });
 
+describe('interactive components use semantic theme tokens', () => {
+  it('does not hard-code blue focus rings or black menu bars', () => {
+    const css = read('../assets/styles/tailwind.css');
+    const toggle = read('../components/common/ToggleMenu.astro');
+
+    expect(css).toContain('--aw-color-focus-ring');
+    expect(css).toContain('--aw-color-on-primary');
+    expect(css).not.toContain('focus:ring-blue-500');
+    expect(toggle).not.toMatch(/bg-black|dark:bg-white/);
+  });
+});
+
 describe('HIGH-3: .btn-primary:hover gives feedback even when --aw-color-secondary equals primary', () => {
   it('tailwind.css applies a filter on hover that does not depend on secondary differing from primary', () => {
     const css = read('../assets/styles/tailwind.css');

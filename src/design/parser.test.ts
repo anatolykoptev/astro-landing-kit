@@ -29,6 +29,26 @@ describe('parseDesignMd — color value formats', () => {
   });
 });
 
+describe('parseDesignMd — markdown color tables', () => {
+  it('accepts an unnumbered Color section with role, value, and use columns', () => {
+    const md = `${HEADER}## Color\n\n| Role | OKLCH | Use |\n|---|---|---|\n| \`--bg\` | \`oklch(0.984 0.006 60)\` | Warm page surface |\n| \`--ink\` | \`oklch(0.24 0.012 50)\` | Primary body text |\n| \`--accent\` | \`#C4512D\` | Primary brand accent |\n`;
+
+    const tokens = parseDesignMd(md);
+
+    expect(tokens.colors).toEqual([
+      { name: '--bg', hex: 'oklch(0.984 0.006 60)', role: 'Warm page surface' },
+      { name: '--ink', hex: 'oklch(0.24 0.012 50)', role: 'Primary body text' },
+      { name: '--accent', hex: '#C4512D', role: 'Primary brand accent' },
+    ]);
+  });
+
+  it('keeps the document title as the design name when no Design System prefix is present', () => {
+    const md = '# Starthey design\n\n## Colors\n\n| Token | Value | Purpose |\n|---|---|---|\n| Primary | #C4512D | Primary brand color |\n';
+
+    expect(parseDesignMd(md).name).toBe('Starthey design');
+  });
+});
+
 describe('parseDesignMd — zero-colors must fail loudly, not silently produce nothing', () => {
   it('throws naming the source file and the expected bullet format when no colors parse', () => {
     const md = `${HEADER}## 2. Colors\n\nSome prose describing colors, but no bullet list here.\n`;

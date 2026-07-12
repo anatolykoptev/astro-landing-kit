@@ -50,7 +50,7 @@ required before your first import resolves.
 | Module | Purpose | Status |
 |---|---|---|
 | [layouts](src/layouts/README.md) | `PageLayout` / `LandingLayout` / `MarkdownLayout` shells | stable |
-| [widgets](src/components/widgets/README.md) | `Hero`, `Footer`, `FAQs`, `CTA`, `Stats`, `Steps`, `Features`, … | stable |
+| [widgets](src/components/widgets/README.md) | Prototype scaffolds: `Hero`, `Footer`, `FAQs`, `CTA`, `Stats`, `Steps`, `Features`, … | scaffold |
 | [ui](src/components/ui/README.md) | `Button`, `Headline`, `ItemGrid`, `WidgetWrapper` primitives | stable |
 | [islands](src/components/islands/README.md) | `ContactForm`, `StatsCounter`, `FaqAccordion` (Svelte 5) | stable |
 | [blog](src/components/blog/README.md) | Grid, List, SinglePost, Pagination, Tags | stable |

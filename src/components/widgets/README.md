@@ -159,4 +159,4 @@ import FAQs from 'astro-landing-kit/widgets/FAQs';
 
 ## Status
 
-stable (0.2.0)
+scaffold (API stable; visual markup requires product-specific composition for brand pages)

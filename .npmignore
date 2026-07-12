@@ -1,0 +1,7 @@
+src/**/*.test.ts
+src/pages/
+src/content/
+.github/
+.devin/
+.vscode/
+nginx/

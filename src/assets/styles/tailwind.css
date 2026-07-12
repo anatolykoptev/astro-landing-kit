@@ -86,6 +86,7 @@
 @source inline("block inline-block inline flex inline-flex hidden");
 @source inline("sm:block sm:hidden sm:flex sm:inline-flex md:block md:hidden md:flex");
 @source inline("relative absolute fixed sticky static");
+@source inline("md:relative md:absolute md:fixed md:sticky md:static");
 @source inline("inset-0 top-0 left-0 right-0 bottom-0 z-50 -z-[1]");
 
 /* Borders + radius */

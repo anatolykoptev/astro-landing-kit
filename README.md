@@ -59,7 +59,7 @@ required before your first import resolves.
 | [images](src/utils/README.md) | Astro image optimization + `unpic` CDN support | stable |
 | [styles](src/assets/styles/README.md) | Tailwind v4 base stylesheet | stable |
 | [sw](src/sw/README.md) | Versioned service worker — auto cache-bust, force-refresh stale tabs | stable |
-| [design](src/design/README.md) | `DESIGN.md` → CSS theme tokens | opinionated — reads its own README before adopting |
+| [design](src/design/README.md) | `DESIGN.md` → CSS theme tokens | stable |
 | [integration](vendor/README.md) | `astrowindIntegration`: `config.yaml` loader for Astro | experimental |
 
 Each module ships its own README with its exact exports and cross-module

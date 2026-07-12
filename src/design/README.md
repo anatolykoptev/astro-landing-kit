@@ -1,6 +1,6 @@
 # design
 
-DESIGN.md → CSS theme token pipeline. Krolik-private toolchain.
+DESIGN.md → CSS theme token pipeline.
 
 ## What
 
@@ -26,10 +26,9 @@ DESIGN.md
   → the browser                DESIGN.md --aw-color-* win (layer priority — see below)
 ```
 
-Why `--aw-color-*` and not Tailwind `@theme { --color-* }`: every widget, `tailwind.css`
-(`--color-primary: var(--aw-color-primary)`) and `pm7-bridge.css` derive from
-`--aw-color-*`. Overriding those re-skins everything; overriding the Tailwind names would
-miss `.btn-primary`, `.bg-page`, pm7, etc.
+Why `--aw-color-*` and not Tailwind `@theme { --color-* }`: every widget and `tailwind.css`
+(`--color-primary: var(--aw-color-primary)`) derive from `--aw-color-*`. Overriding those
+re-skins everything; overriding the Tailwind names would miss `.btn-primary`, `.bg-page`, etc.
 
 ## Precedence — three SOURCES of `--aw-color-*`
 
@@ -107,14 +106,6 @@ export function generateThemeCss(tokens: DesignTokens): string        // :root {
 export function generateSmartDarkMode(tokens: DesignTokens): string   // .dark { --aw-color-* }
 export function checkThemeContrast(tokens: DesignTokens): ContrastCheck | null
 export default designMdIntegration  // AstroIntegration
-
-// Catalogs
-export function searchComponents(query: string): CatalogEntry[]
-export function getComponent(id: string): CatalogEntry | undefined
-export function listComponents(): CatalogEntry[]
-export function searchSections(query: string): SectionRecipe[]
-export function getSection(id: string): SectionRecipe | undefined
-export function listSections(): SectionRecipe[]
 ```
 
 ## Color bullet format
@@ -191,4 +182,4 @@ classification (a non-hex value it cannot classify is skipped, never counted as 
 
 ## Status
 
-krolik-private — Astro integration + pm7 catalog are specific to the krolik stack.
+Stable. No dependencies beyond Node `fs` — safe to adopt on any Astro site.

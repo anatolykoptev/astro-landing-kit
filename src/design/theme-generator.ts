@@ -6,8 +6,8 @@
  * `landing-kit-design-theme` cascade layer — see integration.ts) rather than being
  * processed by Tailwind at build time. `--aw-color-*` are the exact custom properties
  * the widgets + tailwind.css read (tailwind.css's `@theme { --color-primary:
- * var(--aw-color-primary) }` and pm7-bridge.css both derive from these), so overriding
- * them re-skins every component.
+ * var(--aw-color-primary) }` derives from these), so overriding them re-skins every
+ * component.
  */
 import type { DesignTokens, ColorToken } from './parser';
 import { classifyColorRoles } from './color-roles';

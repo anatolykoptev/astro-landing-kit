@@ -2,6 +2,24 @@
 @plugin "@tailwindcss/typography";
 
 /* =====================================================================
+ * Self-relative content scan — the kit scanning its OWN sibling source
+ * directories. Tailwind v4's automatic content detection only walks a
+ * *consumer's* source tree; it never reaches into
+ * `node_modules/astro-landing-kit/src/**` where these templates actually
+ * live once the kit is a real npm dependency (not a `file:` symlink).
+ * These globs resolve relative to THIS file's own location
+ * (`src/assets/styles/`), so they work regardless of where in a
+ * consumer's node_modules tree the package ends up.
+ *
+ * Without this, any utility class that appears ONLY inside the kit's own
+ * `.astro`/`.svelte` templates — and isn't already hand-safelisted below —
+ * compiles to nothing in a real consumer build (e.g. every `dark:*` color
+ * variant across ~26 component files: `dark:text-white`, `dark:bg-slate-800`,
+ * etc. silently missing from the compiled CSS). */
+@source "../../components/**/*.{astro,svelte}";
+@source "../../layouts/**/*.astro";
+
+/* =====================================================================
  * Kit safelist — guarantees responsive layout utilities used by widgets
  * are compiled even when the kit is consumed via a `file:` symlink that
  * Tailwind v4's scanner does not follow by default.
@@ -161,12 +179,22 @@
   --section-y: clamp(56px, 10vw, 104px);
 }
 
+/* .bg-dark is defined via @utility (not @layer utilities) because it's the
+ * only one of this group ever used with a variant prefix (`dark:bg-dark` in
+ * Footer.astro, `dark:md:bg-dark` in Header.astro). A plain `@layer utilities
+ * { .foo {...} }` class is not variant-composable in Tailwind v4 — `dark:foo`
+ * never generates regardless of scanning or inline-safelisting; @utility is
+ * the at-rule that makes a custom class participate in the variant system.
+ * .bg-page / .bg-light / .text-page / .chapter-num stay as plain utilities
+ * below — verified (grep) they're never used with a variant prefix anywhere
+ * in src/, so converting them has no effect and isn't worth the churn. */
+@utility bg-dark {
+  background-color: var(--aw-color-bg-page-dark);
+}
+
 @layer utilities {
   .bg-page {
     background-color: var(--aw-color-bg-page);
-  }
-  .bg-dark {
-    background-color: var(--aw-color-bg-page-dark);
   }
   .bg-light {
     background-color: var(--aw-color-bg-page);

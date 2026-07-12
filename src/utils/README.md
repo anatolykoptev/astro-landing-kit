@@ -43,7 +43,6 @@ const src = await findImage('~/assets/images/hero.png');
 
 - `astro:assets` — `getImage`
 - `unpic` — CDN URL detection and transformation
-- `@astrolib/seo` — `OpenGraph` type
 
 ## Status
 

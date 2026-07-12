@@ -1,9 +1,22 @@
 import { isUnpicCompatible, unpicOptimizer, astroAssetsOptimizer } from './images-optimization';
 import type { ImageMetadata } from 'astro';
-import type { OpenGraph } from '@astrolib/seo';
 import type { ImagesOptimizer } from './images-optimization';
 /** The optimized image shape returned by our ImagesOptimizer */
 type OptimizedImage = Awaited<ReturnType<ImagesOptimizer>>[0];
+
+/** A single OG/Twitter image entry — the only shape adaptOpenGraphImages reads or rewrites. */
+export interface OpenGraphImage {
+  url?: string;
+  width?: number;
+  height?: number;
+}
+
+/** Structural stand-in for the old `@astrolib/seo` OpenGraph type — we only touch `.images`,
+ *  everything else is passed through untouched (see the 'title' passthrough test). */
+export interface OpenGraph {
+  images?: OpenGraphImage[];
+  [key: string]: unknown;
+}
 
 const load = async function () {
   let images: Record<string, () => Promise<unknown>> | undefined = undefined;

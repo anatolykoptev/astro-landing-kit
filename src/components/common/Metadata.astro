@@ -1,8 +1,8 @@
 ---
 import merge from 'lodash.merge';
-import { AstroSeo } from '@astrolib/seo';
+import { SEO } from 'astro-seo';
 
-import type { Props as AstroSeoProps } from '@astrolib/seo';
+import type { Props as AstroSeoProps } from 'astro-seo';
 
 import { SITE, METADATA, I18N } from 'astrowind:config';
 import type { MetaData } from '~/types';
@@ -24,7 +24,10 @@ const {
   twitter = {},
 } = Astro.props;
 
-const seoProps: AstroSeoProps = merge(
+// Resolve flat, next-seo-shaped values first (precedence: page props > METADATA > default) —
+// astro-seo's Props are nested (openGraph.basic/.optional/.image), so the flat intermediate is
+// adapted into that shape below, after image optimization.
+const resolved = merge(
   {
     title: '',
     titleTemplate: '%s',
@@ -34,7 +37,7 @@ const seoProps: AstroSeoProps = merge(
     description: undefined,
     openGraph: {
       url: canonical,
-      site_name: SITE?.name,
+      siteName: SITE?.name,
       images: [],
       locale: I18N?.language || 'en',
       type: 'website',
@@ -63,6 +66,47 @@ const seoProps: AstroSeoProps = merge(
     twitter: twitter,
   }
 );
+
+const adaptedOpenGraph = await adaptOpenGraphImages({ images: resolved.openGraph?.images ?? [] }, Astro.site);
+const [primaryImage] = adaptedOpenGraph.images ?? [];
+
+// astro-seo throws if `openGraph` is passed without `basic.title`/`basic.type`/`basic.image` —
+// only emit the openGraph prop once we actually have an image to point `basic.image` at.
+const seoOpenGraph = primaryImage?.url
+  ? {
+      basic: {
+        title: resolved.title || SITE?.name || '',
+        type: resolved.openGraph.type || 'website',
+        image: primaryImage.url,
+        url: resolved.openGraph.url,
+      },
+      image: {
+        width: primaryImage.width,
+        height: primaryImage.height,
+      },
+      optional: {
+        description: resolved.description,
+        siteName: resolved.openGraph.siteName,
+        locale: resolved.openGraph.locale,
+      },
+    }
+  : undefined;
+
+const seoProps: AstroSeoProps = {
+  title: resolved.title,
+  titleTemplate: resolved.titleTemplate,
+  canonical: resolved.canonical,
+  noindex: resolved.noindex,
+  nofollow: resolved.nofollow,
+  description: resolved.description,
+  openGraph: seoOpenGraph,
+  twitter: {
+    // next-seo-shaped `handle`/`site` map onto astro-seo's `creator`/`site`.
+    card: resolved.twitter?.cardType,
+    site: resolved.twitter?.site,
+    creator: resolved.twitter?.handle,
+  },
+};
 ---
 
-<AstroSeo {...{ ...seoProps, openGraph: await adaptOpenGraphImages(seoProps?.openGraph, Astro.site) }} />
+<SEO {...seoProps} />

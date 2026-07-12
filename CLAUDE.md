@@ -3,7 +3,7 @@
 Reusable Astro + Svelte 5 landing page kit. Fork of AstroWind.
 
 ## Stack
-Astro 5 + Svelte 5 + Tailwind CSS 4 + GSAP + @astrolib/seo
+Astro 6 + Svelte 5 + Tailwind CSS 4 + GSAP + astro-seo
 
 ## Dev
 npm install && npm run dev

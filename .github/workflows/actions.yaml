@@ -1,41 +1,48 @@
-name: GitHub Actions
-
+name: preflight
+# PR/push gate on the krolik self-hosted runner (fleet rule: GitHub-hosted
+# Actions are paid — never use them; one runner per repo). Runner:
+# ~/actions-runner-landing-kit on krolik, systemd user unit
+# actions-runner-landing-kit.service.
+#
+# History: this file previously ran a 3-version node matrix on
+# ubuntu-latest AND triggered on `main` while the repo's default branch is
+# `master` — so it never ran at all and every PR showed zero checks
+# (silent no-CI). Single node on self-hosted replaces it: one shared
+# 4-core box, a version matrix is waste.
+#
+# Private repo on the free plan → no branch-protection enforcement; the gate
+# is procedural: never merge a red preflight.
 on:
   pull_request:
-    branches:
-      - main
+    branches: [master]
   push:
-    branches:
-      - main
+    branches: [master]
+
+concurrency:
+  group: preflight-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version:
-          - 18
-          - 20
-          - 22
+  preflight:
+    runs-on: [self-hosted, krolik]
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js v${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: npm
+      # checkout@v5 — native node24 action runtime (v4 targets deprecated
+      # node20 and only runs via the runner's forced-node24 shim + warning).
+      - uses: actions/checkout@v5
+
+      # The runner's systemd service has a bare PATH (/usr/bin first) where
+      # node is the system v22. Select the box's nvm node 24 explicitly and
+      # surface the chosen version, so env drift breaks here — not as
+      # mysterious build failures.
+      - name: Select node 24 (nvm)
+        run: |
+          export NVM_DIR="$HOME/.nvm"
+          . "$NVM_DIR/nvm.sh"
+          nvm use 24
+          node --version
+          echo "$(dirname "$(command -v node)")" >> "$GITHUB_PATH"
+
       - run: npm ci
       - run: npm run build
-      # - run: npm test
-
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
       - run: npm run check

@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.4.0](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.3.0...v0.4.0) (2026-07-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* design subpath no longer exports searchComponents, getComponent, listComponents, searchSections, getSection, listSections.
+
+### Fixed
+
+* pre-public-release repo audit — remove pm7 dead weight + private path ([#31](https://github.com/anatolykoptev/astro-landing-kit/issues/31)) ([d68fde4](https://github.com/anatolykoptev/astro-landing-kit/commit/d68fde4762c3bc2e1718d00959a8bcb03b0ef74d))
+
+
+### Documentation
+
+* rewrite README to industry-standard OSS positioning ([#29](https://github.com/anatolykoptev/astro-landing-kit/issues/29)) ([23a4480](https://github.com/anatolykoptev/astro-landing-kit/commit/23a448075028a9f525f0a651e0dd5711276aa901))
+
 ## [0.3.0](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.2.1...v0.3.0) (2026-07-12)
 
 

@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.3.0](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.2.1...v0.3.0) (2026-07-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* npm package name changes @krolik/landing-kit -> astro-landing-kit (unscoped — the @krolik npm scope belongs to a different, unrelated npm account, confirmed via 'npm org ls krolik'). GitHub repo already renamed anatolykoptev/landing-kit -> anatolykoptev/astro-landing-kit (auto-redirects old git remote URLs). Consumers must update their dependency spec to the new repo path; existing github: URLs keep working via GitHub's redirect but should not be relied on long-term.
+* **deps:** v0.3.0+ requires the consumer's own astro to be ^7.0.0 (peer-required by @astrojs/svelte@9 / @astrojs/mdx@7, pulled in by PR #22's Astro 6->7 bump). Closes the PR #22 review's open question ("does any consumer-side compat matrix need the same Astro 7 note tracked?") and correctly types the prior merge for release-please: that commit landed as build(deps): (hidden, no version bump) when the real-world impact is consumer-breaking — no release PR opened as a result. This commit's fix(deps)! type + BREAKING CHANGE footer is the correction; release-please will now cut 0.3.0 (bump-minor-pre-major).
+
+### Added
+
+* rename package to astro-landing-kit, publish to npm via OIDC ([#26](https://github.com/anatolykoptev/astro-landing-kit/issues/26)) ([9051235](https://github.com/anatolykoptev/astro-landing-kit/commit/90512350dde2455df822cddb6d9ba9c1156cf821))
+
+
+### Fixed
+
+* **deps:** document Astro 7 consumer-compat requirement ([#24](https://github.com/anatolykoptev/astro-landing-kit/issues/24)) ([832cc44](https://github.com/anatolykoptev/astro-landing-kit/commit/832cc44c23f53e9bd798d3b7130c213af71ad494))
+
+
+### Documentation
+
+* sync package name references to astro-landing-kit ([#28](https://github.com/anatolykoptev/astro-landing-kit/issues/28)) ([bdebd73](https://github.com/anatolykoptev/astro-landing-kit/commit/bdebd738c1eb2bc330fd2161362795325d0e6186))
+
 ## [0.2.1](https://github.com/anatolykoptev/landing-kit/compare/v0.2.0...v0.2.1) (2026-07-12)
 
 

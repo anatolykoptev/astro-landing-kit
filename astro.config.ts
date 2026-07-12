@@ -25,6 +25,12 @@ const whenExternalScripts = (items: (() => AstroIntegration) | (() => AstroInteg
 export default defineConfig({
   output: 'static',
 
+  // Astro 7 changed the compressHTML default from `true` to `'jsx'`, which collapses
+  // whitespace between inline elements using JSX rules instead of HTML rules — this
+  // kit ships widgets to consumer sites, so pin the v6 behavior explicitly rather than
+  // let every consumer's markup silently reflow. See docs/upgrade-to/v7 "Whitespace".
+  compressHTML: true,
+
   integrations: [
     svelte(),
     // DESIGN.md → --aw-color-* theme pipeline (opt-in per consumer; here the kit

@@ -3,11 +3,16 @@ import { UI } from 'astrowind:config';
 ---
 
 <script is:inline define:vars={{ defaultTheme: UI.theme }}>
-  if (window.basic_script) {
-    return;
-  }
+  // Astro 7's stricter Rust compiler rejects a top-level `return` (previously
+  // silently tolerated). Wrap in an IIFE so the early-return guard stays legal;
+  // `window.basic_script`/`window.onload`/`window.onpageshow` are still assigned
+  // on the real global, so behavior is unchanged.
+  (function () {
+    if (window.basic_script) {
+      return;
+    }
 
-  window.basic_script = true;
+    window.basic_script = true;
 
   function applyTheme(theme) {
     if (theme === 'dark') {
@@ -162,6 +167,7 @@ import { UI } from 'astrowind:config';
     onLoad();
     onPageShow();
   });
+  })();
 </script>
 
 <script is:inline>

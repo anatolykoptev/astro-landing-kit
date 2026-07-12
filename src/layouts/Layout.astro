@@ -34,7 +34,19 @@ const { language, textDirection } = I18N;
 ---
 
 <!doctype html>
-<html lang={language} dir={textDirection} class="2xl:text-[20px]">
+<!-- fix(2026-07-13): dropped `class="2xl:text-[20px]"` -- unexamined AstroWind-fork
+     artifact (present since the very first commit, 82ad2a1, never tested/documented
+     as intentional). It bumped the ROOT font-size 16px->20px at any >=1536px viewport
+     (Tailwind's `2xl` breakpoint), silently inflating every rem-based size on the page
+     by 1.25x above that width -- including a consumer's own carefully-tuned type scale,
+     which then renders 25% larger than authored with no visible cause in the consumer's
+     own code. Real incident: starthey.com shipped a deliberate H2/H3/eyebrow rem-based
+     type-scale reduction (DESIGN.md "Section tiers") that measured CORRECTLY in source
+     but rendered UNCHANGED live at a 1728px viewport specifically because of this rule
+     -- traced via computed-style diffing (html font-size: 20px at 1728px vs 16px at
+     1280px/390px) before finding this line. No prop/config exposed it, so a consumer
+     had no way to override it short of a !important CSS fight. -->
+<html lang={language} dir={textDirection}>
   <head>
     <CommonMeta />
     <Favicons />

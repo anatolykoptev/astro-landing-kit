@@ -1,6 +1,6 @@
 {
   "name": "astro-landing-kit",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "Reusable Astro + Svelte landing page kit",
   "type": "module",
   "repository": {

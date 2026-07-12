@@ -22,6 +22,23 @@ npm install && npm run dev
 ## Content
 Sites provide content via adapters. Default: JSON files in `content/`.
 
+## Widgets = scaffold, not shippable (HARD)
+
+`widgets/*` = fast-prototype shape, fine for MVP/internal/product-register pages. NEVER ship
+one as-is on a brand-register page (marketing/landing — design IS the product). Compose bespoke
+from `ui/*` primitives instead (WidgetWrapper+Headline+custom markup/CSS) — re-theming colors/
+fonts on a stock widget ≠ de-templating; this kit = fork of AstroWind (LICENSE.md), instantly
+recognizable generic shape (icon-grid features, numbered steps, basic FAQ/stats/pricing cards)
+regardless of palette. Real incident: starthey.com shipped re-themed stock Features/Steps, read
+as "2012 design" despite a full OKLCH/Onest token pass — root cause was untouched widget markup,
+not the palette; fixed by rewriting bespoke (see that repo's Testimonials/Comparison sections,
+merged, for the pattern).
+
+Kit widget type-scale defaults also run big — sanity-check before shipping anywhere, don't trust
+blind: `Headline`/`ItemGrid` ship H2~45px, H3~26px, eyebrow~20px uppercase. Typical product-
+landing bar: H2 32-36px, H3 18-20px, eyebrow 14-16px — match your OWN hero eyebrow size, don't
+let a stock component drift bigger.
+
 ## Consumer compatibility
 
 Published on the public npm registry as `astro-landing-kit` (`npm i

@@ -3,6 +3,7 @@
   "version": "0.5.1",
   "description": "Reusable Astro + Svelte landing page kit",
   "type": "module",
+  "packageManager": "npm@11.6.2",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/anatolykoptev/astro-landing-kit.git"

@@ -7,6 +7,8 @@ copyright onWidget — see LICENSE.md).
 Astro 7 + Svelte 5 + Tailwind CSS 4 + GSAP + astro-seo
 
 ## Dev
+Node 24.18.0 + npm 11.6.2 (`.node-version` + `packageManager`).
+
 npm install && npm run dev
 
 ## Structure

@@ -55,6 +55,11 @@ No JS API. CSS import only.
 | `--aw-color-text-muted` | Muted / secondary text |
 | `--aw-color-bg-page` | Page background |
 | `--aw-color-bg-page-dark` | Dark-mode page background |
+| `--aw-color-on-primary` | Text on primary action fills |
+| `--aw-color-focus-ring` | Keyboard focus indicator |
+| `--aw-color-focus-offset` | Focus-ring separation from the page |
+| `--aw-color-border` | Interactive borders and header dividers |
+| `--aw-color-surface-hover` | Neutral hover surface |
 | `--aw-font-sans` | Sans-serif font stack |
 | `--aw-font-serif` | Serif font stack |
 | `--aw-font-heading` | Heading font stack |

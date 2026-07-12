@@ -25,16 +25,21 @@ const DARK_ENOUGH_LUMINANCE = 0.2;
 
 export function generateThemeCss(tokens: DesignTokens): string {
   const colors = tokens.colors;
-  const primary = colors[0];
   const roles = classifyColorRoles(colors);
+  const named = (...names: string[]) =>
+    colors.find((color) => names.includes(color.name.toLowerCase().replace(/^--/, '')));
+  const primary = roles.primary ?? roles.accent ?? colors[0];
 
   // secondary/accent default to primary so a DESIGN.md with only a primary color
   // still fully displaces the CustomStyles teal defaults (e.g. btn-primary hover,
   // which reads --aw-color-secondary) instead of leaking the kit's brand.
-  const secondary = roles.secondary ?? primary;
+  const secondary = roles.secondary ?? named('primary-strong', 'accent-strong') ?? primary;
   const accent = roles.accent ?? primary;
   const surface = roles.surfaces[0];
   const text = roles.texts[0];
+  const onPrimary = named('on-primary', 'on-accent');
+  const border = named('border', 'hairline', 'divider');
+  const card = named('card', 'panel', 'surface');
 
   // CRITICAL fix: --aw-color-bg-page and --aw-color-text-default used to be two
   // UNCOUPLED optional overrides. A DESIGN.md naming only a dark Surface (no
@@ -59,6 +64,12 @@ export function generateThemeCss(tokens: DesignTokens): string {
   lines.push(`  --aw-color-primary: ${primary.hex};`);
   lines.push(`  --aw-color-secondary: ${secondary.hex};`);
   lines.push(`  --aw-color-accent: ${accent.hex};`);
+  if (onPrimary) lines.push(`  --aw-color-on-primary: ${onPrimary.hex};`);
+  if (border) {
+    lines.push(`  --aw-color-border: ${border.hex};`);
+    lines.push(`  --aw-color-hairline: ${border.hex};`);
+  }
+  if (card) lines.push(`  --aw-color-bg-card: ${card.hex};`);
 
   if (pairSurfaceAndText) {
     lines.push(`  --aw-color-bg-page: ${surface.hex};`);

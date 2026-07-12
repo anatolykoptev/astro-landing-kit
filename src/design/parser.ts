@@ -28,33 +28,44 @@ export interface TypographyToken {
 
 const WEIGHT_RE = /Weight\s+(\d+)/;
 
-// Accepts a hex code, or a single-level color function call (oklch/rgb/rgba/hsl/hsla)
-// as the color VALUE inside a "* **Name** (VALUE) — role" bullet. Value-format
-// tolerance only — the surrounding bullet/section structure is unchanged.
+// Accepts a hex code or a single-level color function call in bullet and table rows.
+const COLOR_VALUE_RE = /^(#[0-9A-Fa-f]{6}|(?:oklch|rgb|rgba|hsl|hsla)\([^()]*\))$/;
 const COLOR_LINE_RE =
   /\*\s+\*\*(.+?)\*\*\s+\((#[0-9A-Fa-f]{6}|(?:oklch|rgb|rgba|hsl|hsla)\([^()]*\))\)\s*—\s*(.+)/;
 
 export function parseDesignMd(content: string, sourcePath?: string): DesignTokens {
-  const name = content.match(/^#\s+Design System:\s*(.+)/m)?.[1]?.trim() ?? 'Unknown';
+  const name =
+    content.match(/^#\s+Design System:\s*(.+)/m)?.[1]?.trim() ??
+    content.match(/^#\s+(.+)/m)?.[1]?.trim() ??
+    'Unknown';
 
   const density = parseInt(content.match(/Density:\s*(\d+)/)?.[1] ?? '5');
   const variance = parseInt(content.match(/Variance:\s*(\d+)/)?.[1] ?? '5');
   const motionVal = parseInt(content.match(/Motion:\s*(\d+)/)?.[1] ?? '5');
 
   const colors: ColorToken[] = [];
-  const colorSection = extractSection(content, '2');
+  const colorSection = extractSection(content, '2', ['color', 'colors']);
   for (const line of colorSection.split('\n')) {
-    const match = line.match(COLOR_LINE_RE);
-    if (match) {
-      colors.push({ name: match[1], hex: match[2], role: match[3].trim() });
+    const bullet = line.match(COLOR_LINE_RE);
+    if (bullet) {
+      colors.push({ name: bullet[1], hex: bullet[2], role: bullet[3].trim() });
+      continue;
     }
+
+    const cells = parseTableRow(line);
+    if (!cells || cells.some((cell) => /^:?-{3,}:?$/.test(cell))) continue;
+    const valueIndex = cells.findIndex((cell) => COLOR_VALUE_RE.test(cell));
+    if (valueIndex < 0) continue;
+    const name = cells[valueIndex === 0 ? 1 : 0];
+    const role = cells.filter((_, index) => index !== valueIndex && index !== (valueIndex === 0 ? 1 : 0)).join(' — ');
+    if (name && role) colors.push({ name, hex: cells[valueIndex], role });
   }
 
   if (colors.length === 0) {
     throw new Error(
       `parseDesignMd: no colors found in ${sourcePath ?? 'DESIGN.md'} — expected a ` +
-        '"## 2. Colors" section with bullets like "* **Name** (#RRGGBB) — role" ' +
-        '(hex, oklch(...), rgb(...), or hsl(...) values are accepted).',
+        '"## 2. Colors"/"## Color" section with bullets like "* **Name** (#RRGGBB) — role" ' +
+        'or a markdown table with name, value, and purpose columns.',
     );
   }
 
@@ -63,7 +74,7 @@ export function parseDesignMd(content: string, sourcePath?: string): DesignToken
   let bodyFont = 'Inter';
   let monoFont = 'JetBrains Mono';
 
-  const typoSection = extractSection(content, '3');
+  const typoSection = extractSection(content, '3', ['typography']);
   for (const line of typoSection.split('\n')) {
     const match = line.match(/\*\s+\*\*(.+?)\*\*\s+(.+)/);
     if (match) {
@@ -86,7 +97,7 @@ export function parseDesignMd(content: string, sourcePath?: string): DesignToken
     if (m) scale[m[1].toLowerCase()] = m[2].trim();
   }
 
-  const compSection = extractSection(content, '4');
+  const compSection = extractSection(content, '4', ['components']);
   let borderRadius = '0.75rem';
   if (compSection.includes('9999px') || compSection.includes('Pill')) {
     borderRadius = '9999px';
@@ -105,8 +116,22 @@ export function parseDesignMd(content: string, sourcePath?: string): DesignToken
   };
 }
 
-function extractSection(content: string, num: string): string {
-  // Handle both "## 2." and "## 2\." (escaped dot in markdown)
-  const re = new RegExp(`## ${num}\\\\?\\.\\s+.+?\\n([\\s\\S]*?)(?=## \\d|$)`);
-  return re.exec(content)?.[1] ?? '';
+function extractSection(content: string, num: string, names: string[] = []): string {
+  const lines = content.split('\n');
+  const numbered = new RegExp(`^##\\s+${num}\\\\?\\.\\s+`, 'i');
+  const named = new RegExp(`^##\\s+(?:${names.map((name) => `${name}s?`).join('|')})\\s*$`, 'i');
+  const start = lines.findIndex((line) => numbered.test(line) || (names.length > 0 && named.test(line)));
+  if (start < 0) return '';
+  const end = lines.findIndex((line, index) => index > start && /^##\s+/.test(line));
+  return lines.slice(start + 1, end < 0 ? undefined : end).join('\n');
+}
+
+function parseTableRow(line: string): string[] | null {
+  if (!line.trim().startsWith('|')) return null;
+  const cells = line
+    .trim()
+    .replace(/^\||\|$/g, '')
+    .split('|')
+    .map((cell) => cell.trim().replace(/^`|`$/g, ''));
+  return cells.length >= 3 ? cells : null;
 }

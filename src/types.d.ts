@@ -109,7 +109,7 @@ export interface Headline {
   title?: string;
   subtitle?: string;
   tagline?: string;
-  classes?: Record<string, string>;
+  classes?: Partial<Record<'container' | 'title' | 'subtitle' | 'tagline', string>>;
   align?: 'left' | 'center';
 }
 

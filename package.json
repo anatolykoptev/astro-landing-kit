@@ -1,8 +1,15 @@
 {
-  "name": "@krolik/landing-kit",
+  "name": "astro-landing-kit",
   "version": "0.2.1",
   "description": "Reusable Astro + Svelte landing page kit",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anatolykoptev/astro-landing-kit.git"
+  },
+  "homepage": "https://github.com/anatolykoptev/astro-landing-kit#readme",
+  "bugs": "https://github.com/anatolykoptev/astro-landing-kit/issues",
+  "license": "MIT",
   "types": "./src/adapters/types.ts",
   "exports": {
     "./layouts/PageLayout": "./src/layouts/PageLayout.astro",

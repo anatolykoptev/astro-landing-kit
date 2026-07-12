@@ -8,32 +8,26 @@
 #      package.json + prepends CHANGELOG.md from those commits.
 #   3. Merging that PR creates the `vX.Y.Z` tag + GitHub Release.
 #
-# Single package (@krolik/landing-kit) → plain vX.Y.Z tags
+# Single package (astro-landing-kit) → plain vX.Y.Z tags
 # (include-component-in-tag:false), same shape as oxpulse-sfu-kit's config.
 #
 # Versioning: 0.x pre-1.0 (bump-minor-pre-major + bump-patch-for-minor-pre-major) —
 # feat/fix bump PATCH, a breaking change bumps MINOR. Do NOT `git tag` by hand:
 # a manual tag desyncs .release-please-manifest.json.
 #
-# NO publish job: this package is consumed via a pinned git dependency
-# (github:anatolykoptev/landing-kit#<sha>) by every consumer, not npm. This
-# workflow only manages version + changelog + git tag + release PR — once it
-# lands, consumers can pin a semver TAG instead of a raw commit SHA.
-#
-# Bootstrap note: no vX.Y.Z tags exist yet on this repo (history uses
-# conventional-commit messages but was never formally tagged/released). The
-# FIRST release-please run has no prior tag to diff from, so its first release
-# PR's CHANGELOG.md will summarize the full existing feat/fix history as the
-# initial entry — expected one-time bootstrap noise, not a bug. Every run after
-# that first merge is incremental only.
+# Publish job: npm Trusted Publishing (OIDC, no stored token — id-token: write
+# is the only credential; npm CLI resolves the short-lived identity itself on
+# `npm publish`). Requires ONE ONE-TIME manual step the operator must do on
+# npmjs.com (cannot be scripted): package Settings → Trusted Publisher →
+# GitHub org "anatolykoptev", repo "astro-landing-kit", workflow filename
+# "release-please.yml", allowed action "npm publish". Until that's configured,
+# this job will fail with an auth error — expected, not a workflow bug; the
+# very first publish establishing the package on the registry must be a
+# manual `npm publish` from an authenticated local session (trusted-publisher
+# config requires the package to already exist).
 #
 # Runner: self-hosted per fleet CI rule (GitHub-hosted Actions are paid, never
-# used fleet-wide) — runs on the krolik self-hosted runner once one is
-# registered for this repo. NONE is registered yet as of this workflow's
-# creation (0 runners on the repo at setup time) — flagged in the
-# release-please-setup audit report. NOTE: this repo's pre-existing
-# actions.yaml CI also runs on ubuntu-latest today — a pre-existing gap, out of
-# scope for this PR.
+# used fleet-wide).
 
 name: release-please
 
@@ -49,8 +43,30 @@ permissions:
 jobs:
   release-please:
     runs-on: [self-hosted, krolik]
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
     steps:
-      - uses: googleapis/release-please-action@v4
+      - id: release
+        uses: googleapis/release-please-action@v4
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  publish:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: [self-hosted, krolik]
+    permissions:
+      contents: read
+      id-token: write # required for npm OIDC trusted publishing
+    steps:
+      - uses: actions/checkout@v5
+      - name: Select node 24 (nvm)
+        run: |
+          export NVM_DIR="$HOME/.nvm"
+          . "$NVM_DIR/nvm.sh"
+          nvm use 24
+          node --version
+          echo "$(dirname "$(command -v node)")" >> "$GITHUB_PATH"
+      - run: npm ci
+      - run: npm publish

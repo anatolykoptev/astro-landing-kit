@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.4.0...v0.4.1) (2026-07-12)
+
+
+### Fixed
+
+* safelist md:relative/absolute/fixed/sticky/static ([#35](https://github.com/anatolykoptev/astro-landing-kit/issues/35)) ([325b6f3](https://github.com/anatolykoptev/astro-landing-kit/commit/325b6f3e59bd26a5ca7f4858f81e14117ec73477))
+
 ## [0.4.0](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.3.0...v0.4.0) (2026-07-12)
 
 

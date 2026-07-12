@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.5.0...v0.5.1) (2026-07-12)
+
+
+### Added
+
+* make design customization agent-friendly ([fcfedeb](https://github.com/anatolykoptev/astro-landing-kit/commit/fcfedeb533a81bfdc7107e8f4264fa51e4dce793))
+
 ## [0.5.0](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.4.2...v0.5.0) (2026-07-12)
 
 

@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.5.0](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.4.2...v0.5.0) (2026-07-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* **layout:** root font-size no longer inflates to 20px at >=1536px viewports -- it is now a consistent 16px at every width. Any consumer whose own rem-based sizing was tuned around (or accidentally relying on) the larger wide-viewport root will see every rem-sized element on their site shrink ~20% above 1536px on upgrade. Re-check wide-desktop rendering after bumping past this version.
+
+### Fixed
+
+* **layout:** drop unexamined 2xl root font-size bump ([#41](https://github.com/anatolykoptev/astro-landing-kit/issues/41)) ([7a0e09f](https://github.com/anatolykoptev/astro-landing-kit/commit/7a0e09f0bf8d2684524baa66805cb1d9bb29b4ba))
+
+
+### Documentation
+
+* widgets are scaffold not shippable — visual quality gate ([#39](https://github.com/anatolykoptev/astro-landing-kit/issues/39)) ([1242456](https://github.com/anatolykoptev/astro-landing-kit/commit/124245637b72cf1d97fd9cc90eee7f75b809821d))
+
 ## [0.4.2](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.4.1...v0.4.2) (2026-07-12)
 
 

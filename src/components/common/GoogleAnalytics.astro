@@ -1,0 +1,29 @@
+---
+/**
+ * Minimal GA4 loader — inlined replacement for @astrolib/analytics'
+ * GoogleAnalytics component. That package is unmaintained (latest 0.6.1
+ * declares peer astro <= ^5) and blocks `npm ci` on astro 6 with an
+ * ERESOLVE conflict; the component itself is just the standard gtag
+ * snippet, so we own it instead of pinning a dead dependency.
+ *
+ * `partytown: true` emits the scripts as type="text/partytown" so
+ * Partytown (when the consumer site loads it) runs GA off the main thread.
+ */
+export interface Props {
+  id: string;
+  partytown?: boolean;
+}
+const { id, partytown = false } = Astro.props;
+const scriptType = partytown ? 'text/partytown' : undefined;
+---
+
+<script async src={`https://www.googletagmanager.com/gtag/js?id=${id}`} type={scriptType}></script>
+<script type={scriptType} define:vars={{ id }}>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    // eslint-disable-next-line prefer-rest-params
+    dataLayer.push(arguments);
+  }
+  gtag('js', new Date());
+  gtag('config', id);
+</script>

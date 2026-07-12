@@ -3,5 +3,3 @@ export { classifyColorRoles, type RoleClassification } from './color-roles';
 export { generateThemeCss, checkThemeContrast, type ContrastCheck } from './theme-generator';
 export { generateSmartDarkMode } from './dark-mode';
 export { default as designMdIntegration, DESIGN_THEME_LAYER, type DesignIntegrationOptions } from './integration';
-export { searchComponents, getComponent, listComponents, type CatalogEntry } from './pm7-catalog';
-export { searchSections, getSection, listSections, type SectionRecipe } from './section-recipes';

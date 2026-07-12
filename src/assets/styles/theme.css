@@ -1,10 +1,10 @@
 /**
- * @krolik/landing-kit — canonical theme token starter
+ * astro-landing-kit — canonical theme token starter
  *
  * Import this file in your consumer's stylesheet to get a ready-made
  * color palette that overrides the kit's neutral defaults:
  *
- *   @import @krolik/landing-kit/styles/theme.css;
+ *   @import astro-landing-kit/styles/theme.css;
  *
  * Then override any variable in your own :root block to brand the site.
  * All variables listed here map to the --aw-color-* tokens consumed by

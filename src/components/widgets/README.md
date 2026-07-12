@@ -142,9 +142,9 @@ Legacy `--aw-color-*` variables are preserved — no migration needed.
 
 ```astro
 ---
-import Hero from '@krolik/landing-kit/widgets/Hero';
-import Features from '@krolik/landing-kit/widgets/Features';
-import FAQs from '@krolik/landing-kit/widgets/FAQs';
+import Hero from 'astro-landing-kit/widgets/Hero';
+import Features from 'astro-landing-kit/widgets/Features';
+import FAQs from 'astro-landing-kit/widgets/FAQs';
 ---
 <Hero align="left" title="Build faster" tagline="Ship landing pages in minutes" />
 <Features layout="chapters" align="left" items={projectItems} />

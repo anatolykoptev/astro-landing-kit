@@ -1,5 +1,5 @@
 /**
- * @krolik/landing-kit — --aw-color-* precedence declaration.
+ * astro-landing-kit — --aw-color-* precedence declaration.
  *
  * HIGH-1 / HIGH-2 fix: there are three possible SOURCES of --aw-color-* overrides:
  *   1. landing-kit-defaults      — src/components/CustomStyles.astro (kit-neutral teal,

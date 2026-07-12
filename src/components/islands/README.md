@@ -29,7 +29,7 @@ Three Svelte 5 components for interactivity that can't be done server-side: cont
 
 ```astro
 ---
-import ContactForm from '@krolik/landing-kit/islands/ContactForm';
+import ContactForm from 'astro-landing-kit/islands/ContactForm';
 ---
 <ContactForm client:load endpoint="/api/contact" />
 ```

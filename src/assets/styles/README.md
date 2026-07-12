@@ -13,7 +13,7 @@ Two CSS files:
 
 ```css
 /* In your consumer's entry stylesheet (e.g. src/styles/app.css) */
-@import "@krolik/landing-kit/styles/theme.css";
+@import "astro-landing-kit/styles/theme.css";
 
 /* Then override any token for your brand */
 :root {
@@ -26,7 +26,7 @@ Or import in an Astro layout:
 
 ```astro
 ---
-import '@krolik/landing-kit/styles/theme.css';
+import 'astro-landing-kit/styles/theme.css';
 ---
 ```
 

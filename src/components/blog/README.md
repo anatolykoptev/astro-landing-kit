@@ -32,8 +32,8 @@ Astro components for blog display. Works with Astro content collections (`astro:
 
 ```astro
 ---
-import Grid from '@krolik/landing-kit/blog/Grid';
-import Pagination from '@krolik/landing-kit/blog/Pagination';
+import Grid from 'astro-landing-kit/blog/Grid';
+import Pagination from 'astro-landing-kit/blog/Pagination';
 const { posts, page } = Astro.props;
 ---
 <Grid posts={posts} />

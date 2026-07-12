@@ -2,7 +2,7 @@
   "slug": "landing",
   "meta": {
     "title": "Landing Kit Demo",
-    "description": "A demo landing page built with @krolik/landing-kit"
+    "description": "A demo landing page built with astro-landing-kit"
   },
   "sections": [
     {

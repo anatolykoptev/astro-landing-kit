@@ -1,72 +1,87 @@
 # astro-landing-kit
 
-Composable Astro + Svelte primitives for marketing sites. Pick what you need.
+**Composable landing-page primitives for Astro.** Layouts, sections, and content
+adapters you assemble — not a template you fight, not a framework you're locked
+into. Pick a module, import it, ship. Skip the rest.
 
-## Modules
+[![npm version](https://img.shields.io/npm/v/astro-landing-kit.svg)](https://www.npmjs.com/package/astro-landing-kit)
+[![license: MIT](https://img.shields.io/npm/l/astro-landing-kit.svg)](LICENSE.md)
+[![built with Astro](https://img.shields.io/badge/built%20with-Astro-BC52EE.svg)](https://astro.build)
 
-| Module | Purpose | Status |
-|---|---|---|
-| [seo](src/seo/README.md) | JSON-LD + structured data builders | stable |
-| [layouts](src/layouts/README.md) | PageLayout / LandingLayout / MarkdownLayout shells | stable |
-| [widgets](src/components/widgets/README.md) | Hero, Footer, FAQs, CTA, Stats, Steps, Features, … | stable |
-| [ui](src/components/ui/README.md) | Button, Headline, ItemGrid, WidgetWrapper primitives | stable |
-| [blog](src/components/blog/README.md) | Grid, List, SinglePost, Pagination, Tags | stable |
-| [islands](src/components/islands/README.md) | ContactForm, StatsCounter, FaqAccordion (Svelte 5) | stable |
-| [adapters](src/adapters/README.md) | `LandingPage` types + JSON file-based content loader | stable |
-| [images](src/utils/README.md) | Astro image optimization helpers + unpic CDN support | stable |
-| [styles](src/assets/styles/README.md) | Tailwind v4 base stylesheet | stable |
-| [design](src/design/README.md) | DESIGN.md → CSS theme tokens, pm7 catalog | krolik-private |
-| [sw](src/sw/README.md) | Versioned service-worker integration (auto cache-bust, force-refresh stale tabs) | stable |
-| [integration](vendor/README.md) | astrowindIntegration: config.yaml loader for Astro | krolik-private |
+## Why this exists
+
+Landing-page starter kits are usually one giant template: fork it, and every
+future upstream fix means re-merging your customizations. **astro-landing-kit
+is the opposite bet** — independent modules (layouts, widgets, UI primitives,
+blog, Svelte islands, content adapters, image optimization, styles, a
+versioned service worker), each importable on its own, none of them requiring
+the others. Update one module without touching the rest of your site.
+
+It started as a fork of [AstroWind](https://github.com/onwidget/astrowind)
+(MIT, © onWidget) and has since diverged with hardening AstroWind doesn't
+have: `unpic`-backed CDN image optimization, and a versioned service-worker
+integration that force-refreshes stale tabs on deploy instead of silently
+serving last week's build.
 
 ## Install
 
 ```bash
 npm i astro-landing-kit
-# or local workspace reference:
-# "dependencies": { "astro-landing-kit": "file:../../src/astro-landing-kit" }
 ```
-
-## Quickstart
 
 ```astro
 ---
 import PageLayout from 'astro-landing-kit/layouts/PageLayout';
 import Hero from 'astro-landing-kit/widgets/Hero';
-import FAQs from 'astro-landing-kit/widgets/FAQs';
-import { buildJsonLd } from 'astro-landing-kit/seo';
 import { loadJson } from 'astro-landing-kit/adapters/json';
 
 const page = await loadJson('home', 'src/content');
-const jsonLd = buildJsonLd(page.meta.structuredData ?? [], {
-  siteUrl: 'https://example.com',
-  siteName: 'Acme',
-});
 ---
 <PageLayout metadata={page.meta}>
-  <Fragment slot="head" set:html={jsonLd} />
-  <Hero title="Ship faster" tagline="Landing pages in hours" />
-  <FAQs items={page.meta.faqs} />
+  <Hero title="Ship faster" tagline="Landing pages in hours, not sprints" />
 </PageLayout>
 ```
 
-## Philosophy
+That's the whole quickstart — no CLI, no scaffolding step, no config file
+required before your first import resolves.
 
-Every module is independently importable. No required "framework" entry point. Use only what you need. Cross-module coupling is documented per module — widgets depend on ui; blog depends on ui + utils; seo depends on adapters/types only.
+## Modules
 
-## Recent changes
+| Module | Purpose | Status |
+|---|---|---|
+| [layouts](src/layouts/README.md) | `PageLayout` / `LandingLayout` / `MarkdownLayout` shells | stable |
+| [widgets](src/components/widgets/README.md) | `Hero`, `Footer`, `FAQs`, `CTA`, `Stats`, `Steps`, `Features`, … | stable |
+| [ui](src/components/ui/README.md) | `Button`, `Headline`, `ItemGrid`, `WidgetWrapper` primitives | stable |
+| [islands](src/components/islands/README.md) | `ContactForm`, `StatsCounter`, `FaqAccordion` (Svelte 5) | stable |
+| [blog](src/components/blog/README.md) | Grid, List, SinglePost, Pagination, Tags | stable |
+| [adapters](src/adapters/README.md) | `LandingPage` types + a JSON file-based content loader | stable |
+| [seo](src/seo/README.md) | JSON-LD + structured-data builders | stable |
+| [images](src/utils/README.md) | Astro image optimization + `unpic` CDN support | stable |
+| [styles](src/assets/styles/README.md) | Tailwind v4 base stylesheet | stable |
+| [sw](src/sw/README.md) | Versioned service worker — auto cache-bust, force-refresh stale tabs | stable |
+| [design](src/design/README.md) | `DESIGN.md` → CSS theme tokens | opinionated — reads its own README before adopting |
+| [integration](vendor/README.md) | `astrowindIntegration`: `config.yaml` loader for Astro | experimental |
 
-**PR #4** — go-kit-style modular structure: each module now has its own `README.md` (see module table above) documenting its public API, exports, and cross-module deps.
+Each module ships its own README with its exact exports and cross-module
+dependencies (widgets depend on `ui`; blog depends on `ui` + `utils`; `seo`
+depends only on `adapters`' types — nothing pulls in the whole kit by
+accident).
 
-**PR #5** — `adaptOpenGraphImages` passthrough: URLs already starting with `/` or `https://` (public-prefix) are returned as-is instead of being processed through the image optimizer.
+## Compatibility
 
-**PR #6** — design-token and layout fixes:
-- `theme.css` added as the canonical export for all CSS custom-property tokens (import once at the app entry point).
-- `FontPreload.astro` helper added: preloads WOFF2 fonts without layout-shift; accepts `fonts` array prop.
-- `maskIconColor` prop added to `Favicons.astro` for SVG mask-icon color control.
-- `--aw-color-primary` legacy leak fixed: the old AstroWind variable no longer bleeds into consumer stylesheets.
-- `PageLayout` now wraps page content in a `<main>` landmark; consumers must **not** add a second `<main>` wrapper inside the default slot.
+Requires Astro `^7.0.0`, Svelte `^5.0.0`. See [CLAUDE.md](CLAUDE.md) for
+consumer-compatibility notes if you're pinning a pre-0.3.0 version against an
+Astro 6 site.
 
-**PR #19** — `sw` module added: versioned service-worker integration (`astro-landing-kit/sw`), modeled on oxpulse-chat's SW pattern. Auto-derives the cache name from the consumer repo's git SHA — no manual version bump. See [src/sw/README.md](src/sw/README.md) for the adopt snippet and the reload-on-activate caveat.
+## Changelog
 
-**PR #26** — renamed from `@krolik/landing-kit` (git-only dependency) to `astro-landing-kit`, published to the public npm registry. GitHub repo renamed to match (`anatolykoptev/astro-landing-kit`); old git URLs still resolve via GitHub's redirect but new consumers should install from npm.
+Releases are cut automatically via [release-please](https://github.com/googleapis/release-please)
+from conventional commits — see [CHANGELOG.md](CHANGELOG.md) or the
+[Releases page](https://github.com/anatolykoptev/astro-landing-kit/releases)
+for the full history. Every version is also on
+[npm](https://www.npmjs.com/package/astro-landing-kit).
+
+## Contributing
+
+Issues and PRs welcome. Fork of [AstroWind](https://github.com/onwidget/astrowind),
+MIT licensed — see [LICENSE.md](LICENSE.md).

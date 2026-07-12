@@ -84,9 +84,9 @@ override Tailwind class utilities directly.
 
 ```astro
 ---
-import Button from '@krolik/landing-kit/ui/Button';
-import Headline from '@krolik/landing-kit/ui/Headline';
-import ItemGrid from '@krolik/landing-kit/ui/ItemGrid';
+import Button from 'astro-landing-kit/ui/Button';
+import Headline from 'astro-landing-kit/ui/Headline';
+import ItemGrid from 'astro-landing-kit/ui/ItemGrid';
 ---
 <Headline title="Our Features" tagline="Why us" align="left" />
 <ItemGrid layout="chapters" items={items} />

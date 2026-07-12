@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -5,7 +6,7 @@ export default defineConfig({
     environment: 'node',
     include: ['src/**/*.test.ts'],
     alias: {
-      '~/': '/home/krolik/src/landing-kit/src/',
+      '~/': fileURLToPath(new URL('./src/', import.meta.url)),
     },
   },
 });

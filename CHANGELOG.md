@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.4.1...v0.4.2) (2026-07-12)
+
+
+### Fixed
+
+* **tailwind:** scan kit's own src for dark-mode + custom-variant classes ([#37](https://github.com/anatolykoptev/astro-landing-kit/issues/37)) ([dd7968f](https://github.com/anatolykoptev/astro-landing-kit/commit/dd7968f419811ef7b7038968273415d07fa444b9))
+
 ## [0.4.1](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.4.0...v0.4.1) (2026-07-12)
 
 

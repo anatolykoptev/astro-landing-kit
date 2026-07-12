@@ -26,8 +26,10 @@
 # manual `npm publish` from an authenticated local session (trusted-publisher
 # config requires the package to already exist).
 #
-# Runner: self-hosted per fleet CI rule (GitHub-hosted Actions are paid, never
-# used fleet-wide).
+# Runner: GitHub-hosted (ubuntu-latest) — public repos get free unlimited
+# Actions minutes, and this workflow's release-please job holds
+# contents:write + pull-requests:write. Keeping that off a self-hosted
+# runner that a public-repo PR could otherwise reach.
 
 name: release-please
 
@@ -42,7 +44,7 @@ permissions:
 
 jobs:
   release-please:
-    runs-on: [self-hosted, krolik]
+    runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
     steps:
@@ -55,18 +57,15 @@ jobs:
   publish:
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created == 'true' }}
-    runs-on: [self-hosted, krolik]
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write # required for npm OIDC trusted publishing
     steps:
       - uses: actions/checkout@v5
-      - name: Select node 24 (nvm)
-        run: |
-          export NVM_DIR="$HOME/.nvm"
-          . "$NVM_DIR/nvm.sh"
-          nvm use 24
-          node --version
-          echo "$(dirname "$(command -v node)")" >> "$GITHUB_PATH"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
       - run: npm ci
       - run: npm publish

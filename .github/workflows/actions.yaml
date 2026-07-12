@@ -1,17 +1,20 @@
 name: preflight
-# PR/push gate on the krolik self-hosted runner (fleet rule: GitHub-hosted
-# Actions are paid — never use them; one runner per repo). Runner:
-# ~/actions-runner-landing-kit on krolik, systemd user unit
-# actions-runner-landing-kit.service.
+# PR/push gate on GitHub-hosted runners. Public repos get free unlimited
+# Actions minutes — the fleet's "self-hosted always" rule is a cost
+# optimization for private repos and actively wrong here: a self-hosted
+# runner triggered by pull_request from a public repo lets any external PR
+# (which runs the workflow file at the PR's HEAD, not master's) execute on
+# the runner's host. Moved off krolik for that reason, not a cost call.
 #
 # History: this file previously ran a 3-version node matrix on
 # ubuntu-latest AND triggered on `main` while the repo's default branch is
 # `master` — so it never ran at all and every PR showed zero checks
-# (silent no-CI). Single node on self-hosted replaces it: one shared
-# 4-core box, a version matrix is waste.
+# (silent no-CI). Then moved to self-hosted/krolik single-node. Now back to
+# ubuntu-latest, single node, now that the repo is public.
 #
-# Private repo on the free plan → no branch-protection enforcement; the gate
-# is procedural: never merge a red preflight.
+# Private repo on the free plan had no branch-protection enforcement; the
+# gate was procedural (never merge a red preflight). Public repos get
+# branch protection free — worth enabling separately.
 on:
   pull_request:
     branches: [master]
@@ -22,26 +25,20 @@ concurrency:
   group: preflight-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   preflight:
-    runs-on: [self-hosted, krolik]
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      # checkout@v5 — native node24 action runtime (v4 targets deprecated
-      # node20 and only runs via the runner's forced-node24 shim + warning).
       - uses: actions/checkout@v5
 
-      # The runner's systemd service has a bare PATH (/usr/bin first) where
-      # node is the system v22. Select the box's nvm node 24 explicitly and
-      # surface the chosen version, so env drift breaks here — not as
-      # mysterious build failures.
-      - name: Select node 24 (nvm)
-        run: |
-          export NVM_DIR="$HOME/.nvm"
-          . "$NVM_DIR/nvm.sh"
-          nvm use 24
-          node --version
-          echo "$(dirname "$(command -v node)")" >> "$GITHUB_PATH"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
 
       - run: npm ci
       - run: npm run build

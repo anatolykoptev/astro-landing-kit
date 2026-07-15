@@ -2,7 +2,6 @@
 publishDate: 2025-02-01T00:00:00Z
 title: Markdown elements demo
 excerpt: A reference post showing all supported markdown elements — headings, lists, tables, code blocks, blockquotes.
-image: /assets/images/default.png
 category: tutorials
 tags: [markdown, mdx, reference]
 author: astro-landing-kit

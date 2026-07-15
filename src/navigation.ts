@@ -4,6 +4,7 @@ export const headerData = {
   links: [
     { text: 'Features', href: getPermalink('/#features') },
     { text: 'Production', href: getPermalink('/#production') },
+    { text: 'Blog', href: getBlogPermalink() },
     {
       text: 'npm',
       href: 'https://www.npmjs.com/package/astro-landing-kit',
@@ -26,6 +27,7 @@ export const footerData = {
       links: [
         { text: 'Features', href: getPermalink('/#features') },
         { text: 'Production', href: getPermalink('/#production') },
+        { text: 'Blog', href: getBlogPermalink() },
         {
           text: 'npm',
           href: 'https://www.npmjs.com/package/astro-landing-kit',

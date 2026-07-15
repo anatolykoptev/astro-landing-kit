@@ -2,7 +2,6 @@
 publishDate: 2025-01-15T00:00:00Z
 title: Get started with astro-landing-kit
 excerpt: Build a landing page from JSON in minutes — no hand-rolled markup, no copy-paste from tutorials.
-image: /assets/images/default.png
 category: tutorials
 tags: [astro, landing-kit, json]
 author: astro-landing-kit

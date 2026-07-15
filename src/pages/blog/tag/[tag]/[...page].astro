@@ -1,0 +1,57 @@
+---
+import { fetchPosts, blogTagRobots, isBlogEnabled, isBlogTagRouteEnabled, blogPostsPerPage } from '~/utils/blog';
+import Layout from '~/layouts/PageLayout.astro';
+import BlogList from '~/components/blog/List.astro';
+import Pagination from '~/components/blog/Pagination.astro';
+import { getCanonical, getPermalink } from '~/utils/permalinks';
+import type { MetaData } from '~/types';
+
+export async function getStaticPaths({ paginate }) {
+  if (!isBlogEnabled || !isBlogTagRouteEnabled) return [];
+
+  const posts = await fetchPosts();
+  const tags: Record<string, { slug: string; title: string }> = {};
+  posts.map((post) => {
+    if (Array.isArray(post.tags)) {
+      post.tags.map((tag) => {
+        tags[tag?.slug] = tag;
+      });
+    }
+  });
+
+  return Array.from(Object.keys(tags)).flatMap((tagSlug) =>
+    paginate(
+      posts.filter((post) => Array.isArray(post.tags) && post.tags.find((elem) => elem.slug === tagSlug)),
+      {
+        params: { tag: tagSlug },
+        pageSize: blogPostsPerPage,
+        props: { tag: tags[tagSlug] },
+      }
+    )
+  );
+}
+
+const { page, tag } = Astro.props;
+const currentPage = page.currentPage ?? 1;
+
+const metadata: MetaData = {
+  title: `Tag: ${tag.title}${currentPage > 1 ? ` — Page ${currentPage}` : ''}`,
+  description: `Posts tagged with ${tag.title}.`,
+  canonical: getCanonical(getPermalink(tag.slug, 'tag')),
+  robots: blogTagRobots,
+};
+---
+
+<Layout metadata={metadata}>
+  <section class="px-6 py-16 md:py-24 max-w-4xl mx-auto">
+    <header class="mb-12">
+      <p class="font-mono text-sm text-primary mb-3">Tag</p>
+      <h1 class="font-heading text-3xl md:text-4xl tracking-tight text-default">
+        {tag.title}
+      </h1>
+    </header>
+
+    <BlogList posts={page.data} />
+    <Pagination prevUrl={page.url.prev} nextUrl={page.url.next} />
+  </section>
+</Layout>

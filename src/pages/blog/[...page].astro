@@ -1,0 +1,38 @@
+---
+import { fetchPosts, blogListRobots, isBlogEnabled, isBlogListRouteEnabled, blogPostsPerPage } from '~/utils/blog';
+import Layout from '~/layouts/PageLayout.astro';
+import BlogList from '~/components/blog/List.astro';
+import Pagination from '~/components/blog/Pagination.astro';
+import { getBlogPermalink, getCanonical } from '~/utils/permalinks';
+import type { MetaData } from '~/types';
+
+export async function getStaticPaths({ paginate }) {
+  if (!isBlogEnabled || !isBlogListRouteEnabled) return [];
+  return paginate(await fetchPosts(), { pageSize: blogPostsPerPage });
+}
+
+const { page } = Astro.props;
+const currentPage = page.currentPage ?? 1;
+
+const metadata: MetaData = {
+  title: `Blog${currentPage > 1 ? ` — Page ${currentPage}` : ''}`,
+  description: 'Posts about astro-landing-kit, Astro, and landing page engineering.',
+  canonical: getCanonical(getBlogPermalink()),
+  robots: blogListRobots,
+};
+---
+
+<Layout metadata={metadata}>
+  <section class="px-6 py-16 md:py-24 max-w-4xl mx-auto">
+    <header class="mb-12">
+      <p class="font-mono text-sm text-primary mb-3">Blog</p>
+      <h1 class="font-heading text-3xl md:text-4xl tracking-tight text-default">
+        Posts about the kit, Astro, and landing page engineering
+      </h1>
+    </header>
+
+    <BlogList posts={page.data} />
+
+    <Pagination prevUrl={page.url.prev} nextUrl={page.url.next} />
+  </section>
+</Layout>

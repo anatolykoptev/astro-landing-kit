@@ -102,11 +102,18 @@ const getNormalizedPost = async (post: CollectionEntry<'post'>): Promise<Post> =
 
 const load = async function (): Promise<Array<Post>> {
   const posts = await getCollection('post');
-  const normalizedPosts = posts.map(async (post) => await getNormalizedPost(post));
+  const settled = await Promise.allSettled(posts.map((post) => getNormalizedPost(post)));
 
-  const results = (await Promise.all(normalizedPosts))
+  const results = settled
+    .filter((r): r is PromiseFulfilledResult<Post> => r.status === 'fulfilled')
+    .map((r) => r.value)
     .sort((a, b) => b.publishDate.valueOf() - a.publishDate.valueOf())
     .filter((post) => !post.draft);
+
+  if (settled.some((r) => r.status === 'rejected')) {
+    const failures = settled.filter((r) => r.status === 'rejected') as PromiseRejectedResult[];
+    console.warn(`[blog] Skipped ${failures.length} invalid post(s):`, failures.map((f) => f.reason?.message ?? f.reason));
+  }
 
   return results;
 };

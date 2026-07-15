@@ -34,15 +34,33 @@ const COLOR_LINE_RE =
   /\*\s+\*\*(.+?)\*\*\s+\((#[0-9A-Fa-f]{6}|(?:oklch|rgb|rgba|hsl|hsla)\([^()]*\))\)\s*—\s*(.+)/;
 
 export function parseDesignMd(content: string, sourcePath?: string): DesignTokens {
-  const name =
+  const name = parseName(content);
+  const motion = parseMotion(content);
+  const colors = parseColors(content, sourcePath);
+  const typoSection = extractSection(content, '3', ['typography']);
+  const { typography, fonts } = parseTypography(typoSection);
+  const scale = parseScale(typoSection);
+  const borderRadius = parseBorderRadius(extractSection(content, '4', ['components']));
+
+  return { name, colors, typography, scale, motion, borderRadius, fonts };
+}
+
+function parseName(content: string): string {
+  return (
     content.match(/^#\s+Design System:\s*(.+)/m)?.[1]?.trim() ??
     content.match(/^#\s+(.+)/m)?.[1]?.trim() ??
-    'Unknown';
+    'Unknown'
+  );
+}
 
+function parseMotion(content: string): { density: number; variance: number; motion: number } {
   const density = parseInt(content.match(/Density:\s*(\d+)/)?.[1] ?? '5');
   const variance = parseInt(content.match(/Variance:\s*(\d+)/)?.[1] ?? '5');
-  const motionVal = parseInt(content.match(/Motion:\s*(\d+)/)?.[1] ?? '5');
+  const motion = parseInt(content.match(/Motion:\s*(\d+)/)?.[1] ?? '5');
+  return { density, variance, motion };
+}
 
+function parseColors(content: string, sourcePath?: string): ColorToken[] {
   const colors: ColorToken[] = [];
   const colorSection = extractSection(content, '2', ['color', 'colors']);
   for (const line of colorSection.split('\n')) {
@@ -51,7 +69,6 @@ export function parseDesignMd(content: string, sourcePath?: string): DesignToken
       colors.push({ name: bullet[1], hex: bullet[2], role: bullet[3].trim() });
       continue;
     }
-
     const cells = parseTableRow(line);
     if (!cells || cells.some((cell) => /^:?-{3,}:?$/.test(cell))) continue;
     const valueIndex = cells.findIndex((cell) => COLOR_VALUE_RE.test(cell));
@@ -68,52 +85,48 @@ export function parseDesignMd(content: string, sourcePath?: string): DesignToken
         'or a markdown table with name, value, and purpose columns.',
     );
   }
+  return colors;
+}
 
+function parseTypography(section: string): {
+  typography: TypographyToken[];
+  fonts: { display: string; body: string; mono: string };
+} {
   const typography: TypographyToken[] = [];
   let displayFont = 'Inter';
   let bodyFont = 'Inter';
   let monoFont = 'JetBrains Mono';
 
-  const typoSection = extractSection(content, '3', ['typography']);
-  for (const line of typoSection.split('\n')) {
+  for (const line of section.split('\n')) {
     const match = line.match(/\*\s+\*\*(.+?)\*\*\s+(.+)/);
-    if (match) {
-      const role = match[1];
-      const rest = match[2];
-      const font = rest.match(/^([A-Za-z\s]+)\s*—/)?.[1]?.trim() ?? 'Inter';
-      const weight = parseInt(rest.match(WEIGHT_RE)?.[1] ?? '400');
-      typography.push({ role, font, weight, details: rest });
+    if (!match) continue;
+    const role = match[1];
+    const rest = match[2];
+    const font = rest.match(/^([A-Za-z\s]+)\s*—/)?.[1]?.trim() ?? 'Inter';
+    const weight = parseInt(rest.match(WEIGHT_RE)?.[1] ?? '400');
+    typography.push({ role, font, weight, details: rest });
 
-      if (role.includes('Display') || role.includes('Hero')) displayFont = font;
-      else if (role.includes('Body')) bodyFont = font;
-      else if (role.includes('Monospace') || role.includes('Mono')) monoFont = font;
-    }
+    if (role.includes('Display') || role.includes('Hero')) displayFont = font;
+    else if (role.includes('Body')) bodyFont = font;
+    else if (role.includes('Monospace') || role.includes('Mono')) monoFont = font;
   }
+  return { typography, fonts: { display: displayFont, body: bodyFont, mono: monoFont } };
+}
 
+function parseScale(section: string): Record<string, string> {
   const scale: Record<string, string> = {};
-  const scaleLines = typoSection.match(/\*\s+(Hero|H1|H2|Body|Small):\s*(.+)/g) ?? [];
+  const scaleLines = section.match(/\*\s+(Hero|H1|H2|Body|Small):\s*(.+)/g) ?? [];
   for (const line of scaleLines) {
     const m = line.match(/\*\s+(\w+):\s*(.+)/);
     if (m) scale[m[1].toLowerCase()] = m[2].trim();
   }
+  return scale;
+}
 
-  const compSection = extractSection(content, '4', ['components']);
-  let borderRadius = '0.75rem';
-  if (compSection.includes('9999px') || compSection.includes('Pill')) {
-    borderRadius = '9999px';
-  } else if (compSection.includes('Sharp') || compSection.includes('0px')) {
-    borderRadius = '0px';
-  }
-
-  return {
-    name,
-    colors,
-    typography,
-    scale,
-    motion: { density, variance, motion: motionVal },
-    borderRadius,
-    fonts: { display: displayFont, body: bodyFont, mono: monoFont },
-  };
+function parseBorderRadius(compSection: string): string {
+  if (compSection.includes('9999px') || compSection.includes('Pill')) return '9999px';
+  if (compSection.includes('Sharp') || compSection.includes('0px')) return '0px';
+  return '0.75rem';
 }
 
 function extractSection(content: string, num: string, names: string[] = []): string {

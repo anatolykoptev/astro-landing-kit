@@ -1,5 +1,6 @@
 import type { ContentProvider } from './provider';
 import type { LandingPage, LandingSection } from './types';
+import { ContentError } from './errors';
 
 /**
  * Directus content adapter — fetches landing pages from a Directus collection.
@@ -75,14 +76,26 @@ export class DirectusContentProvider implements ContentProvider {
     const filter = JSON.stringify({ slug: { _eq: slug } });
     const endpoint = `${this.url}/items/${this.pagesCollection}?fields=${encodeURIComponent(fields)}&filter=${encodeURIComponent(filter)}`;
 
-    const res = await this.fetchFn(endpoint, { headers: await this.getHeaders() });
-    if (!res.ok) {
-      throw new Error(`Directus: failed to load page "${slug}" (status ${res.status})`);
+    let res: Response;
+    try {
+      res = await this.fetchFn(endpoint, { headers: await this.getHeaders() });
+    } catch (err) {
+      throw ContentError.network(`Directus: network error loading page "${slug}": ${(err as Error).message}`, err);
     }
-    const json = await res.json() as { data: Array<Record<string, unknown>> };
+    if (!res.ok) {
+      throw ContentError.network(`Directus: failed to load page "${slug}" (status ${res.status})`);
+    }
+
+    let json: { data: Array<Record<string, unknown>> };
+    try {
+      json = (await res.json()) as { data: Array<Record<string, unknown>> };
+    } catch (err) {
+      throw ContentError.parse(`Directus: invalid JSON response for page "${slug}": ${(err as Error).message}`, err);
+    }
+
     const page = json.data?.[0];
     if (!page) {
-      throw new Error(`Directus: page "${slug}" not found`);
+      throw ContentError.notFound(slug, `Directus (${this.pagesCollection})`);
     }
 
     const sections: LandingSection[] = (page.sections as Array<Record<string, any>> | undefined)

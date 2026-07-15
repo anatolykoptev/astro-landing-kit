@@ -25,7 +25,17 @@ export interface SocialLink {
 }
 
 export interface StructuredDataConfig {
-  type: 'Organization' | 'ProfessionalService' | 'Person' | 'FAQPage' | 'SoftwareApplication';
+  type:
+    | 'Organization'
+    | 'ProfessionalService'
+    | 'Person'
+    | 'FAQPage'
+    | 'SoftwareApplication'
+    | 'Article'
+    | 'BreadcrumbList'
+    | 'Product'
+    | 'VideoObject'
+    | 'WebSite';
   props: Record<string, unknown>;
 }
 

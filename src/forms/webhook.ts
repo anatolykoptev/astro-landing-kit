@@ -22,6 +22,7 @@ export interface WebhookResult {
   ok: boolean;
   status: number;
   body?: unknown;
+  error?: string;
 }
 
 export interface WebhookAdapter {
@@ -42,17 +43,26 @@ export class JsonWebhook implements WebhookAdapter {
   }
 
   async submit(payload: WebhookPayload): Promise<WebhookResult> {
-    const res = await fetch(this.url, {
-      method: 'POST',
-      headers: this.headers,
-      body: JSON.stringify(payload),
-    });
+    let res: Response;
+    try {
+      res = await fetch(this.url, {
+        method: 'POST',
+        headers: this.headers,
+        body: JSON.stringify(payload),
+      });
+    } catch (err) {
+      return { ok: false, status: 0, error: `Network error: ${(err as Error).message}` };
+    }
     let body: unknown;
     const contentType = res.headers.get('content-type') ?? '';
-    if (contentType.includes('application/json')) {
-      body = await res.json();
-    } else {
-      body = await res.text();
+    try {
+      if (contentType.includes('application/json')) {
+        body = await res.json();
+      } else {
+        body = await res.text();
+      }
+    } catch (err) {
+      return { ok: res.ok, status: res.status, error: `Failed to read response body: ${(err as Error).message}` };
     }
     return { ok: res.ok, status: res.status, body };
   }
@@ -79,17 +89,26 @@ export class FormspreeWebhook implements WebhookAdapter {
     for (const [key, value] of Object.entries(payload)) {
       form.append(key, String(value));
     }
-    const res = await fetch(this.endpoint, {
-      method: 'POST',
-      headers: { Accept: 'application/json' },
-      body: form,
-    });
+    let res: Response;
+    try {
+      res = await fetch(this.endpoint, {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: form,
+      });
+    } catch (err) {
+      return { ok: false, status: 0, error: `Network error: ${(err as Error).message}` };
+    }
     let body: unknown;
     const contentType = res.headers.get('content-type') ?? '';
-    if (contentType.includes('application/json')) {
-      body = await res.json();
-    } else {
-      body = await res.text();
+    try {
+      if (contentType.includes('application/json')) {
+        body = await res.json();
+      } else {
+        body = await res.text();
+      }
+    } catch (err) {
+      return { ok: res.ok, status: res.status, error: `Failed to read response body: ${(err as Error).message}` };
     }
     return { ok: res.ok, status: res.status, body };
   }

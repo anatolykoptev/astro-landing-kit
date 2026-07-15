@@ -48,6 +48,44 @@ const builders: Record<string, (config: StructuredDataConfig, opts: JsonLdOption
     url: opts.siteUrl,
     ...config.props,
   }),
+  Article: (config, opts) => ({
+    '@type': 'Article',
+    '@id': `${opts.siteUrl}/#article`,
+    publisher: { '@id': `${opts.siteUrl}/#org` },
+    ...config.props,
+  }),
+  BreadcrumbList: (config) => {
+    const items = (config.props.items as Array<{ name: string; url: string }>) ?? [];
+    return {
+      '@type': 'BreadcrumbList',
+      itemListElement: items.map((item, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: item.name,
+        item: item.url,
+      })),
+    };
+  },
+  Product: (config, opts) => ({
+    '@type': 'Product',
+    '@id': `${opts.siteUrl}/#product`,
+    brand: { '@id': `${opts.siteUrl}/#org` },
+    ...config.props,
+  }),
+  VideoObject: (config, opts) => ({
+    '@type': 'VideoObject',
+    '@id': `${opts.siteUrl}/#video`,
+    publisher: { '@id': `${opts.siteUrl}/#org` },
+    ...config.props,
+  }),
+  WebSite: (config, opts) => ({
+    '@type': 'WebSite',
+    '@id': `${opts.siteUrl}/#website`,
+    url: opts.siteUrl,
+    name: opts.siteName,
+    publisher: { '@id': `${opts.siteUrl}/#org` },
+    ...config.props,
+  }),
 };
 
 export function buildJsonLd(

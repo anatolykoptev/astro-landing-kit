@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.3](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.5.2...v0.5.3) (2026-07-15)
+
+
+### Added
+
+* add full PWA support — manifest + service worker + icons ([b741612](https://github.com/anatolykoptev/astro-landing-kit/commit/b741612ab4e23e84c14b72cb432014facd44251b))
+* deepen impeccable integration — DESIGN.md Stitch-spec, skill, AGENTS.md ([84db525](https://github.com/anatolykoptev/astro-landing-kit/commit/84db525708dc9201929d2e8bf11fd7cf29b8b504))
+* impeccable integration — anti-pattern fixes, DESIGN.md alignment, CI gate ([1cbe0e3](https://github.com/anatolykoptev/astro-landing-kit/commit/1cbe0e391aa30e1c60c4812104d4d7e6f33b1a81))
+
+
+### Documentation
+
+* add pwa-setup skill for consumer PWA configuration ([1911c34](https://github.com/anatolykoptev/astro-landing-kit/commit/1911c343f3f4e9e4de6404480f76e9f2325bccd8))
+
 ## [0.5.2](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.5.1...v0.5.2) (2026-07-15)
 
 

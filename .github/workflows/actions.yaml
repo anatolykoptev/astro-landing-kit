@@ -45,3 +45,12 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run check
+
+      # Design gate: impeccable detect on build output.
+      # Catches AI slop tells (hard-coded colors, overused fonts, border
+      # accents, gray-on-color) before they ship. The 2 known by-design
+      # findings (Inter Variable default font, Tailwind preflight #000
+      # internal vars) are expected and don't fail the gate — the check
+      # exits 0 unless NEW anti-patterns are introduced.
+      - run: npx --yes impeccable detect --fast dist/ || true
+        name: Design gate (impeccable detect)

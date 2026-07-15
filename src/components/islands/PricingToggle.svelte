@@ -135,8 +135,8 @@
             {#if isAnnual && plan.annualFeatures}
               {#each plan.annualFeatures as feat}
                 <li class="flex items-start gap-2 leading-7 animate-[fadeIn_0.3s_ease-out]">
-                  <span class="rounded-full bg-green-500 mt-1 w-5 h-5 flex items-center justify-center text-white text-xs shrink-0">✓</span>
-                  <span class="text-green-600 dark:text-green-400">{feat}</span>
+                  <span class="rounded-full bg-primary mt-1 w-5 h-5 flex items-center justify-center text-on-primary text-xs shrink-0">✓</span>
+                  <span class="text-primary dark:text-primary">{feat}</span>
                 </li>
               {/each}
             {/if}

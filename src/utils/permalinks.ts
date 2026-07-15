@@ -104,28 +104,29 @@ export const getAsset = (path: string): string =>
 const definitivePermalink = (permalink: string): string => createPath(BASE_PATHNAME, permalink);
 
 /** */
-export const applyGetPermalinks = (menu: object = {}) => {
+export const applyGetPermalinks = (menu: Record<string, unknown> | unknown[] = {}): Record<string, unknown> | unknown[] => {
   if (Array.isArray(menu)) {
-    return menu.map((item) => applyGetPermalinks(item));
+    return menu.map((item) => applyGetPermalinks(item as Record<string, unknown>));
   } else if (typeof menu === 'object' && menu !== null) {
-    const obj = {};
-    for (const key in menu) {
+    const obj: Record<string, unknown> = {};
+    const m = menu as Record<string, any>;
+    for (const key in m) {
       if (key === 'href') {
-        if (typeof menu[key] === 'string') {
-          obj[key] = getPermalink(menu[key]);
-        } else if (typeof menu[key] === 'object') {
-          if (menu[key].type === 'home') {
+        if (typeof m[key] === 'string') {
+          obj[key] = getPermalink(m[key]);
+        } else if (typeof m[key] === 'object') {
+          if (m[key].type === 'home') {
             obj[key] = getHomePermalink();
-          } else if (menu[key].type === 'blog') {
+          } else if (m[key].type === 'blog') {
             obj[key] = getBlogPermalink();
-          } else if (menu[key].type === 'asset') {
-            obj[key] = getAsset(menu[key].url);
-          } else if (menu[key].url) {
-            obj[key] = getPermalink(menu[key].url, menu[key].type);
+          } else if (m[key].type === 'asset') {
+            obj[key] = getAsset(m[key].url);
+          } else if (m[key].url) {
+            obj[key] = getPermalink(m[key].url, m[key].type);
           }
         }
       } else {
-        obj[key] = applyGetPermalinks(menu[key]);
+        obj[key] = applyGetPermalinks(m[key] as Record<string, unknown>);
       }
     }
     return obj;

@@ -4,6 +4,7 @@
     "strictNullChecks": true,
     "allowJs": true,
     "baseUrl": ".",
+    "types": ["*"],
     "paths": {
       "~/*": ["src/*"]
     }

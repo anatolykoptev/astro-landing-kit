@@ -212,6 +212,10 @@ export interface Form {
   disclaimer?: Disclaimer;
   button?: string;
   description?: string;
+  /** Form submit endpoint. If omitted, the form is non-functional (demo only). */
+  action?: string;
+  /** HTTP method. Default: POST. */
+  method?: 'GET' | 'POST';
 }
 
 // WIDGETS

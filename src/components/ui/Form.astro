@@ -2,10 +2,23 @@
 import type { Form as Props } from '~/types';
 import Button from '~/components/ui/Button.astro';
 
-const { inputs, textarea, disclaimer, button = 'Contact us', description = '' } = Astro.props;
+const { inputs, textarea, disclaimer, button = 'Contact us', description = '', action, method = 'POST' } = Astro.props;
 ---
 
-<form>
+<form action={action} method={method}>
+  {/* Honeypot field — hidden from users, bots fill it; server should reject if non-empty */}
+  <div class="hidden" aria-hidden="true">
+    <label for="company-website">Website (leave empty)</label>
+    <input
+      type="text"
+      id="company-website"
+      name="company_website"
+      tabindex="-1"
+      autocomplete="off"
+      aria-hidden="true"
+    />
+  </div>
+
   {
     inputs &&
       inputs.map(

@@ -7,8 +7,16 @@
   }
   let { stats, duration = 2 }: Props = $props();
 
+  // Reactive: re-initialize when stats length changes
   let displayed = $state<string[]>(stats.map(() => '0'));
   let el: HTMLElement;
+
+  // Keep displayed array in sync with stats length
+  $effect(() => {
+    if (displayed.length !== stats.length) {
+      displayed = stats.map(() => '0');
+    }
+  });
 
   onMount(async () => {
     const { gsap } = await import('gsap');

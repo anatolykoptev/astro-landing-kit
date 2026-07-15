@@ -5,9 +5,18 @@
     submitText?: string;
     successTitle?: string;
     successMessage?: string;
+    /** CSRF token — injected from a <meta name="csrf-token"> tag if present. */
+    csrfToken?: string;
   }
 
-  let { endpoint, fields = defaultFields(), submitText = 'Submit', successTitle = 'Sent!', successMessage = 'We\'ll be in touch.' }: Props = $props();
+  let {
+    endpoint,
+    fields = defaultFields(),
+    submitText = 'Submit',
+    successTitle = 'Sent!',
+    successMessage = 'We\'ll be in touch.',
+    csrfToken,
+  }: Props = $props();
 
   let formData = $state<Record<string, string>>({});
   let honeypot = $state('');
@@ -15,6 +24,12 @@
   let submitted = $state(false);
   let submitting = $state(false);
   let submitError = $state('');
+
+  // Auto-detect CSRF token from <meta name="csrf-token"> if not passed as prop
+  if (!csrfToken && typeof document !== 'undefined') {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    if (meta) csrfToken = meta.getAttribute('content') ?? undefined;
+  }
 
   function defaultFields() {
     return [
@@ -30,15 +45,26 @@
     submitting = true;
     submitError = '';
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ ...formData, _ts: formLoadedAt, website: honeypot }),
       });
       if (res.ok) submitted = true;
-      else throw new Error('Failed to submit');
-    } catch (err: any) {
-      submitError = err.message || 'Something went wrong';
+      else {
+        // Sanitize error — never expose raw server response to user
+        const status = res.status;
+        if (status === 429) submitError = 'Too many requests. Please try again later.';
+        else if (status === 403) submitError = 'Security check failed. Please refresh the page.';
+        else if (status >= 500) submitError = 'Server error. Please try again later.';
+        else submitError = 'Failed to submit. Please try again.';
+      }
+    } catch (err) {
+      // Network error — don't expose err.message (could leak internal URLs)
+      submitError = 'Network error. Please check your connection and try again.';
     } finally {
       submitting = false;
     }
@@ -69,7 +95,7 @@
     </div>
 
     {#if submitError}
-      <p class="text-sm text-red-500">{submitError}</p>
+      <p class="text-sm text-red-500" role="alert">{submitError}</p>
     {/if}
 
     <button type="submit" disabled={submitting} class="w-full btn-primary py-3 rounded-lg font-semibold disabled:opacity-50">

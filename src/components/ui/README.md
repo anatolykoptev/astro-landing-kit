@@ -17,7 +17,7 @@ Low-level, reusable components with no page-level semantics. Designed to be comp
 |---|---|---|
 | `Button.astro` | `CallToAction` | Styled button/link with optional icon |
 | `Headline.astro` | `Headline` | Title + subtitle + tagline group |
-| `ItemGrid.astro` / `ItemGrid2.astro` | `ItemGrid` | Grid of icon+text items |
+| `ItemGrid.astro` / `ItemGrid2.astro` | `ItemGrid` | Grid of icon+text items. `ItemGrid` = card layout with shadow/border; `ItemGrid2` = flat layout (no card wrapper), used by `Features2.astro` |
 | `WidgetWrapper.astro` | `Widget` | Section wrapper: id, bg variant, padding |
 | `Background.astro` | — | Background color/image layer |
 | `Timeline.astro` | `Item[]` | Vertical timeline for steps |

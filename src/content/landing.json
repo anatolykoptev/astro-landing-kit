@@ -37,6 +37,7 @@
       "type": "stats",
       "props": {
         "title": "By the numbers",
+        "animate": true,
         "stats": [
           { "amount": "22", "title": "Widgets" },
           { "amount": "3", "title": "Adapters" },
@@ -50,6 +51,7 @@
       "props": {
         "tagline": "FAQ",
         "title": "Common questions",
+        "interactive": true,
         "items": [
           { "title": "Can I use this with any Astro adapter?", "description": "Yes — SSG, SSR, hybrid. The kit is adapter-agnostic." },
           { "title": "Do I need Directus?", "description": "No. The default adapter reads JSON files. Directus is optional." },
@@ -63,8 +65,53 @@
         "title": "Ready to build?",
         "subtitle": "Clone the repo and create your first landing page in minutes.",
         "actions": [
-          { "variant": "primary", "text": "Get Started", "href": "https://github.com/anatolykoptev/landing-kit" }
+          { "variant": "primary", "text": "Get Started", "href": "https://github.com/anatolykoptev/astro-landing-kit" }
         ]
+      }
+    },
+    {
+      "type": "comparison-table",
+      "props": {
+        "tagline": "Compare",
+        "title": "Kit vs from-scratch",
+        "rows": ["Time to first page", "Widgets included", "SEO built-in", "Form protection", "Dark mode", "Blog ready"],
+        "columns": [
+          {
+            "title": "astro-landing-kit",
+            "highlight": true,
+            "badge": "Recommended",
+            "cells": ["Minutes", true, true, true, true, true],
+            "callToAction": { "variant": "primary", "text": "Get Started", "href": "https://github.com/anatolykoptev/astro-landing-kit" }
+          },
+          {
+            "title": "From scratch",
+            "cells": ["Days", false, false, false, false, false]
+          }
+        ]
+      }
+    },
+    {
+      "type": "logo-cloud",
+      "props": {
+        "tagline": "Trusted by",
+        "title": "Built with industry-standard tools",
+        "icons": [
+          "tabler:brand-astro",
+          "tabler:brand-svelte",
+          "tabler:brand-tailwind",
+          "tabler:brand-typescript",
+          "tabler:brand-github",
+          "tabler:brand-vite"
+        ]
+      }
+    },
+    {
+      "type": "video-embed",
+      "props": {
+        "tagline": "Demo",
+        "title": "See it in action",
+        "subtitle": "Watch how to build a landing page from JSON in under 2 minutes.",
+        "src": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
       }
     }
   ]

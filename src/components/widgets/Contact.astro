@@ -2,6 +2,7 @@
 import FormContainer from '~/components/ui/Form.astro';
 import Headline from '~/components/ui/Headline.astro';
 import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import ContactForm from '~/components/islands/ContactForm.svelte';
 import type { Contact as Props } from '~/types';
 
 const {
@@ -14,6 +15,10 @@ const {
   button,
   description,
 
+  interactive = false,
+  endpoint = '/api/contact',
+  successMessage,
+
   id,
   isDark = false,
   classes = {},
@@ -25,7 +30,23 @@ const {
   <Headline title={title} subtitle={subtitle} tagline={tagline} />
 
   {
-    inputs && (
+    interactive ? (
+      <div class="flex flex-col max-w-xl mx-auto rounded-lg backdrop-blur border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 shadow p-4 sm:p-6 lg:p-8 w-full">
+        <ContactForm
+          endpoint={endpoint}
+          fields={inputs?.map(({ type = 'text', name, label = name, placeholder = '' }) => ({
+            name,
+            label,
+            type,
+            required: false,
+            placeholder,
+          }))}
+          submitText={button ?? 'Submit'}
+          successMessage={successMessage}
+          client:load
+        />
+      </div>
+    ) : inputs ? (
       <div class="flex flex-col max-w-xl mx-auto rounded-lg backdrop-blur border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 shadow p-4 sm:p-6 lg:p-8 w-full">
         <FormContainer
           inputs={inputs}
@@ -35,6 +56,6 @@ const {
           description={description}
         />
       </div>
-    )
+    ) : null
   }
 </WidgetWrapper>

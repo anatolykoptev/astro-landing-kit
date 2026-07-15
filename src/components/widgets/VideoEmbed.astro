@@ -1,0 +1,69 @@
+---
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import Headline from '~/components/ui/Headline.astro';
+import Button from '~/components/ui/Button.astro';
+import type { VideoEmbed as Props } from '~/types';
+
+const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  tagline = await Astro.slots.render('tagline'),
+  src = '',
+  poster = '',
+  aspectRatio = 'aspect-video',
+  callToAction,
+
+  id,
+  isDark = false,
+  classes = {},
+  bg = await Astro.slots.render('bg'),
+} = Astro.props;
+
+// Detect provider from URL
+const isYouTube = src.includes('youtube.com') || src.includes('youtu.be');
+const isVimeo = src.includes('vimeo.com');
+const isMP4 = src.endsWith('.mp4') || src.endsWith('.webm') || src.endsWith('.ogg');
+
+// Normalize YouTube watch URL → embed URL
+let embedSrc = src;
+if (isYouTube) {
+  const ytId = src.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/)?.[1];
+  if (ytId) embedSrc = `https://www.youtube.com/embed/${ytId}`;
+}
+if (isVimeo) {
+  const vimeoId = src.match(/vimeo\.com\/(\d+)/)?.[1];
+  if (vimeoId) embedSrc = `https://player.vimeo.com/video/${vimeoId}`;
+}
+---
+
+<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-4xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
+  <Headline title={title} subtitle={subtitle} tagline={tagline} />
+
+  {src && (
+    <div class:list={['relative w-full rounded-lg overflow-hidden shadow-lg', aspectRatio]}>
+      {isMP4 ? (
+        <video
+          src={src}
+          poster={poster || undefined}
+          controls
+          class="absolute inset-0 w-full h-full"
+        />
+      ) : (
+        <iframe
+          src={embedSrc}
+          title={title || 'Video'}
+          class="absolute inset-0 w-full h-full"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        />
+      )}
+    </div>
+  )}
+
+  {callToAction && (
+    <div class="mt-8 text-center">
+      <Button variant="primary" {...callToAction} />
+    </div>
+  )}
+</WidgetWrapper>

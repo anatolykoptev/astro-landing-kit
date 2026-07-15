@@ -48,7 +48,13 @@
     "./sw": "./src/sw/integration.ts",
     "./integration": "./vendor/integration/index.ts",
     "./components/FontPreload": "./src/components/FontPreload.astro",
-    "./components/*": "./src/components/*.astro"
+    "./components/*": "./src/components/*.astro",
+    "./compose": "./src/compose/RenderSections.astro",
+    "./compose/registry": "./src/compose/registry.ts",
+    "./forms": "./src/forms/index.ts",
+    "./forms/csrf": "./src/forms/csrf.ts",
+    "./forms/rate-limit": "./src/forms/rate-limit.ts",
+    "./forms/webhook": "./src/forms/webhook.ts"
   },
   "scripts": {
     "dev": "astro dev",

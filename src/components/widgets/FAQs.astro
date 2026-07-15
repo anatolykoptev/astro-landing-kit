@@ -2,6 +2,7 @@
 import Headline from '~/components/ui/Headline.astro';
 import ItemGrid from '~/components/ui/ItemGrid.astro';
 import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import FaqAccordion from '~/components/islands/FaqAccordion.svelte';
 import type { Faqs as Props } from '~/types';
 
 const {
@@ -10,6 +11,7 @@ const {
   tagline = '',
   items = [],
   columns = 2,
+  interactive = false,
 
   // Default to no icon so FAQs render out-of-box for consumers that have not
   // installed/configured @iconify-json/tabler. Pass e.g. "tabler:chevron-right"
@@ -25,14 +27,23 @@ const {
 
 <WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-7xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
   <Headline title={title} subtitle={subtitle} tagline={tagline} />
-  <ItemGrid
-    items={items}
-    columns={columns}
-    defaultIcon={defaultIcon}
-    classes={{
-      container: `${columns === 1 ? 'max-w-4xl' : ''} gap-y-8 md:gap-y-12`,
-      panel: 'max-w-none',
-      icon: 'flex-shrink-0 mt-1 w-6 h-6 text-primary',
-    }}
-  />
+  {interactive ? (
+    <div class="max-w-3xl mx-auto">
+      <FaqAccordion
+        items={items.map((item) => ({ title: item.title ?? '', description: item.description ?? '' }))}
+        client:visible
+      />
+    </div>
+  ) : (
+    <ItemGrid
+      items={items}
+      columns={columns}
+      defaultIcon={defaultIcon}
+      classes={{
+        container: `${columns === 1 ? 'max-w-4xl' : ''} gap-y-8 md:gap-y-12`,
+        panel: 'max-w-none',
+        icon: 'flex-shrink-0 mt-1 w-6 h-6 text-primary',
+      }}
+    />
+  )}
 </WidgetWrapper>

@@ -1,7 +1,16 @@
 ---
 import Layout from '~/layouts/LandingLayout.astro';
+import RenderSections from '~/compose/RenderSections.astro';
+import { loadJson } from '~/adapters/json';
+import type { MetaData } from '~/types';
+
+const page = await loadJson('landing', 'src/content');
+const metadata: MetaData = {
+  title: page.meta?.title,
+  description: page.meta?.description,
+};
 ---
-<Layout metadata={{ title: 'Landing Kit', description: 'Demo page' }}>
-  <h1>astro-landing-kit</h1>
-  <p>Content provider and page configuration come in Task 3.</p>
+
+<Layout metadata={metadata}>
+  <RenderSections sections={page.sections} />
 </Layout>

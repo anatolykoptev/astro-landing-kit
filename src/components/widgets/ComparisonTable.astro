@@ -1,0 +1,88 @@
+---
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import Headline from '~/components/ui/Headline.astro';
+import Button from '~/components/ui/Button.astro';
+import { Icon } from 'astro-icon/components';
+import type { ComparisonTable as Props } from '~/types';
+
+const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  tagline = await Astro.slots.render('tagline'),
+  rows = [],
+  columns = [],
+
+  id,
+  isDark = false,
+  classes = {},
+  bg = await Astro.slots.render('bg'),
+} = Astro.props;
+---
+
+<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-5xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
+  <Headline title={title} subtitle={subtitle} tagline={tagline} />
+
+  {rows.length > 0 && columns.length > 0 && (
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr>
+            <th class="p-4 text-left text-sm font-semibold text-muted w-1/4"></th>
+            {columns.map((col) => (
+              <th
+                class:list={[
+                  'p-4 text-center text-sm font-bold',
+                  col.highlight ? 'text-primary' : 'text-default',
+                ]}
+              >
+                {col.title && <div class="text-base">{col.title}</div>}
+                {col.badge && (
+                  <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-primary text-white">
+                    {col.badge}
+                  </span>
+                )}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((rowLabel, rowIndex) => (
+            <tr class="border-t border-hairline">
+              <td class="p-4 text-left text-sm font-medium text-muted">{rowLabel}</td>
+              {columns.map((col) => {
+                const cell = col.cells?.[rowIndex];
+                return (
+                  <td class:list={['p-4 text-center text-sm', col.highlight ? 'bg-card' : '']}>
+                    {typeof cell === 'boolean' ? (
+                      cell ? (
+                        <Icon name="tabler:check" class="inline-block w-5 h-5 text-primary" />
+                      ) : (
+                        <Icon name="tabler:x" class="inline-block w-5 h-5 text-muted" />
+                      )
+                    ) : (
+                      <span>{cell ?? ''}</span>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+        {columns.some((col) => col.callToAction) && (
+          <tfoot>
+            <tr class="border-t border-hairline">
+              <td class="p-4"></td>
+              {columns.map((col) => (
+                <td class="p-4 text-center">
+                  {col.callToAction && (
+                    <Button variant={col.highlight ? 'primary' : 'secondary'} {...col.callToAction} />
+                  )}
+                </td>
+              ))}
+            </tr>
+          </tfoot>
+        )}
+      </table>
+    </div>
+  )}
+</WidgetWrapper>

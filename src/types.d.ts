@@ -244,6 +244,8 @@ export interface Team extends Omit<Headline, 'classes'>, Widget {
 export interface Stats extends Omit<Headline, 'classes'>, Widget {
   stats?: Array<Stat>;
   align?: 'left' | 'center';
+  /** When true, renders StatsCounter.svelte with animated count-up (client:visible). */
+  animate?: boolean;
 }
 
 export interface Pricing extends Omit<Headline, 'classes'>, Widget {
@@ -283,6 +285,8 @@ export interface Faqs extends Omit<Headline, 'classes'>, Widget {
   defaultIcon?: string;
   items?: Array<Item>;
   columns?: number;
+  /** When true, renders FaqAccordion.svelte with JS toggle (client:visible). */
+  interactive?: boolean;
 }
 
 export interface Steps extends Omit<Headline, 'classes'>, Widget {
@@ -304,4 +308,52 @@ export interface Content extends Omit<Headline, 'classes'>, Widget {
   callToAction?: CallToAction;
 }
 
-export interface Contact extends Omit<Headline, 'classes'>, Form, Widget {}
+export interface Contact extends Omit<Headline, 'classes'>, Form, Widget {
+  /** When true, renders ContactForm.svelte with client-side fetch (client:load). */
+  interactive?: boolean;
+  /** Endpoint for ContactForm.svelte POST. Required when interactive=true. */
+  endpoint?: string;
+  /** Success message shown after submit (interactive mode). */
+  successMessage?: string;
+}
+
+// --- New primitives (0.6.0) ---
+
+/** A single column in a comparison table. */
+export interface ComparisonColumn {
+  /** Column heading (plan name, product name, etc.) */
+  title?: string;
+  /** Highlight this column (e.g. "Most Popular"). */
+  highlight?: boolean;
+  /** Optional badge/label shown next to the title. */
+  badge?: string;
+  /** Values per row — must match the number of rows defined on the table. */
+  cells?: Array<string | boolean>;
+  /** Optional CTA at the bottom of the column. */
+  callToAction?: CallToAction;
+}
+
+export interface ComparisonTable extends Omit<Headline, 'classes'>, Widget {
+  /** Row labels (left column). */
+  rows?: Array<string>;
+  /** Data columns. */
+  columns?: Array<ComparisonColumn>;
+}
+
+export interface LogoCloud extends Omit<Headline, 'classes'>, Widget {
+  /** Iconify icon names (rendered as inline SVG, grayscale by default). */
+  icons?: Array<string>;
+  /** Image URLs (alternative to icons — for raster logos). */
+  images?: Array<Image>;
+}
+
+export interface VideoEmbed extends Omit<Headline, 'classes'>, Widget {
+  /** YouTube/Vimeo/MP4 URL or embed URL. */
+  src?: string;
+  /** Poster image shown before play. */
+  poster?: string;
+  /** Aspect ratio class (default: 16/9). */
+  aspectRatio?: string;
+  /** Optional CTA below the video. */
+  callToAction?: CallToAction;
+}

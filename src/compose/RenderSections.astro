@@ -1,0 +1,109 @@
+---
+/**
+ * RenderSections — renders an array of `LandingSection` objects via the widget
+ * registry. This is the bridge between the JSON content model
+ * (`src/adapters/types.ts → LandingSection { type, props }`) and the widget
+ * components (`src/components/widgets/*`).
+ *
+ * Usage:
+ * ```astro
+ * import RenderSections from 'astro-landing-kit/compose/RenderSections';
+ * import { loadJson } from 'astro-landing-kit/adapters/json';
+ * const page = await loadJson('landing');
+ * ---
+ * <RenderSections sections={page.sections} />
+ * ```
+ *
+ * Consumers can register custom widgets before this component renders:
+ * ```ts
+ * import { registerWidget } from 'astro-landing-kit/compose/registry';
+ * registerWidget('comparison', MyComparison);
+ * ```
+ */
+import type { LandingSection } from '~/adapters/types';
+import { getWidget, registerWidget, listWidgetTypes } from '~/compose/registry';
+
+// --- Default widget registration (kit widgets → section type strings) ---
+// Imported once here so the .astro compiler resolves them; the registry
+// itself (registry.ts) stays framework-agnostic for unit testing.
+
+import Hero from '~/components/widgets/Hero.astro';
+import Hero2 from '~/components/widgets/Hero2.astro';
+import HeroText from '~/components/widgets/HeroText.astro';
+import Features from '~/components/widgets/Features.astro';
+import Features2 from '~/components/widgets/Features2.astro';
+import Features3 from '~/components/widgets/Features3.astro';
+import Steps from '~/components/widgets/Steps.astro';
+import Steps2 from '~/components/widgets/Steps2.astro';
+import Stats from '~/components/widgets/Stats.astro';
+import FAQs from '~/components/widgets/FAQs.astro';
+import Pricing from '~/components/widgets/Pricing.astro';
+import Testimonials from '~/components/widgets/Testimonials.astro';
+import Brands from '~/components/widgets/Brands.astro';
+import Contact from '~/components/widgets/Contact.astro';
+import Content from '~/components/widgets/Content.astro';
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import Note from '~/components/widgets/Note.astro';
+import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
+import BlogHighlightedPosts from '~/components/widgets/BlogHighlightedPosts.astro';
+import ComparisonTable from '~/components/widgets/ComparisonTable.astro';
+import LogoCloud from '~/components/widgets/LogoCloud.astro';
+import VideoEmbed from '~/components/widgets/VideoEmbed.astro';
+
+// Register defaults — idempotent (registerWidget overwrites on re-call).
+const defaults: Record<string, unknown> = {
+  hero: Hero,
+  'hero-2': Hero2,
+  'hero-text': HeroText,
+  features: Features,
+  'features-2': Features2,
+  'features-3': Features3,
+  steps: Steps,
+  'steps-2': Steps2,
+  stats: Stats,
+  faqs: FAQs,
+  pricing: Pricing,
+  testimonials: Testimonials,
+  brands: Brands,
+  contact: Contact,
+  content: Content,
+  cta: CallToAction,
+  note: Note,
+  'blog-latest-posts': BlogLatestPosts,
+  'blog-highlighted-posts': BlogHighlightedPosts,
+  'comparison-table': ComparisonTable,
+  'logo-cloud': LogoCloud,
+  'video-embed': VideoEmbed,
+};
+for (const [type, component] of Object.entries(defaults)) {
+  registerWidget(type, component);
+}
+
+export interface Props {
+  sections: LandingSection[];
+}
+
+const { sections = [] } = Astro.props as Props;
+
+const isDev = import.meta.env?.DEV ?? false;
+---
+
+{sections.map((section) => {
+  const Component = getWidget(section.type) as any;
+  if (!Component) {
+    if (isDev) {
+      console.warn(
+        `[landing-kit] Unknown section type "${section.type}" — skipping. ` +
+          `Registered types: ${listWidgetTypes().join(', ')}. ` +
+          `Use registerWidget("${section.type}", MyComponent) to add it.`
+      );
+    }
+    return null;
+  }
+  return (
+    <Component
+      {...section.props}
+      {...section.id ? { id: section.id } : {}}
+    />
+  );
+})}

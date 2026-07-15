@@ -8,39 +8,39 @@ export interface Post {
   /** A post’s unique slug – part of the post’s URL based on its name, i.e. a post called “My Sample Page” has a slug “my-sample-page”. */
   slug: string;
 
-  /**  */
+  /** Full URL path of the post (e.g. /blog/my-post). */
   permalink: string;
 
-  /**  */
+  /** Publication date. */
   publishDate: Date;
-  /**  */
+  /** Last update date (optional). */
   updateDate?: Date;
 
-  /**  */
+  /** Post title. */
   title: string;
   /** Optional summary of post content. */
   excerpt?: string;
-  /**  */
+  /** Cover/hero image for the post. */
   image?: ImageMetadata | string;
 
-  /**  */
+  /** Primary category. */
   category?: Taxonomy;
-  /**  */
+  /** Post tags. */
   tags?: Taxonomy[];
-  /**  */
+  /** Author name or ID. */
   author?: string;
 
-  /**  */
+  /** Arbitrary key-value metadata. */
   metadata?: MetaData;
 
-  /**  */
+  /** If true, post is excluded from production output. */
   draft?: boolean;
 
-  /**  */
+  /** Rendered Astro component (compiled MDX/markdown). */
   Content?: AstroComponentFactory;
   content?: string;
 
-  /**  */
+  /** Estimated reading time in minutes. */
   readingTime?: number;
 }
 

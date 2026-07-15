@@ -10,9 +10,14 @@ export interface Props {
    * Default: '#0d9488' (kit-neutral teal — override in your layout).
    */
   maskIconColor?: string | null;
+  /**
+   * Theme color for the web app manifest + mobile browser chrome.
+   * Pass a hex value or null to omit. Default: '#0d9488'.
+   */
+  themeColor?: string | null;
 }
 
-const { maskIconColor = '#0d9488' } = Astro.props;
+const { maskIconColor = '#0d9488', themeColor = '#0d9488' } = Astro.props;
 ---
 
 <link rel="shortcut icon" href={favIcon} />
@@ -21,3 +26,7 @@ const { maskIconColor = '#0d9488' } = Astro.props;
   <link rel="mask-icon" href={favIconSvg.src} color={maskIconColor} />
 )}
 <link rel="apple-touch-icon" sizes="180x180" href={appleTouchIcon.src} />
+<link rel="manifest" href="/manifest.webmanifest" />
+{themeColor != null && <meta name="theme-color" content={themeColor} />}
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

@@ -12,6 +12,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 import astrowind from './vendor/integration';
 import designMdIntegration from './src/design/integration';
+import serviceWorkerIntegration from './src/sw/integration';
 
 import { readingTimeRemarkPlugin, responsiveTablesRehypePlugin, lazyImagesRehypePlugin } from './src/utils/frontmatter';
 
@@ -67,6 +68,10 @@ export default defineConfig({
     astrowind({
       config: './src/config.yaml',
     }),
+
+    // PWA: versioned service worker (network-first nav, cache-first assets,
+    // auto-reload on deploy). See src/sw/README.md for the pattern + caveats.
+    serviceWorkerIntegration(),
   ],
 
   image: {

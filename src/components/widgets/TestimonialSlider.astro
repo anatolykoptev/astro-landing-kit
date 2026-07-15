@@ -1,0 +1,32 @@
+---
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import Headline from '~/components/ui/Headline.astro';
+import TestimonialSliderSvelte from '~/components/islands/TestimonialSlider.svelte';
+import type { TestimonialSlider as Props } from '~/types';
+
+const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  tagline = await Astro.slots.render('tagline'),
+  testimonials = [],
+  autoplay = 0,
+  arrows = true,
+  dots = true,
+
+  id,
+  isDark = false,
+  classes = {},
+  bg = await Astro.slots.render('bg'),
+} = Astro.props;
+---
+
+<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-6xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
+  <Headline title={title} subtitle={subtitle} tagline={tagline} />
+  <TestimonialSliderSvelte
+    testimonials={testimonials}
+    autoplay={autoplay}
+    arrows={arrows}
+    dots={dots}
+    client:visible
+  />
+</WidgetWrapper>

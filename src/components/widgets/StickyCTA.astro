@@ -1,0 +1,61 @@
+---
+import Button from '~/components/ui/Button.astro';
+import type { StickyCTA as Props } from '~/types';
+
+const {
+  title = '',
+  subtitle = '',
+  callToAction,
+  dismissible = true,
+} = Astro.props;
+---
+
+{title && callToAction && (
+  <div
+    id="sticky-cta"
+    class="fixed bottom-0 left-0 right-0 z-50 transform translate-y-full transition-transform duration-300 motion-safe:md:intersect:translate-y-0"
+    data-sticky-cta
+  >
+    <div class="bg-primary text-white shadow-lg">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+        <div class="flex-1 min-w-0">
+          {title && <p class="font-bold text-lg truncate">{title}</p>}
+          {subtitle && <p class="text-sm opacity-90 truncate">{subtitle}</p>}
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+          {callToAction && <Button {...callToAction} class="bg-white text-primary hover:bg-gray-100" />}
+          {dismissible && (
+            <button
+              type="button"
+              aria-label="Dismiss"
+              class="text-white opacity-70 hover:opacity-100 p-1"
+              onclick="this.closest('[data-sticky-cta]').style.display='none'"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+<script>
+  // Show the sticky CTA after scrolling past the first viewport
+  const el = document.querySelector('[data-sticky-cta]');
+  if (el) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
+            el.classList.remove('translate-y-full');
+          }
+        });
+      },
+      { threshold: 0, rootMargin: '-100vh 0px 0px 0px' }
+    );
+    // Observe the first section on the page
+    const firstSection = document.querySelector('section');
+    if (firstSection) observer.observe(firstSection);
+  }
+</script>

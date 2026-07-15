@@ -113,20 +113,6 @@ export interface Headline {
   align?: 'left' | 'center';
 }
 
-interface TeamMember {
-  name?: string;
-  job?: string;
-  image?: Image;
-  socials?: Array<Social>;
-  description?: string;
-  classes?: Record<string, string>;
-}
-
-interface Social {
-  icon?: string;
-  href?: string;
-}
-
 export interface Stat {
   amount?: number | string;
   title?: string;
@@ -235,10 +221,6 @@ export interface Hero extends Omit<Headline, 'classes'>, Omit<Widget, 'isDark' |
   image?: string | unknown;
   align?: 'left' | 'center';
   animate?: boolean;
-}
-
-export interface Team extends Omit<Headline, 'classes'>, Widget {
-  team?: Array<TeamMember>;
 }
 
 export interface Stats extends Omit<Headline, 'classes'>, Widget {
@@ -356,4 +338,55 @@ export interface VideoEmbed extends Omit<Headline, 'classes'>, Widget {
   aspectRatio?: string;
   /** Optional CTA below the video. */
   callToAction?: CallToAction;
+}
+
+/** A pricing plan with optional annual price for the toggle. */
+export interface TogglePrice extends Price {
+  /** Annual price (shown when toggle is set to "annual"). */
+  annualPrice?: number | string;
+  /** Annual period label (e.g. "/year"). */
+  annualPeriod?: string;
+}
+
+export interface PricingToggle extends Omit<Headline, 'classes'>, Widget {
+  /** Pricing plans with monthly + optional annual prices. */
+  prices?: Array<TogglePrice>;
+  /** Label for the monthly toggle position. Default: "Monthly". */
+  monthlyLabel?: string;
+  /** Label for the annual toggle position. Default: "Annual". */
+  annualLabel?: string;
+  /** Optional badge text on the annual toggle (e.g. "Save 20%"). */
+  annualBadge?: string;
+  animate?: boolean;
+}
+
+export interface StickyCTA extends Widget {
+  /** CTA text. */
+  title?: string;
+  /** Subtitle / supporting text. */
+  subtitle?: string;
+  /** CTA button. */
+  callToAction?: CallToAction;
+  /** Dismissible (shows close button). Default: true. */
+  dismissible?: boolean;
+}
+
+export interface Gallery extends Omit<Headline, 'classes'>, Widget {
+  /** Gallery images. */
+  images?: Array<Image>;
+  /** Grid columns (2-4). Default: 3. */
+  columns?: number;
+  /** Show captions on hover. Default: false. */
+  captions?: boolean;
+}
+
+export interface TestimonialSlider extends Omit<Headline, 'classes'>, Widget {
+  /** Testimonial slides. */
+  testimonials?: Array<Testimonial>;
+  /** Auto-advance interval in ms (0 = manual). Default: 0. */
+  autoplay?: number;
+  /** Show navigation arrows. Default: true. */
+  arrows?: boolean;
+  /** Show dot indicators. Default: true. */
+  dots?: boolean;
 }

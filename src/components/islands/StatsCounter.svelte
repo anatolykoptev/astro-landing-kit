@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
 
   interface Props {
-    stats: { amount: number | string; title: string; icon?: string }[];
+    stats: { amount?: number | string; title?: string; icon?: string }[];
     duration?: number;
   }
   let { stats, duration = 2 }: Props = $props();

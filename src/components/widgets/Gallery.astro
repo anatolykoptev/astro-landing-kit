@@ -1,0 +1,50 @@
+---
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import Headline from '~/components/ui/Headline.astro';
+import Image from '~/components/common/Image.astro';
+import type { Gallery as Props } from '~/types';
+
+const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  tagline = await Astro.slots.render('tagline'),
+  images = [],
+  columns = 3,
+  captions = false,
+
+  id,
+  isDark = false,
+  classes = {},
+  bg = await Astro.slots.render('bg'),
+} = Astro.props;
+
+const colsClass =
+  columns === 2 ? 'sm:grid-cols-2' :
+  columns === 4 ? 'sm:grid-cols-2 lg:grid-cols-4' :
+  'sm:grid-cols-2 lg:grid-cols-3';
+---
+
+<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-6xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
+  <Headline title={title} subtitle={subtitle} tagline={tagline} />
+
+  {images.length > 0 && (
+    <div class:list={['grid grid-cols-1 gap-4', colsClass]}>
+      {images.map((img) => (
+        <div class="group relative overflow-hidden rounded-lg shadow-md">
+          <Image
+            src={img.src}
+            alt={img.alt ?? ''}
+            class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+            widths={[400, 768]}
+            sizes="(max-width: 640px) 100vw, 33vw"
+          />
+          {captions && img.alt && (
+            <div class="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+              <p class="text-white text-sm p-4">{img.alt}</p>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )}
+</WidgetWrapper>

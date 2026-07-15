@@ -63,6 +63,10 @@ const page = await loadJson('landing');
 | `comparison-table` | `ComparisonTable.astro` |
 | `logo-cloud` | `LogoCloud.astro` |
 | `video-embed` | `VideoEmbed.astro` |
+| `pricing-toggle` | `PricingToggle.astro` |
+| `sticky-cta` | `StickyCTA.astro` |
+| `gallery` | `Gallery.astro` |
+| `testimonial-slider` | `TestimonialSlider.astro` |
 
 ## Registering a custom widget
 

@@ -113,6 +113,109 @@
         "subtitle": "Watch how to build a landing page from JSON in under 2 minutes.",
         "src": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
       }
+    },
+    {
+      "type": "pricing-toggle",
+      "props": {
+        "tagline": "Pricing",
+        "title": "Simple, transparent pricing",
+        "subtitle": "Switch between monthly and annual billing.",
+        "monthlyLabel": "Monthly",
+        "annualLabel": "Annual",
+        "annualBadge": "Save 20%",
+        "prices": [
+          {
+            "title": "Starter",
+            "subtitle": "For side projects",
+            "price": "0",
+            "period": "/month",
+            "annualPrice": "0",
+            "annualPeriod": "/year",
+            "items": [
+              { "description": "1 landing page" },
+              { "description": "JSON content adapter" },
+              { "description": "Community support" }
+            ],
+            "callToAction": { "text": "Get Started", "href": "#" }
+          },
+          {
+            "title": "Pro",
+            "subtitle": "For growing teams",
+            "price": "29",
+            "period": "/month",
+            "annualPrice": "23",
+            "annualPeriod": "/month billed annually",
+            "hasRibbon": true,
+            "ribbonTitle": "Popular",
+            "items": [
+              { "description": "Unlimited pages" },
+              { "description": "All adapters + custom" },
+              { "description": "Form protection (CSRF + rate-limit)" },
+              { "description": "Priority support" }
+            ],
+            "callToAction": { "text": "Start free trial", "href": "#" }
+          },
+          {
+            "title": "Enterprise",
+            "subtitle": "For large orgs",
+            "price": "99",
+            "period": "/month",
+            "annualPrice": "79",
+            "annualPeriod": "/month billed annually",
+            "items": [
+              { "description": "Everything in Pro" },
+              { "description": "SSO + audit logs" },
+              { "description": "Dedicated support" }
+            ],
+            "callToAction": { "text": "Contact sales", "href": "#" }
+          }
+        ]
+      }
+    },
+    {
+      "type": "testimonial-slider",
+      "props": {
+        "tagline": "Testimonials",
+        "title": "What developers say",
+        "autoplay": 5000,
+        "testimonials": [
+          {
+            "title": "Saved us 2 weeks",
+            "testimonial": "We went from idea to deployed landing page in a single afternoon. The JSON content model meant our content team could iterate without touching code.",
+            "name": "Sarah Chen",
+            "job": "CTO, LinkFlow"
+          },
+          {
+            "title": "AI-friendly blocks",
+            "testimonial": "Our AI agent assembles pages by writing JSON sections — no hand-rolled markup. The widget registry is exactly the abstraction we needed.",
+            "name": "Marcus Webb",
+            "job": "Founder, DevPage"
+          },
+          {
+            "title": "Zero JS by default",
+            "testimonial": "Lighthouse 100 out of the box. Islands only hydrate where we opt in. The performance story sells itself.",
+            "name": "Priya Nair",
+            "job": "Eng Lead, CloudMetrics"
+          }
+        ]
+      }
+    },
+    {
+      "type": "gallery",
+      "props": {
+        "tagline": "Gallery",
+        "title": "Built with the kit",
+        "columns": 3,
+        "captions": true,
+        "images": [
+          { "src": "/assets/images/hero-image.png", "alt": "Hero section example" },
+          { "src": "/assets/images/default.png", "alt": "Default landing page" },
+          { "src": "/assets/images/google-play.png", "alt": "Mobile app landing" },
+          { "src": "/assets/images/app-store.png", "alt": "App store badge" },
+          { "src": "/assets/images/hero-image.png", "alt": "Another hero variant" },
+          { "src": "/assets/images/default.png", "alt": "Minimal landing" }
+        ]
+      }
     }
   ]
 }

@@ -49,6 +49,10 @@ import BlogHighlightedPosts from '~/components/widgets/BlogHighlightedPosts.astr
 import ComparisonTable from '~/components/widgets/ComparisonTable.astro';
 import LogoCloud from '~/components/widgets/LogoCloud.astro';
 import VideoEmbed from '~/components/widgets/VideoEmbed.astro';
+import PricingToggle from '~/components/widgets/PricingToggle.astro';
+import StickyCTA from '~/components/widgets/StickyCTA.astro';
+import Gallery from '~/components/widgets/Gallery.astro';
+import TestimonialSlider from '~/components/widgets/TestimonialSlider.astro';
 
 // Register defaults — idempotent (registerWidget overwrites on re-call).
 const defaults: Record<string, unknown> = {
@@ -74,6 +78,10 @@ const defaults: Record<string, unknown> = {
   'comparison-table': ComparisonTable,
   'logo-cloud': LogoCloud,
   'video-embed': VideoEmbed,
+  'pricing-toggle': PricingToggle,
+  'sticky-cta': StickyCTA,
+  'gallery': Gallery,
+  'testimonial-slider': TestimonialSlider,
 };
 for (const [type, component] of Object.entries(defaults)) {
   registerWidget(type, component);

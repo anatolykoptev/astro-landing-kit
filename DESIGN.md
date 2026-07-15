@@ -34,6 +34,40 @@ typography:
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.5
+
+rounded:
+  sm: "4px"
+  md: "8px"
+  lg: "12px"
+  xl: "16px"
+  pill: "9999px"
+
+spacing:
+  xs: "4px"
+  sm: "8px"
+  md: "16px"
+  lg: "24px"
+  xl: "40px"
+  section-y: "96px"
+
+components:
+  button-primary:
+    backgroundColor: "{colors.accent}"
+    textColor: "{colors.on-accent}"
+    rounded: "{rounded.pill}"
+    padding: "14px 32px"
+  button-primary-hover:
+    backgroundColor: "{colors.accent-strong}"
+  button-secondary:
+    backgroundColor: "transparent"
+    textColor: "{colors.accent}"
+    rounded: "{rounded.pill}"
+    padding: "14px 32px"
+  input:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.md}"
+    padding: "12px 16px"
 ---
 
 # astro-landing-kit design
@@ -45,6 +79,31 @@ This document defines the kit's neutral reference theme. Consumer sites should k
 The kit ships a neutral teal-on-warm-paper default. Every color flows through `--aw-color-*` semantic tokens so a consumer's DESIGN.md override (or `designMdIntegration()`) replaces the full palette in one pass. Inter Variable is the zero-config fallback — consumers should self-host a distinctive face where brand character matters.
 
 ## Colors
+
+A two-chord palette: warm-paper neutrals with a near-imperceptible teal tint, plus one desaturated teal accent. No secondary or tertiary accents in the core system — the restraint is doctrinal. All neutrals are tinted (chroma 0.005–0.01), never pure #000 or #fff.
+
+### Primary
+
+- **Accent** (#0D9488): The one vibrant voice. Primary CTAs, active navigation states, focus indicators, links. Never used as a gradient, never as a background wash, never as text fill. Rarity is the design choice.
+- **Accent Strong** (#08776E): Hover/active state for Accent. Small darkening, confirms interaction without shouting.
+
+### Neutral
+
+- **Page Background** (#FCFCFD): Primary page background. Near-white with a near-imperceptible tint that creates subconscious cohesion with the teal accent. Used on `body` and standard surfaces.
+- **Card Surface** (#F5F7F8): Raised card and panel surface. Differentiated from page background by color, not shadow depth.
+- **Body Text** (#101010): Primary text for body copy and headlines. Softer than pure black, reads as confident-but-not-aggressive on warm paper.
+- **Muted Text** (#5C6268): Secondary text — taglines, supporting copy, captions. Clearly subordinate to Body Text without being washed out.
+- **Hairline** (#C8CDD2): Borders, dividers, the barely-visible structural seams.
+- **On-Accent** (#FCFCFD): Text on accent fills. Same tinted-white as page background for cohesion.
+- **Dark Surface** (#030620): Dark page background surface. Deep navy-black, tinted toward the accent hue family.
+
+### Named Rules
+
+**The One Accent Rule.** Accent is the only vibrant color in the system. No supporting accent is added, ever. If a second emphasis point is needed, use scale or weight, never a second hue.
+
+**The Tinted-Neutral Rule.** Every neutral is tinted toward the brand hue (chroma 0.005–0.01). Pure #000 and #fff are banned — they read as generic and harsh.
+
+**The Token-First Rule.** All colors must flow through `--aw-color-*` semantic tokens. Hard-coded hex values in components are a bug, not a shortcut.
 
 | Role | Token | Value | Use |
 |---|---|---|---|
@@ -58,11 +117,19 @@ The kit ships a neutral teal-on-warm-paper default. Every color flows through `-
 | On-accent | `--aw-color-on-primary` | `#FCFCFD` | Text on accent fills |
 | Dark surface | `--aw-color-bg-page-dark` | `#030620` | Dark page background surface |
 
-All neutrals are tinted (chroma 0.005–0.01), never pure #000 or #fff. The accent is a desaturated teal (oklch ~62% 0.12 180) — distinctive enough to not read as "AI default blue/violet" while neutral enough to override cleanly.
-
 ## Typography
 
-Use a consumer-owned, self-hosted typeface where brand character matters. The zero-config fallback is Inter Variable. Keep body text at least 1rem, use a 60–72ch reading measure, and define the product's hierarchy in the consumer design rather than inheriting widget defaults blindly.
+**Display Font:** Inter Variable (with sans-serif fallback)
+**Body Font:** Inter Variable (with sans-serif fallback)
+
+Inter Variable is the zero-config fallback. Consumers should self-host a distinctive face where brand character matters. Keep body text at least 1rem, use a 60–72ch reading measure.
+
+### Hierarchy
+
+- **Display** (Inter Variable, weight 700, max 4rem, line-height 1.1): Hero headlines and page titles. One per page.
+- **Headline** (Inter Variable, weight 600, max 2.5rem, line-height 1.2): Section headings. The structural backbone of the page.
+- **Body** (Inter Variable, weight 400, 1rem, line-height 1.6): Body copy, paragraphs, list items. The reading layer.
+- **Caption** (Inter Variable, weight 400, 0.875rem, line-height 1.5): Micro-labels, captions, meta lines, supporting metadata.
 
 | Role | Font | Size | Weight | Line height |
 |---|---|---|---|---|
@@ -73,11 +140,30 @@ Use a consumer-owned, self-hosted typeface where brand character matters. The ze
 
 ## Elevation
 
-Flat surfaces at rest. Shadows are reserved for floating elements (sticky CTA, dropdown menus, modal overlays). Cards use surface color differentiation (`--aw-color-bg-card` vs `--aw-color-bg-page`), not shadow depth.
+Flat surfaces at rest. Shadows are reserved for floating elements only — sticky CTA, dropdown menus, modal overlays. Cards use surface color differentiation (`--aw-color-bg-card` vs `--aw-color-bg-page`), not shadow depth.
+
+### Shadows
+
+- **Floating** (`box-shadow: 0 4px 12px rgba(0,0,0,0.08)`): Sticky CTA bar, dropdown menus. Subtle, functional.
+- **Overlay** (`box-shadow: 0 12px 40px rgba(0,0,0,0.12)`): Modal dialogs and full-screen overlays. Diffused, not sharp.
+
+**The Flat-At-Rest Rule.** Cards and panels at rest use color differentiation, never shadow. Shadow implies motion — a resting element casting a shadow reads as floating without reason.
 
 ## Components
 
-Buttons use semantic foreground, border, surface-hover, and focus-ring tokens. All interactive states must remain visible in light, dark, reduced-motion, and forced-colors modes. Form inputs inherit `--aw-color-border` for outlines and `--aw-color-primary` for focus rings.
+### Buttons
+
+- **Primary**: Accent background, on-accent text. Used for the one primary action per page.
+- **Secondary**: Transparent background, accent border, accent text. Used for secondary actions.
+- **Ghost**: Transparent background, no border, muted text. Used for tertiary navigation.
+
+All button states (hover, focus, active, disabled) must remain visible in light, dark, reduced-motion, and forced-colors modes. Focus ring uses `--aw-color-primary` at 2px offset.
+
+### Forms
+
+- **Inputs**: Hairline border, body-text color, accent focus ring at 2px.
+- **Labels**: Caption typography, muted color.
+- **Error states**: Accent-strong border, no red — the kit's accent is the semantic color for all states.
 
 ## Do's and Don'ts
 

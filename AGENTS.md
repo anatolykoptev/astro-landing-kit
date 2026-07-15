@@ -27,3 +27,13 @@ Do not patch generated CSS, target undocumented Tailwind internals, duplicate ac
 ## Verification
 
 Run `npm test`, `npm run check`, and `npm run build`. For consumer-facing changes, build at least one real npm-style consumer and inspect 320px, 375px, 768px, and 1440px layouts plus keyboard focus and reduced-motion behavior.
+
+## Design quality gate (impeccable)
+
+The kit integrates with the [impeccable](https://impeccable.style) design plugin for AI anti-pattern detection. See `.devin/skills/impeccable-integration/SKILL.md` for the full guide.
+
+- `DESIGN.md` uses Stitch-spec YAML frontmatter + canonical sections (parses in both kit and impeccable parsers).
+- `PRODUCT.md` provides impeccable's context loader with register, users, and anti-references.
+- CI runs `npx impeccable detect --fast dist/` after build (advisory mode).
+- Known by-design findings: `overused-font: Inter` (documented default), `pure-black-white: #000` (Tailwind preflight internals). Do NOT fix these.
+- All new components must use `--aw-color-*` semantic tokens. Hard-coded colors trigger impeccable's anti-pattern rules.

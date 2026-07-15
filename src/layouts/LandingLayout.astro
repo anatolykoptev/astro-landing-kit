@@ -19,13 +19,7 @@ const { metadata } = Astro.props;
   <Fragment slot="header">
     <slot name="header">
       <Header
-        links={headerData?.links[0] ? [headerData.links[0]] : undefined}
-        actions={[
-          {
-            text: 'GitHub',
-            href: 'https://github.com/anatolykoptev/astro-landing-kit',
-          },
-        ]}
+        {...headerData}
         showToggleTheme
         position="right"
       />

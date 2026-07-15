@@ -1,16 +1,333 @@
 ---
 import Layout from '~/layouts/LandingLayout.astro';
-import RenderSections from '~/compose/RenderSections.astro';
-import { loadJson } from '~/adapters/json';
+import Button from '~/components/ui/Button.astro';
+import { Icon } from 'astro-icon/components';
 import type { MetaData } from '~/types';
 
-const page = await loadJson('landing', 'src/content');
 const metadata: MetaData = {
-  title: page.meta?.title,
-  description: page.meta?.description,
+  title: 'astro-landing-kit',
+  description: 'Structural foundation for Astro landing pages. Design tokens, PWA, forms, SEO, and impeccable design quality — built in.',
 };
 ---
 
 <Layout metadata={metadata}>
-  <RenderSections sections={page.sections} />
+  <!-- ════════════════════════════════════════════════════════════════
+       HERO — asymmetric, code-forward, not centered
+       ════════════════════════════════════════════════════════════════ -->
+  <section class="relative overflow-hidden border-b border-hairline">
+    <div class="max-w-6xl mx-auto px-6 pt-24 pb-20 md:pt-32 md:pb-28">
+      <div class="grid md:grid-cols-[1.1fr_1fr] gap-12 md:gap-16 items-start">
+        <!-- Left: headline + subhead -->
+        <div>
+          <p class="font-mono text-sm text-primary mb-6 tracking-tight">
+            v0.5.3 · npm install astro-landing-kit
+          </p>
+          <h1 class="font-heading text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-default mb-6">
+            Structural foundation<br />
+            for <span class="text-primary">Astro</span> landing pages
+          </h1>
+          <p class="text-lg md:text-xl text-muted leading-relaxed max-w-xl mb-8">
+            Not a template. A compose-from-primitives kit with design tokens, PWA,
+            forms, SEO, and a design quality gate. Fork of AstroWind, hardened.
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <Button variant="primary" href="https://www.npmjs.com/package/astro-landing-kit" target="_blank" class="font-mono">
+              npm install
+            </Button>
+            <Button variant="secondary" href="https://github.com/anatolykoptev/astro-landing-kit" target="_blank">
+              <Icon name="tabler:brand-github" class="w-4 h-4 inline-block mr-1.5 align-text-bottom" />
+              Source
+            </Button>
+          </div>
+        </div>
+
+        <!-- Right: code block -->
+        <div class="relative">
+          <div class="bg-surface border border-hairline rounded-lg overflow-hidden shadow-sm">
+            <div class="flex items-center gap-2 px-4 py-3 border-b border-hairline bg-page">
+              <span class="w-3 h-3 rounded-full bg-hairline"></span>
+              <span class="w-3 h-3 rounded-full bg-hairline"></span>
+              <span class="w-3 h-3 rounded-full bg-hairline"></span>
+              <span class="font-mono text-xs text-muted ml-2">astro.config.ts</span>
+            </div>
+            <pre class="font-mono text-sm leading-relaxed p-5 overflow-x-auto text-default"><code set:html={`<span class="text-muted">import</span> { defineConfig } <span class="text-muted">from</span> <span class="text-primary">'astro/config'</span>;
+<span class="text-muted">import</span> svelte <span class="text-muted">from</span> <span class="text-primary">'@astrojs/svelte'</span>;
+<span class="text-muted">import</span> { designMdIntegration } <span class="text-muted">from</span> <span class="text-primary">'astro-landing-kit/design'</span>;
+<span class="text-muted">import</span> { serviceWorkerIntegration } <span class="text-muted">from</span> <span class="text-primary">'astro-landing-kit/sw'</span>;
+
+<span class="text-muted">export default</span> defineConfig({
+  integrations: [
+    svelte(),
+    designMdIntegration(),  <span class="text-muted">// DESIGN.md → CSS tokens</span>
+    serviceWorkerIntegration(),  <span class="text-muted">// PWA offline</span>
+  ],
+});`} /></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════
+       FEATURES — inline list with real substance, not icon-grid
+       ════════════════════════════════════════════════════════════════ -->
+  <section id="features" class="border-b border-hairline">
+    <div class="max-w-5xl mx-auto px-6 py-20 md:py-28">
+      <div class="mb-16">
+        <p class="font-mono text-sm text-primary mb-3">01 / What's inside</p>
+        <h2 class="font-heading text-3xl md:text-4xl tracking-tight text-default">
+          Production concerns, not demo widgets
+        </h2>
+      </div>
+
+      <div class="space-y-px bg-hairline border border-hairline rounded-lg overflow-hidden">
+        <!-- Row 1 -->
+        <div class="bg-page md:grid md:grid-cols-[200px_1fr] gap-0">
+          <div class="p-6 md:p-8 md:border-r border-hairline">
+            <p class="font-mono text-sm text-default font-medium">Design tokens</p>
+          </div>
+          <div class="p-6 md:p-8 bg-page">
+            <p class="text-default leading-relaxed">
+              Write a <code class="font-mono text-sm text-primary">DESIGN.md</code> in Stitch-spec format.
+              The kit parses YAML frontmatter and markdown body into <code class="font-mono text-sm text-primary">--aw-color-*</code> CSS variables.
+              Both the kit parser and the impeccable design parser read the same file.
+            </p>
+          </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="bg-page md:grid md:grid-cols-[200px_1fr] gap-0">
+          <div class="p-6 md:p-8 md:border-r border-hairline">
+            <p class="font-mono text-sm text-default font-medium">PWA</p>
+          </div>
+          <div class="p-6 md:p-8 bg-page">
+            <p class="text-default leading-relaxed">
+              Service worker with network-first navigations, cache-first hashed assets,
+              and auto-reload on deploy. Web App Manifest with maskable icons.
+              Installable on Chrome, Edge, Samsung Internet. No <code class="font-mono text-sm text-primary">@vite-pwa</code> dependency.
+            </p>
+          </div>
+        </div>
+
+        <!-- Row 3 -->
+        <div class="bg-page md:grid md:grid-cols-[200px_1fr] gap-0">
+          <div class="p-6 md:p-8 md:border-r border-hairline">
+            <p class="font-mono text-sm text-default font-medium">Forms</p>
+          </div>
+          <div class="p-6 md:p-8 bg-page">
+            <p class="text-default leading-relaxed">
+              Honeypot anti-spam, CSRF tokens, webhook submission.
+              Svelte 5 island with progressive enhancement — works without JavaScript,
+              enhances with it. No third-party form service required.
+            </p>
+          </div>
+        </div>
+
+        <!-- Row 4 -->
+        <div class="bg-page md:grid md:grid-cols-[200px_1fr] gap-0">
+          <div class="p-6 md:p-8 md:border-r border-hairline">
+            <p class="font-mono text-sm text-default font-medium">SEO</p>
+          </div>
+          <div class="p-6 md:p-8 bg-page">
+            <p class="text-default leading-relaxed">
+              JSON-LD structured data builder, Open Graph image optimization,
+              sitemap generation, robots.txt, canonical URLs.
+              Blog with content collections, RSS feed, reading time, related posts.
+            </p>
+          </div>
+        </div>
+
+        <!-- Row 5 -->
+        <div class="bg-page md:grid md:grid-cols-[200px_1fr] gap-0">
+          <div class="p-6 md:p-8 md:border-r border-hairline">
+            <p class="font-mono text-sm text-default font-medium">Adapters</p>
+          </div>
+          <div class="p-6 md:p-8 bg-page">
+            <p class="text-default leading-relaxed">
+              Content comes from JSON files, Directus, or a custom provider.
+              The adapter interface is a single <code class="font-mono text-sm text-primary">loadPage(slug)</code> method.
+              Switch sources without touching page components.
+            </p>
+          </div>
+        </div>
+
+        <!-- Row 6 -->
+        <div class="bg-page md:grid md:grid-cols-[200px_1fr] gap-0">
+          <div class="p-6 md:p-8 md:border-r border-hairline">
+            <p class="font-mono text-sm text-default font-medium">Design gate</p>
+          </div>
+          <div class="p-6 md:p-8 bg-page">
+            <p class="text-default leading-relaxed">
+              CI runs <code class="font-mono text-sm text-primary">impeccable detect</code> on build output.
+              Catches AI slop tells: hardcoded colors, overused fonts, border accents,
+              gray-on-color. 32 rules across AI slop and quality categories.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════
+       DESIGN SYSTEM — show the DESIGN.md → tokens flow
+       ════════════════════════════════════════════════════════════════ -->
+  <section id="design-system" class="border-b border-hairline bg-surface">
+    <div class="max-w-5xl mx-auto px-6 py-20 md:py-28">
+      <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-start">
+        <div>
+          <p class="font-mono text-sm text-primary mb-3">02 / Design system</p>
+          <h2 class="font-heading text-3xl md:text-4xl tracking-tight text-default mb-6">
+            One file, two parsers, zero drift
+          </h2>
+          <p class="text-muted leading-relaxed mb-6">
+            Write <code class="font-mono text-sm text-primary">DESIGN.md</code> in Stitch-spec format.
+            The kit parses it into CSS custom properties. The impeccable plugin parses
+            the same file for design-system context. No separate token file, no sync drift.
+          </p>
+          <ul class="space-y-3 text-default">
+            <li class="flex items-start gap-3">
+              <Icon name="tabler:check" class="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <span>YAML frontmatter: colors, typography, rounded, spacing, components</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <Icon name="tabler:check" class="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <span>6 canonical sections: Overview, Colors, Typography, Elevation, Components, Do's and Don'ts</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <Icon name="tabler:check" class="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <span>Token refs: <code class="font-mono text-sm text-primary" set:html="{colors.accent}" /> in components</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <Icon name="tabler:check" class="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <span>Named rules: The One Accent Rule, The Tinted-Neutral Rule, The Token-First Rule</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-page border border-hairline rounded-lg overflow-hidden shadow-sm">
+          <div class="flex items-center gap-2 px-4 py-3 border-b border-hairline">
+            <span class="font-mono text-xs text-muted">DESIGN.md</span>
+          </div>
+          <pre class="font-mono text-xs leading-relaxed p-5 overflow-x-auto text-default"><code set:html={`<span class="text-muted">---</span>
+name: My Brand
+colors:
+  accent: <span class="text-primary">"#0D9488"</span>
+  bg: <span class="text-primary">"#FCFCFD"</span>
+  ink: <span class="text-primary">"#101010"</span>
+typography:
+  display:
+    fontFamily: <span class="text-primary">"Spline Sans Variable"</span>
+    fontWeight: 700
+components:
+  button-primary:
+    backgroundColor: <span class="text-primary">{colors.accent}</span>
+    textColor: <span class="text-primary">{colors.on-accent}</span>
+<span class="text-muted">---</span>
+
+## Colors
+### Primary
+- <span class="text-muted">**Accent**</span> (#0D9488): The one
+  vibrant voice. CTAs, focus, links.
+
+## Do's and Don'ts
+### Don't
+- Ship scaffold widgets as-is
+- Hard-code colors`} /></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════
+       PRODUCTION — PWA + impeccable + stack
+       ════════════════════════════════════════════════════════════════ -->
+  <section id="production" class="border-b border-hairline">
+    <div class="max-w-5xl mx-auto px-6 py-20 md:py-28">
+      <p class="font-mono text-sm text-primary mb-3">03 / Production-ready</p>
+      <h2 class="font-heading text-3xl md:text-4xl tracking-tight text-default mb-16">
+        What you'd build anyway, already built
+      </h2>
+
+      <div class="grid md:grid-cols-3 gap-px bg-hairline border border-hairline rounded-lg overflow-hidden">
+        <div class="bg-page p-8">
+          <div class="flex items-center gap-2 mb-4">
+            <Icon name="tabler:download" class="w-5 h-5 text-primary" />
+            <p class="font-mono text-sm font-medium text-default">PWA</p>
+          </div>
+          <p class="text-muted text-sm leading-relaxed">
+            Service worker, web app manifest, maskable icons. Installable.
+            Offline navigations. Auto-reload on deploy.
+          </p>
+        </div>
+        <div class="bg-page p-8">
+          <div class="flex items-center gap-2 mb-4">
+            <Icon name="tabler:shield-check" class="w-5 h-5 text-primary" />
+            <p class="font-mono text-sm font-medium text-default">Forms</p>
+          </div>
+          <p class="text-muted text-sm leading-relaxed">
+            Honeypot, CSRF, webhook. Svelte 5 island with progressive enhancement.
+            Works without JS, enhances with it.
+          </p>
+        </div>
+        <div class="bg-page p-8">
+          <div class="flex items-center gap-2 mb-4">
+            <Icon name="tabler:search" class="w-5 h-5 text-primary" />
+            <p class="font-mono text-sm font-medium text-default">SEO</p>
+          </div>
+          <p class="text-muted text-sm leading-relaxed">
+            JSON-LD, Open Graph, sitemap, canonical. Blog with collections,
+            RSS, reading time, related posts.
+          </p>
+        </div>
+      </div>
+
+      <!-- Stack strip -->
+      <div class="mt-12 pt-8 border-t border-hairline">
+        <p class="font-mono text-xs text-muted mb-4">Stack</p>
+        <div class="flex flex-wrap gap-x-6 gap-y-2 font-mono text-sm text-default">
+          <span>Astro 7</span>
+          <span class="text-hairline">·</span>
+          <span>Svelte 5</span>
+          <span class="text-hairline">·</span>
+          <span>Tailwind CSS 4</span>
+          <span class="text-hairline">·</span>
+          <span>TypeScript 6</span>
+          <span class="text-hairline">·</span>
+          <span>GSAP</span>
+          <span class="text-hairline">·</span>
+          <span>astro-seo</span>
+          <span class="text-hairline">·</span>
+          <span>sharp 0.35</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════
+       CTA — quiet, not a giant colored banner
+       ════════════════════════════════════════════════════════════════ -->
+  <section class="border-b border-hairline">
+    <div class="max-w-3xl mx-auto px-6 py-20 md:py-28 text-left">
+      <p class="font-mono text-sm text-primary mb-3">04 / Start</p>
+      <h2 class="font-heading text-3xl md:text-4xl tracking-tight text-default mb-6">
+        Install in one command
+      </h2>
+      <div class="bg-surface border border-hairline rounded-lg p-5 mb-8">
+        <code class="font-mono text-sm text-default block">
+          <span class="text-muted">$</span> npm install astro-landing-kit
+        </code>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <Button variant="primary" href="https://github.com/anatolykoptev/astro-landing-kit" target="_blank" class="font-mono">
+          Read the source
+        </Button>
+        <Button variant="secondary" href="https://www.npmjs.com/package/astro-landing-kit" target="_blank">
+          npm registry
+        </Button>
+      </div>
+      <p class="text-sm text-muted mt-8">
+        MIT licensed · Fork of AstroWind by onWidget · v0.5.3
+      </p>
+    </div>
+  </section>
 </Layout>

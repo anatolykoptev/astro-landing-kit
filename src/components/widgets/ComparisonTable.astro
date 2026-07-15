@@ -3,86 +3,193 @@ import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
 import Headline from '~/components/ui/Headline.astro';
 import Button from '~/components/ui/Button.astro';
 import { Icon } from 'astro-icon/components';
-import type { ComparisonTable as Props } from '~/types';
+import type { ComparisonTable as Props, ComparisonColumn } from '~/types';
 
 const {
   title = await Astro.slots.render('title'),
   subtitle = await Astro.slots.render('subtitle'),
   tagline = await Astro.slots.render('tagline'),
   rows = [],
+  groups,
   columns = [],
-
   id,
   isDark = false,
   classes = {},
   bg = await Astro.slots.render('bg'),
 } = Astro.props;
+
+// Normalize: if groups provided, use them; otherwise wrap flat rows in a single ungrouped section
+const rowGroups = groups && groups.length > 0
+  ? groups
+  : [{ label: '', rows }];
+
+// Flatten all row labels for indexing
+const flatRows = rowGroups.flatMap((g) => g.rows);
+let runningIndex = 0;
+const groupsWithOffsets = rowGroups.map((g) => {
+  const offset = runningIndex;
+  runningIndex += g.rows.length;
+  return { label: g.label, rows: g.rows, offset };
+});
+
+function cellContent(cell: string | boolean | { value: string; tooltip?: string } | undefined) {
+  if (cell === undefined) return { type: 'empty' as const };
+  if (typeof cell === 'boolean') return { type: 'boolean' as const, value: cell };
+  if (typeof cell === 'string') return { type: 'text' as const, value: cell };
+  return { type: 'object' as const, value: cell.value, tooltip: cell.tooltip };
+}
 ---
 
 <WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-5xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
   <Headline title={title} subtitle={subtitle} tagline={tagline} />
 
-  {rows.length > 0 && columns.length > 0 && (
-    <div class="overflow-x-auto">
-      <table class="w-full border-collapse">
-        <thead>
-          <tr>
-            <th class="p-4 text-left text-sm font-semibold text-muted w-1/4"></th>
-            {columns.map((col) => (
-              <th
-                class:list={[
-                  'p-4 text-center text-sm font-bold',
-                  col.highlight ? 'text-primary' : 'text-default',
-                ]}
-              >
-                {col.title && <div class="text-base">{col.title}</div>}
-                {col.badge && (
-                  <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-primary text-white">
-                    {col.badge}
-                  </span>
-                )}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((rowLabel, rowIndex) => (
-            <tr class="border-t border-hairline">
-              <td class="p-4 text-left text-sm font-medium text-muted">{rowLabel}</td>
-              {columns.map((col) => {
-                const cell = col.cells?.[rowIndex];
-                return (
-                  <td class:list={['p-4 text-center text-sm', col.highlight ? 'bg-card' : '']}>
-                    {typeof cell === 'boolean' ? (
-                      cell ? (
-                        <Icon name="tabler:check" class="inline-block w-5 h-5 text-primary" />
-                      ) : (
-                        <Icon name="tabler:x" class="inline-block w-5 h-5 text-muted" />
-                      )
-                    ) : (
-                      <span>{cell ?? ''}</span>
-                    )}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-        {columns.some((col) => col.callToAction) && (
-          <tfoot>
-            <tr class="border-t border-hairline">
-              <td class="p-4"></td>
+  {columns.length > 0 && flatRows.length > 0 && (
+    <>
+      <!-- Desktop: table with sticky header (hidden on mobile) -->
+      <div class="hidden sm:block overflow-x-auto -mx-4 px-4">
+        <table class="w-full border-collapse min-w-[600px]">
+          <thead class="sticky top-0 z-10">
+            <tr>
+              <th class="p-4 text-left text-sm font-semibold text-muted w-1/4 bg-bg/95 backdrop-blur border-b border-hairline"></th>
               {columns.map((col) => (
-                <td class="p-4 text-center">
-                  {col.callToAction && (
-                    <Button variant={col.highlight ? 'primary' : 'secondary'} {...col.callToAction} />
+                <th
+                  class:list={[
+                    'p-4 text-center text-sm font-bold border-b border-hairline bg-bg/95 backdrop-blur',
+                    col.highlight ? 'text-primary' : 'text-default',
+                  ]}
+                >
+                  {col.title && <div class="text-base">{col.title}</div>}
+                  {col.badge && (
+                    <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-primary text-white">
+                      {col.badge}
+                    </span>
                   )}
-                </td>
+                </th>
               ))}
             </tr>
-          </tfoot>
-        )}
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {groupsWithOffsets.map((group) => (
+              <>
+                {group.label && (
+                  <tr class="bg-muted/30">
+                    <td colspan={columns.length + 1} class="px-4 py-3 font-semibold text-sm text-default uppercase tracking-wide">
+                      {group.label}
+                    </td>
+                  </tr>
+                )}
+                {group.rows.map((rowLabel, rowIdx) => {
+                  const flatIdx = group.offset + rowIdx;
+                  return (
+                    <tr class="border-t border-hairline hover:bg-muted/20 transition-colors">
+                      <td class="p-4 text-left text-sm font-medium text-muted">{rowLabel}</td>
+                      {columns.map((col) => {
+                        const cell = cellContent(col.cells?.[flatIdx]);
+                        return (
+                          <td class:list={['p-4 text-center text-sm', col.highlight ? 'bg-card/50' : '']}>
+                            {cell.type === 'boolean' ? (
+                              cell.value ? (
+                                <Icon name="tabler:check" class="inline-block w-5 h-5 text-primary" />
+                              ) : (
+                                <Icon name="tabler:x" class="inline-block w-5 h-5 text-muted" />
+                              )
+                            ) : cell.type === 'text' ? (
+                              <span>{cell.value}</span>
+                            ) : cell.type === 'object' ? (
+                              <span class="inline-flex items-center gap-1">
+                                {cell.value}
+                                {cell.tooltip && (
+                                  <span class="relative group">
+                                    <Icon name="tabler:info-circle" class="w-4 h-4 text-muted cursor-help" />
+                                    <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs bg-gray-900 text-white rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
+                                      {cell.tooltip}
+                                    </span>
+                                  </span>
+                                )}
+                              </span>
+                            ) : null}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </>
+            ))}
+          </tbody>
+          {columns.some((col) => col.callToAction) && (
+            <tfoot>
+              <tr class="border-t-2 border-hairline">
+                <td class="p-4"></td>
+                {columns.map((col) => (
+                  <td class="p-4 text-center">
+                    {col.callToAction && (
+                      <Button variant={col.highlight ? 'primary' : 'secondary'} {...col.callToAction} />
+                    )}
+                  </td>
+                ))}
+              </tr>
+            </tfoot>
+          )}
+        </table>
+      </div>
+
+      <!-- Mobile: stacked cards (hidden on desktop) -->
+      <div class="sm:hidden space-y-4">
+        {columns.map((col) => (
+          <div class:list={[
+            'rounded-xl border p-4',
+            col.highlight ? 'border-primary ring-2 ring-primary/20' : 'border-hairline',
+          ]}>
+            {col.title && (
+              <h3 class:list={['text-lg font-bold mb-1', col.highlight ? 'text-primary' : 'text-default']}>
+                {col.title}
+              </h3>
+            )}
+            {col.badge && (
+              <span class="inline-block mb-3 px-2 py-0.5 text-xs rounded-full bg-primary text-white">
+                {col.badge}
+              </span>
+            )}
+            <dl class="space-y-2 mt-3">
+              {groupsWithOffsets.map((group) => (
+                <>
+                  {group.label && (
+                    <dt class="text-xs font-semibold text-muted uppercase tracking-wide pt-2">{group.label}</dt>
+                  )}
+                  {group.rows.map((rowLabel, rowIdx) => {
+                    const flatIdx = group.offset + rowIdx;
+                    const cell = cellContent(col.cells?.[flatIdx]);
+                    return (
+                      <div class="flex items-center justify-between gap-2 py-1 border-t border-hairline/50 first:border-0">
+                        <dt class="text-sm text-muted">{rowLabel}</dt>
+                        <dd class="text-sm font-medium text-right">
+                          {cell.type === 'boolean' ? (
+                            cell.value ? (
+                              <Icon name="tabler:check" class="inline-block w-5 h-5 text-primary" />
+                            ) : (
+                              <Icon name="tabler:x" class="inline-block w-5 h-5 text-muted" />
+                            )
+                          ) : cell.type === 'text' ? (
+                            cell.value
+                          ) : cell.type === 'object' ? (
+                            cell.value
+                          ) : null}
+                        </dd>
+                      </div>
+                    );
+                  })}
+                </>
+              ))}
+            </dl>
+            {col.callToAction && (
+              <div class="mt-4">
+                <Button variant={col.highlight ? 'primary' : 'secondary'} class="w-full" {...col.callToAction} />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </>
   )}
 </WidgetWrapper>

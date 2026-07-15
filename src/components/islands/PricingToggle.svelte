@@ -11,6 +11,9 @@
     callToAction?: { text?: string; href?: string | URL | null; variant?: string };
     hasRibbon?: boolean;
     ribbonTitle?: string;
+    annualFeatures?: Array<string>;
+    ctaMonthly?: string;
+    ctaAnnual?: string;
   }
 
   interface Props {
@@ -18,6 +21,8 @@
     monthlyLabel?: string;
     annualLabel?: string;
     annualBadge?: string;
+    showSavings?: boolean;
+    defaultAnnual?: boolean;
   }
 
   let {
@@ -25,9 +30,41 @@
     monthlyLabel = 'Monthly',
     annualLabel = 'Annual',
     annualBadge = '',
+    showSavings = true,
+    defaultAnnual = false,
   }: Props = $props();
 
-  let isAnnual = $state(false);
+  let isAnnual = $state(defaultAnnual);
+
+  function numericPrice(plan: TogglePrice): number {
+    const p = isAnnual && plan.annualPrice != null ? plan.annualPrice : plan.price;
+    return typeof p === 'number' ? p : parseFloat(String(p)) || 0;
+  }
+
+  function displayPrice(plan: TogglePrice): string {
+    const p = isAnnual && plan.annualPrice != null ? plan.annualPrice : plan.price;
+    if (typeof p === 'number') return String(p);
+    return String(p ?? '');
+  }
+
+  function savingsFor(plan: TogglePrice): { percent: number; amount: number } | null {
+    if (!showSavings) return null;
+    const monthly = typeof plan.price === 'number' ? plan.price : parseFloat(String(plan.price)) || 0;
+    const annual = typeof plan.annualPrice === 'number' ? plan.annualPrice : parseFloat(String(plan.annualPrice)) || 0;
+    if (!monthly || !annual) return null;
+    const monthlyAnnual = monthly * 12;
+    const annualAnnual = annual * 12;
+    const amount = monthlyAnnual - annualAnnual;
+    if (amount <= 0) return null;
+    const percent = Math.round((amount / monthlyAnnual) * 100);
+    return { percent, amount: Math.round(amount) };
+  }
+
+  function ctaText(plan: TogglePrice): string {
+    if (isAnnual && plan.ctaAnnual) return plan.ctaAnnual;
+    if (!isAnnual && plan.ctaMonthly) return plan.ctaMonthly;
+    return plan.callToAction?.text ?? 'Choose plan';
+  }
 </script>
 
 <div class="max-w-7xl mx-auto">
@@ -55,8 +92,9 @@
 
   <!-- Price cards -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    {#each prices as plan}
-      <div class="relative rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 shadow p-6 flex flex-col text-center">
+    {#each prices as plan, i}
+      {@const savings = savingsFor(plan)}
+      <div class="relative rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 shadow-lg p-6 flex flex-col text-center">
         {#if plan.hasRibbon && plan.ribbonTitle}
           <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-xs font-bold uppercase rounded-full bg-primary text-white">
             {plan.ribbonTitle}
@@ -68,16 +106,21 @@
         {#if plan.subtitle}
           <p class="text-sm text-muted mb-6">{plan.subtitle}</p>
         {/if}
-        <div class="my-6">
+        <div class="my-6 h-24 flex flex-col items-center justify-center">
           <div class="flex items-center justify-center mb-1">
             <span class="text-4xl">$</span>
-            <span class="text-5xl font-extrabold">
-              {isAnnual && plan.annualPrice != null ? plan.annualPrice : plan.price}
+            <span class="text-5xl font-extrabold tabular-nums price-animate" key={isAnnual ? 'annual' : 'monthly'}>
+              {displayPrice(plan)}
             </span>
           </div>
           <span class="text-sm text-muted">
             {isAnnual && plan.annualPeriod ? plan.annualPeriod : plan.period}
           </span>
+          {#if savings && isAnnual}
+            <span class="mt-2 text-xs font-medium text-green-600 dark:text-green-400">
+              Save {savings.percent}% — ${savings.amount}/yr
+            </span>
+          {/if}
         </div>
         {#if plan.items}
           <ul class="my-6 space-y-2 text-left">
@@ -89,15 +132,23 @@
                 </li>
               {/if}
             {/each}
+            {#if isAnnual && plan.annualFeatures}
+              {#each plan.annualFeatures as feat}
+                <li class="flex items-start gap-2 leading-7 animate-[fadeIn_0.3s_ease-out]">
+                  <span class="rounded-full bg-green-500 mt-1 w-5 h-5 flex items-center justify-center text-white text-xs shrink-0">✓</span>
+                  <span class="text-green-600 dark:text-green-400">{feat}</span>
+                </li>
+              {/each}
+            {/if}
           </ul>
         {/if}
         {#if plan.callToAction?.href}
           <div class="mt-auto pt-4">
             <a
               href={plan.callToAction.href}
-              class="inline-block px-6 py-2.5 rounded-lg font-semibold {plan.hasRibbon ? 'bg-primary text-white' : 'border border-gray-300 dark:border-gray-600'}"
+              class="inline-block px-6 py-2.5 rounded-lg font-semibold transition-colors {plan.hasRibbon ? 'bg-primary text-white hover:bg-primary/90' : 'border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-800'}"
             >
-              {plan.callToAction.text ?? 'Choose plan'}
+              {ctaText(plan)}
             </a>
           </div>
         {/if}
@@ -105,3 +156,21 @@
     {/each}
   </div>
 </div>
+
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes priceSwap {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .price-animate {
+    animation: priceSwap 0.25s ease-out;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .price-animate { animation: none; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  }
+</style>

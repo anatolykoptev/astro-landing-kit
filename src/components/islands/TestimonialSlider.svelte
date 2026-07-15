@@ -1,4 +1,7 @@
 <script lang="ts">
+  import useEmblaCarousel from 'embla-carousel-svelte';
+  import Autoplay from 'embla-carousel-autoplay';
+
   interface Testimonial {
     title?: string;
     testimonial?: string;
@@ -12,6 +15,7 @@
     autoplay?: number;
     arrows?: boolean;
     dots?: boolean;
+    pauseOnHover?: boolean;
   }
 
   let {
@@ -19,38 +23,86 @@
     autoplay = 0,
     arrows = true,
     dots = true,
+    pauseOnHover = true,
   }: Props = $props();
 
+  let emblaRef: HTMLElement;
+  let emblaApi: any = $state(null);
+
   let current = $state(0);
-  let intervalId: ReturnType<typeof setInterval> | undefined;
+  let isPaused = $state(false);
+  let scrollSnaps: number[] = $state([]);
 
-  function next() {
-    current = (current + 1) % testimonials.length;
-  }
-  function prev() {
-    current = current === 0 ? testimonials.length - 1 : current - 1;
-  }
-  function goTo(i: number) {
-    current = i;
+  // Build plugins array
+  const plugins: any[] = [];
+  if (autoplay > 0) {
+    plugins.push(Autoplay({ delay: autoplay, stopOnInteraction: false, stopOnMouseEnter: pauseOnHover }));
   }
 
-  $effect(() => {
-    if (autoplay > 0 && testimonials.length > 1) {
-      intervalId = setInterval(next, autoplay);
-      return () => clearInterval(intervalId);
+  const options = { loop: true, align: 'center' };
+
+  function onInit(event: CustomEvent) {
+    emblaApi = event.detail;
+    scrollSnaps = emblaApi.scrollSnapList();
+    emblaApi.on('select', () => {
+      current = emblaApi.selectedScrollSnap();
+    });
+  }
+
+  function next() { emblaApi?.scrollNext(); }
+  function prev() { emblaApi?.scrollPrev(); }
+  function goTo(i: number) { emblaApi?.scrollTo(i); }
+
+  // Keyboard navigation
+  function onKeydown(e: KeyboardEvent) {
+    switch (e.key) {
+      case 'ArrowLeft': e.preventDefault(); prev(); break;
+      case 'ArrowRight': e.preventDefault(); next(); break;
+      case 'Home': e.preventDefault(); goTo(0); break;
+      case 'End': e.preventDefault(); goTo(testimonials.length - 1); break;
     }
-  });
+  }
+
+  // Pause/resume on hover/focus
+  function onPause() {
+    if (autoplay > 0 && pauseOnHover) {
+      isPaused = true;
+      emblaApi?.plugins()?.autoplay?.stop();
+    }
+  }
+  function onResume() {
+    if (autoplay > 0 && pauseOnHover) {
+      isPaused = false;
+      emblaApi?.plugins()?.autoplay?.play();
+    }
+  }
 </script>
 
-<div class="max-w-4xl mx-auto">
-  <div class="relative overflow-hidden">
+<div
+  class="max-w-4xl mx-auto relative"
+  role="region"
+  aria-label="Testimonials"
+  tabindex="0"
+  onkeydown={onKeydown}
+  onmouseenter={onPause}
+  onmouseleave={onResume}
+  onfocusin={onPause}
+  onfocusout={onResume}
+>
+  <!-- Gradient edge masks -->
+  <div class="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-bg to-transparent z-10 pointer-events-none hidden md:block"></div>
+  <div class="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-bg to-transparent z-10 pointer-events-none hidden md:block"></div>
+
+  <!-- Embla viewport -->
+  <div bind:this={emblaRef} class="embla overflow-hidden">
     <div
-      class="flex transition-transform duration-300 ease-out"
-      style:transform="translateX(-{current * 100}%)"
+      class="embla__container flex"
+      use:useEmblaCarousel={{ options, plugins }}
+      onemblaInit={onInit}
     >
       {#each testimonials as t}
-        <div class="w-full flex-shrink-0 px-4">
-          <div class="flex flex-col p-6 md:p-10 rounded-lg shadow-xl dark:shadow-none dark:border dark:border-slate-600 text-center">
+        <div class="embla__slide flex-[0_0_100%] min-w-0 px-4">
+          <div class="flex flex-col p-6 md:p-10 rounded-xl shadow-xl dark:shadow-none dark:border dark:border-slate-600 text-center">
             {#if t.title}
               <h3 class="text-lg font-medium pb-4">{t.title}</h3>
             {/if}
@@ -78,35 +130,43 @@
     </div>
   </div>
 
+  <!-- Arrows -->
   {#if arrows && testimonials.length > 1}
     <button
       type="button"
       onclick={prev}
       aria-label="Previous testimonial"
-      class="absolute left-0 top-1/2 -translate-y-1/2 -ml-4 w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-700 z-10"
+      class="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 md:-ml-4 w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-700 z-20 transition-colors"
     >
-      <span class="text-xl">‹</span>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
     </button>
     <button
       type="button"
       onclick={next}
       aria-label="Next testimonial"
-      class="absolute right-0 top-1/2 -translate-y-1/2 -mr-4 w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-700 z-10"
+      class="absolute right-0 top-1/2 -translate-y-1/2 -mr-2 md:-mr-4 w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-700 z-20 transition-colors"
     >
-      <span class="text-xl">›</span>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
     </button>
   {/if}
 
+  <!-- Dots -->
   {#if dots && testimonials.length > 1}
     <div class="flex justify-center gap-2 mt-6">
-      {#each testimonials as _, i}
+      {#each scrollSnaps as _, i}
         <button
           type="button"
           onclick={() => goTo(i)}
           aria-label="Go to testimonial {i + 1}"
-          class="w-2.5 h-2.5 rounded-full transition-colors {current === i ? 'bg-primary' : 'bg-gray-300'}"
+          class="w-2.5 h-2.5 rounded-full transition-colors {current === i ? 'bg-primary' : 'bg-gray-300 dark:bg-slate-600'}"
         ></button>
       {/each}
     </div>
   {/if}
 </div>
+
+<style>
+  .embla__slide {
+    transform: translate3d(0, 0, 0);
+  }
+</style>

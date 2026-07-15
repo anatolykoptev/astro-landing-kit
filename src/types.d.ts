@@ -313,15 +313,17 @@ export interface ComparisonColumn {
   highlight?: boolean;
   /** Optional badge/label shown next to the title. */
   badge?: string;
-  /** Values per row — must match the number of rows defined on the table. */
-  cells?: Array<string | boolean>;
+  /** Values per row — must match the number of rows defined on the table. Supports boolean, string, or { value, tooltip }. */
+  cells?: Array<string | boolean | { value: string; tooltip?: string }>;
   /** Optional CTA at the bottom of the column. */
   callToAction?: CallToAction;
 }
 
 export interface ComparisonTable extends Omit<Headline, 'classes'>, Widget {
-  /** Row labels (left column). */
+  /** Row labels (left column). Flat list — use `groups` for categorized rows. */
   rows?: Array<string>;
+  /** Categorized row groups with section headers. Overrides `rows` when present. */
+  groups?: Array<{ label: string; rows: Array<string> }>;
   /** Data columns. */
   columns?: Array<ComparisonColumn>;
 }
@@ -331,17 +333,33 @@ export interface LogoCloud extends Omit<Headline, 'classes'>, Widget {
   icons?: Array<string>;
   /** Image URLs (alternative to icons — for raster logos). */
   images?: Array<Image>;
+  /** Marquee animation: 'left', 'right', 'dual' (two opposite rows), or false for static. Default: 'left'. */
+  marquee?: 'left' | 'right' | 'dual' | false;
+  /** Marquee duration in seconds. Default: 30. */
+  marqueeDuration?: number;
 }
 
 export interface VideoEmbed extends Omit<Headline, 'classes'>, Widget {
   /** YouTube/Vimeo/MP4 URL or embed URL. */
   src?: string;
-  /** Poster image shown before play. */
+  /** Poster image shown before play (overrides auto-generated YouTube thumbnail). */
   poster?: string;
   /** Aspect ratio class (default: 16/9). */
   aspectRatio?: string;
   /** Optional CTA below the video. */
   callToAction?: CallToAction;
+  /** Use youtube-nocookie.com for privacy (default: true). */
+  privacy?: boolean;
+  /** Thumbnail quality for YouTube facade: 'max'|'high'|'default'|'low'. Default: 'high'. */
+  posterQuality?: 'max' | 'high' | 'default' | 'low';
+  /** Accessible label for the play button. Default: "Play video". */
+  playlabel?: string;
+  /** Video duration for JSON-LD (ISO 8601, e.g. "PT3M33S"). */
+  duration?: string;
+  /** Upload date for JSON-LD (ISO 8601, e.g. "2024-01-15T08:00:00Z"). */
+  uploadDate?: string;
+  /** Video description for JSON-LD. */
+  videoDescription?: string;
 }
 
 /** A pricing plan with optional annual price for the toggle. */
@@ -350,6 +368,12 @@ export interface TogglePrice extends Price {
   annualPrice?: number | string;
   /** Annual period label (e.g. "/year"). */
   annualPeriod?: string;
+  /** Features that only appear when annual billing is selected. */
+  annualFeatures?: Array<string>;
+  /** CTA text when monthly is selected (overrides callToAction.text). */
+  ctaMonthly?: string;
+  /** CTA text when annual is selected (overrides callToAction.text). */
+  ctaAnnual?: string;
 }
 
 export interface PricingToggle extends Omit<Headline, 'classes'>, Widget {
@@ -361,6 +385,10 @@ export interface PricingToggle extends Omit<Headline, 'classes'>, Widget {
   annualLabel?: string;
   /** Optional badge text on the annual toggle (e.g. "Save 20%"). */
   annualBadge?: string;
+  /** Show concrete dollar savings alongside percentage. Default: true. */
+  showSavings?: boolean;
+  /** Default to annual billing on load. Default: false. */
+  defaultAnnual?: boolean;
   animate?: boolean;
 }
 
@@ -373,6 +401,14 @@ export interface StickyCTA extends Widget {
   callToAction?: CallToAction;
   /** Dismissible (shows close button). Default: true. */
   dismissible?: boolean;
+  /** Reassurance text shown with check icon (e.g. "No credit card required"). */
+  reassurance?: string;
+  /** Selector for the element that triggers show when scrolled out of view. Default: first [data-cta] or section. */
+  ctaSelector?: string;
+  /** Show only on mobile (md:hidden). Default: true. */
+  mobileOnly?: boolean;
+  /** Show scroll progress bar. Default: false. */
+  showProgress?: boolean;
 }
 
 export interface Gallery extends Omit<Headline, 'classes'>, Widget {
@@ -382,6 +418,10 @@ export interface Gallery extends Omit<Headline, 'classes'>, Widget {
   columns?: number;
   /** Show captions on hover. Default: false. */
   captions?: boolean;
+  /** Layout mode: 'grid' (uniform) or 'masonry' (staggered). Default: 'grid'. */
+  layout?: 'grid' | 'masonry';
+  /** Enable lightbox on click (PhotoSwipe). Default: true. */
+  lightbox?: boolean;
 }
 
 export interface TestimonialSlider extends Omit<Headline, 'classes'>, Widget {
@@ -393,4 +433,6 @@ export interface TestimonialSlider extends Omit<Headline, 'classes'>, Widget {
   arrows?: boolean;
   /** Show dot indicators. Default: true. */
   dots?: boolean;
+  /** Pause autoplay on hover/focus. Default: true. */
+  pauseOnHover?: boolean;
 }

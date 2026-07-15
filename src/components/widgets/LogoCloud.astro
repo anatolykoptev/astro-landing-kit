@@ -11,30 +11,185 @@ const {
   tagline = await Astro.slots.render('tagline'),
   icons = [],
   images = [],
-
+  marquee = 'left',
+  marqueeDuration = 30,
   id,
   isDark = false,
   classes = {},
   bg = await Astro.slots.render('bg'),
 } = Astro.props;
+
+const useMarquee = marquee !== false;
+const isDual = marquee === 'dual';
+const direction = marquee === 'right' ? 'reverse' : 'normal';
+const durationCss = `${marqueeDuration}s`;
 ---
 
 <WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-6xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
   <Headline title={title} subtitle={subtitle} tagline={tagline} />
 
-  {icons.length > 0 && (
+  {useMarquee && (icons.length > 0 || images.length > 0) ? (
+    <div class="logo-cloud-mask">
+      {isDual ? (
+        <>
+          <!-- Row 1: left direction -->
+          <div class="logo-cloud-track" style="--marquee-duration: {durationCss}; --marquee-direction: normal;">
+            <div class="logo-cloud-inner">
+              {icons.map((iconName) => (
+                <Icon name={iconName} class="logo-cloud-icon" />
+              ))}
+              {images.map((img) => (
+                <Image src={img.src} alt={img.alt ?? ''} class="logo-cloud-img" />
+              ))}
+            </div>
+            <!-- Duplicate for seamless loop -->
+            <div class="logo-cloud-inner" aria-hidden="true">
+              {icons.map((iconName) => (
+                <Icon name={iconName} class="logo-cloud-icon" />
+              ))}
+              {images.map((img) => (
+                <Image src={img.src} alt={img.alt ?? ''} class="logo-cloud-img" />
+              ))}
+            </div>
+          </div>
+          <!-- Row 2: right direction (reverse) -->
+          <div class="logo-cloud-track mt-4" style="--marquee-duration: {durationCss}; --marquee-direction: reverse;">
+            <div class="logo-cloud-inner">
+              {[...icons].reverse().map((iconName) => (
+                <Icon name={iconName} class="logo-cloud-icon" />
+              ))}
+              {[...images].reverse().map((img) => (
+                <Image src={img.src} alt={img.alt ?? ''} class="logo-cloud-img" />
+              ))}
+            </div>
+            <div class="logo-cloud-inner" aria-hidden="true">
+              {[...icons].reverse().map((iconName) => (
+                <Icon name={iconName} class="logo-cloud-icon" />
+              ))}
+              {[...images].reverse().map((img) => (
+                <Image src={img.src} alt={img.alt ?? ''} class="logo-cloud-img" />
+              ))}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div class="logo-cloud-track" style="--marquee-duration: {durationCss}; --marquee-direction: {direction};">
+          <div class="logo-cloud-inner">
+            {icons.map((iconName) => (
+              <Icon name={iconName} class="logo-cloud-icon" />
+            ))}
+            {images.map((img) => (
+              <Image src={img.src} alt={img.alt ?? ''} class="logo-cloud-img" />
+            ))}
+          </div>
+          <!-- Duplicate for seamless loop -->
+          <div class="logo-cloud-inner" aria-hidden="true">
+            {icons.map((iconName) => (
+              <Icon name={iconName} class="logo-cloud-icon" />
+            ))}
+            {images.map((img) => (
+              <Image src={img.src} alt={img.alt ?? ''} class="logo-cloud-img" />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  ) : (
     <div class="flex flex-wrap items-center justify-center gap-8 md:gap-12">
       {icons.map((iconName) => (
         <Icon name={iconName} class="w-12 h-12 text-muted opacity-60 hover:opacity-100 transition-opacity" />
       ))}
-    </div>
-  )}
-
-  {images.length > 0 && (
-    <div class="flex flex-wrap items-center justify-center gap-8 md:gap-12">
       {images.map((img) => (
-        <Image src={img.src} alt={img.alt ?? ''} class="h-10 w-auto opacity-60 hover:opacity-100 transition-opacity" />
+        <Image src={img.src} alt={img.alt ?? ''} class="h-10 w-auto opacity-60 hover:opacity-100 transition-opacity dark:invert" />
       ))}
     </div>
   )}
 </WidgetWrapper>
+
+<style>
+  /* Edge fade mask */
+  .logo-cloud-mask {
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    overflow: hidden;
+  }
+
+  /* Marquee track: two copies side by side, animated */
+  .logo-cloud-track {
+    display: flex;
+    width: max-content;
+    animation: marquee var(--marquee-duration, 30s) linear infinite;
+    animation-direction: var(--marquee-direction, normal);
+  }
+
+  /* Pause on hover */
+  .logo-cloud-track:hover {
+    animation-play-state: paused;
+  }
+
+  .logo-cloud-inner {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    padding: 0 1.5rem;
+    flex-shrink: 0;
+  }
+
+  /* Icon styling: grayscale → color on hover */
+  .logo-cloud-icon {
+    width: 3rem;
+    height: 3rem;
+    color: var(--aw-color-muted, #888);
+    opacity: 0.6;
+    transition: opacity 0.3s, color 0.3s;
+    flex-shrink: 0;
+  }
+  .logo-cloud-track:hover .logo-cloud-icon {
+    opacity: 1;
+  }
+
+  /* Image styling: grayscale → color on hover, dark:invert */
+  .logo-cloud-img {
+    height: 2.5rem;
+    width: auto;
+    opacity: 0.6;
+    filter: grayscale(1);
+    transition: opacity 0.3s, filter 0.3s;
+    flex-shrink: 0;
+  }
+  :global(.dark) .logo-cloud-img {
+    filter: grayscale(1) invert(1);
+  }
+  .logo-cloud-track:hover .logo-cloud-img {
+    opacity: 1;
+    filter: grayscale(0);
+  }
+  :global(.dark) .logo-cloud-track:hover .logo-cloud-img {
+    filter: invert(1);
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .logo-cloud-track {
+      animation: none;
+      width: 100%;
+      justify-content: center;
+    }
+    .logo-cloud-inner[aria-hidden="true"] {
+      display: none;
+    }
+    .logo-cloud-icon,
+    .logo-cloud-img {
+      opacity: 0.8;
+      filter: none;
+    }
+    :global(.dark) .logo-cloud-img {
+      filter: invert(1);
+    }
+  }
+</style>

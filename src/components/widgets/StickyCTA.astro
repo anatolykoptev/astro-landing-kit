@@ -1,5 +1,6 @@
 ---
 import Button from '~/components/ui/Button.astro';
+import { Icon } from 'astro-icon/components';
 import type { StickyCTA as Props } from '~/types';
 
 const {
@@ -7,31 +8,58 @@ const {
   subtitle = '',
   callToAction,
   dismissible = true,
+  reassurance = '',
+  ctaSelector = '',
+  mobileOnly = true,
+  showProgress = false,
 } = Astro.props;
+
+const storageKey = 'sticky-cta-dismissed';
+const triggerSelector = ctaSelector || '[data-cta]';
 ---
 
 {title && callToAction && (
   <div
     id="sticky-cta"
-    class="fixed bottom-0 left-0 right-0 z-50 transform translate-y-full transition-transform duration-300 motion-safe:md:intersect:translate-y-0"
+    class:list={[
+      'fixed bottom-0 left-0 right-0 z-50 transform translate-y-full transition-transform duration-300',
+      mobileOnly ? 'md:hidden' : '',
+    ]}
     data-sticky-cta
+    data-cta-selector={triggerSelector}
+    data-show-progress={showProgress ? 'true' : 'false'}
+    role="region"
+    aria-label="Call to action"
   >
-    <div class="bg-primary text-white shadow-lg">
-      <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-        <div class="flex-1 min-w-0">
-          {title && <p class="font-bold text-lg truncate">{title}</p>}
-          {subtitle && <p class="text-sm opacity-90 truncate">{subtitle}</p>}
+    {showProgress && (
+      <div class="absolute top-0 left-0 right-0 h-0.5 bg-primary/20">
+        <div id="sticky-cta-progress" class="h-full bg-primary origin-left scale-x-0 transition-transform duration-75"></div>
+      </div>
+    )}
+    <div class="bg-primary text-white shadow-2xl">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex-1 min-w-0 flex items-center gap-3">
+          <div class="min-w-0">
+            {title && <p class="font-bold text-base truncate">{title}</p>}
+            {subtitle && <p class="text-xs opacity-90 truncate">{subtitle}</p>}
+            {reassurance && (
+              <p class="text-xs opacity-75 flex items-center gap-1 mt-0.5">
+                <Icon name="tabler:check" class="w-3.5 h-3.5 inline-block shrink-0" />
+                <span class="truncate">{reassurance}</span>
+              </p>
+            )}
+          </div>
         </div>
-        <div class="flex items-center gap-3 shrink-0">
-          {callToAction && <Button {...callToAction} class="bg-white text-primary hover:bg-gray-100" />}
+        <div class="flex items-center gap-2 shrink-0">
+          {callToAction && <Button {...callToAction} class="bg-white text-primary hover:bg-gray-100 text-sm px-4 py-2" />}
           {dismissible && (
             <button
               type="button"
+              id="sticky-cta-dismiss"
               aria-label="Dismiss"
-              class="text-white opacity-70 hover:opacity-100 p-1"
-              onclick="this.closest('[data-sticky-cta]').style.display='none'"
+              class="text-white opacity-70 hover:opacity-100 p-1.5 rounded transition-opacity"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           )}
         </div>
@@ -41,21 +69,60 @@ const {
 )}
 
 <script>
-  // Show the sticky CTA after scrolling past the first viewport
   const el = document.querySelector('[data-sticky-cta]');
   if (el) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
-            el.classList.remove('translate-y-full');
-          }
+    // Check sessionStorage — don't show if dismissed this session
+    const dismissed = sessionStorage.getItem('sticky-cta-dismissed');
+    if (dismissed === '1') {
+      el.remove();
+    } else {
+      // Dismiss button
+      const dismissBtn = document.getElementById('sticky-cta-dismiss');
+      if (dismissBtn) {
+        dismissBtn.addEventListener('click', () => {
+          sessionStorage.setItem('sticky-cta-dismissed', '1');
+          el.classList.add('translate-y-full');
+          setTimeout(() => el.remove(), 300);
         });
-      },
-      { threshold: 0, rootMargin: '-100vh 0px 0px 0px' }
-    );
-    // Observe the first section on the page
-    const firstSection = document.querySelector('section');
-    if (firstSection) observer.observe(firstSection);
+      }
+
+      // Show when the original CTA scrolls out of view
+      const triggerSelector = el.getAttribute('data-cta-selector') || '[data-cta]';
+      let triggerEl = document.querySelector(triggerSelector);
+      // Fallback: first section on page
+      if (!triggerEl) triggerEl = document.querySelector('section');
+
+      if (triggerEl) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
+                el.classList.remove('translate-y-full');
+              } else if (entry.isIntersecting) {
+                el.classList.add('translate-y-full');
+              }
+            });
+          },
+          { threshold: 0, rootMargin: '-100px 0px 0px 0px' }
+        );
+        observer.observe(triggerEl);
+      }
+
+      // Scroll progress bar
+      const showProgress = el.getAttribute('data-show-progress') === 'true';
+      if (showProgress) {
+        const progressEl = document.getElementById('sticky-cta-progress');
+        if (progressEl) {
+          const updateProgress = () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? scrollTop / docHeight : 0;
+            progressEl.style.transform = `scaleX(${progress})`;
+          };
+          window.addEventListener('scroll', updateProgress, { passive: true });
+          updateProgress();
+        }
+      }
+    }
   }
 </script>

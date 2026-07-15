@@ -2,6 +2,8 @@
 import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
 import Headline from '~/components/ui/Headline.astro';
 import Button from '~/components/ui/Button.astro';
+import { YouTube } from '@astro-community/astro-embed-youtube';
+import { Vimeo } from '@astro-community/astro-embed-vimeo';
 import type { VideoEmbed as Props } from '~/types';
 
 const {
@@ -12,7 +14,12 @@ const {
   poster = '',
   aspectRatio = 'aspect-video',
   callToAction,
-
+  privacy = true,
+  posterQuality = 'high',
+  playlabel = 'Play video',
+  duration,
+  uploadDate,
+  videoDescription,
   id,
   isDark = false,
   classes = {},
@@ -24,15 +31,22 @@ const isYouTube = src.includes('youtube.com') || src.includes('youtu.be');
 const isVimeo = src.includes('vimeo.com');
 const isMP4 = src.endsWith('.mp4') || src.endsWith('.webm') || src.endsWith('.ogg');
 
-// Normalize YouTube watch URL → embed URL
-let embedSrc = src;
-if (isYouTube) {
-  const ytId = src.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/)?.[1];
-  if (ytId) embedSrc = `https://www.youtube.com/embed/${ytId}`;
-}
-if (isVimeo) {
-  const vimeoId = src.match(/vimeo\.com\/(\d+)/)?.[1];
-  if (vimeoId) embedSrc = `https://player.vimeo.com/video/${vimeoId}`;
+// JSON-LD VideoObject for SEO
+let jsonLd = '';
+if (src && (isYouTube || isVimeo) && (uploadDate || duration || videoDescription)) {
+  const videoObj: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: title || 'Video',
+    thumbnailUrl: poster || (isYouTube ? `https://i.ytimg.com/vi/${src.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/)?.[1] || ''}/hqdefault.jpg` : ''),
+    uploadDate: uploadDate || undefined,
+    duration: duration || undefined,
+    description: videoDescription || undefined,
+    contentUrl: src,
+  };
+  // Strip undefined values
+  Object.keys(videoObj).forEach((k) => videoObj[k] === undefined && delete videoObj[k]);
+  jsonLd = JSON.stringify(videoObj).replace(/<\//g, '<\\/');
 }
 ---
 
@@ -40,7 +54,7 @@ if (isVimeo) {
   <Headline title={title} subtitle={subtitle} tagline={tagline} />
 
   {src && (
-    <div class:list={['relative w-full rounded-lg overflow-hidden shadow-lg', aspectRatio]}>
+    <div class:list={['relative w-full rounded-xl overflow-hidden shadow-2xl', aspectRatio]}>
       {isMP4 ? (
         <video
           src={src}
@@ -48,9 +62,23 @@ if (isVimeo) {
           controls
           class="absolute inset-0 w-full h-full"
         />
+      ) : isYouTube ? (
+        <YouTube
+          id={src}
+          poster={poster || undefined}
+          posterQuality={posterQuality}
+          playlabel={playlabel}
+          params={privacy ? 'nocookie=true' : undefined}
+          class="absolute inset-0 w-full h-full lite-youtube"
+        />
+      ) : isVimeo ? (
+        <Vimeo
+          id={src}
+          class="absolute inset-0 w-full h-full"
+        />
       ) : (
         <iframe
-          src={embedSrc}
+          src={src}
           title={title || 'Video'}
           class="absolute inset-0 w-full h-full"
           frameborder="0"
@@ -67,3 +95,25 @@ if (isVimeo) {
     </div>
   )}
 </WidgetWrapper>
+
+{jsonLd && (
+  <script type="application/ld+json" set:html={jsonLd} />
+)}
+
+<style>
+  /* Ensure lite-youtube-embed fills the container */
+  :global(lite-youtube) {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  :global(lite-youtube::after) {
+    content: '';
+    display: block;
+    padding-bottom: calc(100% / (16 / 9));
+  }
+  :global(lite-youtube > iframe) {
+    width: 100%;
+    height: 100%;
+  }
+</style>

@@ -65,6 +65,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@astro-community/astro-embed-vimeo": "^0.3.12",
+    "@astro-community/astro-embed-youtube": "^0.5.10",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "@astrojs/svelte": "^9.0.1",
@@ -74,10 +76,13 @@
     "astro-compress": "^2.4.1",
     "astro-icon": "^1.1.5",
     "astro-seo": "^1.1.0",
+    "embla-carousel-autoplay": "^8.6.0",
+    "embla-carousel-svelte": "^8.6.0",
     "gsap": "^3.15.0",
     "js-yaml": "^4.3.0",
     "limax": "^4.2.3",
     "lodash.merge": "^4.6.2",
+    "photoswipe": "^5.4.4",
     "svelte": "^5.55.9",
     "tailwind-merge": "^3.6.0",
     "unpic": "^4.1.3"

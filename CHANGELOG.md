@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.5.2](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.5.1...v0.5.2) (2026-07-15)
+
+
+### Added
+
+* 4 more landing primitives + 8 bugfixes ([0a9f96b](https://github.com/anatolykoptev/astro-landing-kit/commit/0a9f96b5b3960b22e1efd01db0a29c8829e71a84))
+* close P0 [#75](https://github.com/anatolykoptev/astro-landing-kit/issues/75)-[#78](https://github.com/anatolykoptev/astro-landing-kit/issues/78) — error handling, complexity, tests, SEO builders ([30ac280](https://github.com/anatolykoptev/astro-landing-kit/commit/30ac280cac3e5b2680a62b9998593db58d86afe5))
+* Directus adapter, security hardening, a11y, blog seed, deps ([27be711](https://github.com/anatolykoptev/astro-landing-kit/commit/27be711214e34afa74c177f7874f7dfebf51a97d))
+* upgrade 7 landing primitives with libraries + premium patterns ([aae1eac](https://github.com/anatolykoptev/astro-landing-kit/commit/aae1eac0b4b939c86d5d64747d26aebbc824f15e))
+* widget registry, islands wiring, new primitives, forms layer ([64b3c28](https://github.com/anatolykoptev/astro-landing-kit/commit/64b3c28785d6690255eeadfd5b783a070d42eed6))
+
+
+### Fixed
+
+* cherry-pick upstream bugfixes (AstroWind 2025-06) ([627e4bc](https://github.com/anatolykoptev/astro-landing-kit/commit/627e4bca668706600cd1d5aaa559c6794d5e0d3c))
+
 ## [0.5.1](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.5.0...v0.5.1) (2026-07-12)
 
 

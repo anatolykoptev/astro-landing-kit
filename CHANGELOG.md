@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.2](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.6.1...v0.6.2) (2026-07-16)
+
+
+### Fixed
+
+* 19 TS errors blocking preflight — blog types, config, UI primitives ([5007561](https://github.com/anatolykoptev/astro-landing-kit/commit/500756116130a18cec35ae688566fb7630a68245))
+
 ## [0.6.1](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.6.0...v0.6.1) (2026-07-16)
 
 

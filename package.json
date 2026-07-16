@@ -38,6 +38,7 @@
     "./images": "./src/utils/images.ts",
     "./utils/blog": "./src/utils/blog.ts",
     "./utils/permalinks": "./src/utils/permalinks.ts",
+    "./utils/navigation": "./src/utils/navigation.ts",
     "./utils/utils": "./src/utils/utils.ts",
     "./types": "./src/types.d.ts",
     "./styles": "./src/assets/styles/tailwind.css",

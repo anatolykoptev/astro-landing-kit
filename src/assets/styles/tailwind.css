@@ -338,6 +338,12 @@
   display: block;
 }
 
+/* Active navigation link — used by Header widget/primitive (Header.astro:112,127).
+   Was applied but undefined (bug); defined here using semantic tokens. */
+.aw-link-active {
+  color: var(--aw-color-primary);
+}
+
 [astro-icon].icon-light > * {
   stroke-width: 1.2;
 }

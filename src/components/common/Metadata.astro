@@ -2,7 +2,7 @@
 import merge from 'lodash.merge';
 import { SEO } from 'astro-seo';
 
-import type { Props as AstroSeoProps } from 'astro-seo';
+import type { Props as AstroSeoProps, TwitterCardType } from 'astro-seo';
 
 import { SITE, METADATA, I18N } from '~/config/kit';
 import type { MetaData } from '~/types';
@@ -102,7 +102,7 @@ const seoProps: AstroSeoProps = {
   openGraph: seoOpenGraph,
   twitter: {
     // next-seo-shaped `handle`/`site` map onto astro-seo's `creator`/`site`.
-    card: resolved.twitter?.cardType,
+    card: resolved.twitter?.cardType as TwitterCardType | undefined,
     site: resolved.twitter?.site,
     creator: resolved.twitter?.handle,
   },

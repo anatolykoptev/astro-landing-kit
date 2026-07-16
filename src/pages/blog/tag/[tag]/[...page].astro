@@ -4,9 +4,10 @@ import Layout from '~/layouts/PageLayout.astro';
 import BlogList from '~/components/blog/List.astro';
 import Pagination from '~/components/blog/Pagination.astro';
 import { getCanonical, getPermalink } from '~/utils/permalinks';
-import type { MetaData } from '~/types';
+import type { MetaData, Post } from '~/types';
+import type { GetStaticPathsOptions, Page } from 'astro';
 
-export async function getStaticPaths({ paginate }) {
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
   if (!isBlogEnabled || !isBlogTagRouteEnabled) return [];
 
   const posts = await fetchPosts();
@@ -31,7 +32,7 @@ export async function getStaticPaths({ paginate }) {
   );
 }
 
-const { page, tag } = Astro.props;
+const { page, tag } = Astro.props as { page: Page<Post>; tag: { slug: string; title: string } };
 const currentPage = page.currentPage ?? 1;
 
 const metadata: MetaData = {

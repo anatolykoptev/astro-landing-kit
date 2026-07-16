@@ -26,13 +26,13 @@ const {
   class: className = '',
 } = Astro.props;
 
-const spanClass = {
+const spanClass = (span && {
   '2': 'md:col-span-2',
   '3': 'lg:col-span-3',
   '2x2': 'md:col-span-2 md:row-span-2',
   'wide': 'col-span-full md:col-span-2',
   'tall': 'md:row-span-2',
-}[span ?? ''] ?? '';
+}[span]) ?? '';
 
 const roundedClass = {
   'lg': 'rounded-lg',

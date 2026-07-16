@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { defineConfig } from './index';
+import type { KitConfigInput } from './index';
 
 describe('defineConfig', () => {
   it('returns full defaults with empty input', () => {
@@ -80,7 +81,7 @@ describe('defineConfig', () => {
   });
 
   it('does not mutate input', () => {
-    const input = { site: { name: 'Test' } };
+    const input: KitConfigInput = { site: { name: 'Test' } };
     const cfg = defineConfig(input);
     expect(cfg.site.name).toBe('Test');
     expect(input.site?.name).toBe('Test');

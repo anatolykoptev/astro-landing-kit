@@ -23,7 +23,7 @@ export const config = defineConfig({
       'Structural foundation for Astro landing pages. Design tokens, PWA, forms, SEO, and impeccable design quality — built in.',
     robots: { index: true, follow: true },
     openGraph: {
-      site_name: 'astro-landing-kit',
+      siteName: 'astro-landing-kit',
       images: [{ url: '~/assets/images/default.png', width: 1200, height: 628 }],
       type: 'website',
     },

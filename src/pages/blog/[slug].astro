@@ -6,7 +6,7 @@ import SinglePost from '~/components/blog/SinglePost.astro';
 import RelatedPosts from '~/components/blog/RelatedPosts.astro';
 import ToBlogLink from '~/components/blog/ToBlogLink.astro';
 import { getCanonical, getPermalink } from '~/utils/permalinks';
-import type { MetaData } from '~/types';
+import type { MetaData, Post } from '~/types';
 
 export async function getStaticPaths() {
   if (!isBlogEnabled || !isBlogPostRouteEnabled) return [];
@@ -17,14 +17,16 @@ export async function getStaticPaths() {
   }));
 }
 
-const { post } = Astro.props;
+const { post } = Astro.props as { post: Post };
 const { Content } = post;
 
 const metadata: MetaData = {
   title: post.title,
   description: post.excerpt,
   canonical: post.metadata?.canonical || getCanonical(getPermalink(post.permalink, 'post')),
-  image: post.image,
+  openGraph: post.image
+    ? { images: [{ url: typeof post.image === 'string' ? post.image : post.image?.src }] }
+    : undefined,
   robots: blogPostRobots,
 };
 ---
@@ -32,7 +34,7 @@ const metadata: MetaData = {
 <Layout metadata={metadata}>
   <ToBlogLink />
   <SinglePost post={post} url={Astro.url}>
-    <Content />
+    {Content && <Content />}
   </SinglePost>
   <RelatedPosts post={post} />
 </Layout>

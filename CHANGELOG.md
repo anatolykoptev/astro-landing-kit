@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.3](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.6.2...v0.6.3) (2026-07-16)
+
+
+### Added
+
+* **ui:** add ui/Header primitive — config-driven navigation with auto-links ([#88](https://github.com/anatolykoptev/astro-landing-kit/issues/88)) ([c862fc0](https://github.com/anatolykoptev/astro-landing-kit/commit/c862fc063a30ef002015fb00a7843a65edd966a9))
+
+
+### Fixed
+
+* **marquee:** add display:flex to .marquee — fixes double-line bug ([#86](https://github.com/anatolykoptev/astro-landing-kit/issues/86)) ([e41532f](https://github.com/anatolykoptev/astro-landing-kit/commit/e41532f19eab803248540326cad4129b38219caa))
+* **tokens:** replace hardcoded Tailwind colors with --aw-color-* tokens ([#87](https://github.com/anatolykoptev/astro-landing-kit/issues/87)) ([066a4d9](https://github.com/anatolykoptev/astro-landing-kit/commit/066a4d96ee05b0a041f0500df8ef6e0174abfd4f))
+
 ## [0.6.2](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.6.1...v0.6.2) (2026-07-16)
 
 

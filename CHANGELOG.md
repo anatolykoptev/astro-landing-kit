@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.6.0](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.5.3...v0.6.0) (2026-07-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* removes the `astrowind:config` virtual module and `vendor/integration/` entirely. Config is now plain TypeScript.
+
+### Added
+
+* add 2026 visual primitives — scroll-driven CSS, native FAQ, NumberFlow ([874886b](https://github.com/anatolykoptev/astro-landing-kit/commit/874886b6972171bf69d386717cb8ad82395385d4))
+* add high-impact 2026 primitives — BentoGrid, SpotlightCard, MagneticButton, CursorGlow ([c72ee9d](https://github.com/anatolykoptev/astro-landing-kit/commit/c72ee9ddeeac8c6b5b003d1c0ea6e3f159a579c6))
+* bespoke landing page — real product, not demo widgets ([74228b3](https://github.com/anatolykoptev/astro-landing-kit/commit/74228b31a5bce14b233ce19bc11de1fc8bc196b7))
+* restore blog — content collections, RSS, 3 new posts ([01c7f62](https://github.com/anatolykoptev/astro-landing-kit/commit/01c7f628e0f4b1c29cec71285d145b50144ca684))
+
+
+### Changed
+
+* remove dead code + astrowind remnants ([eecca7c](https://github.com/anatolykoptev/astro-landing-kit/commit/eecca7c3f9bde751d3102d6d95ff1f6b8ebf5dd7))
+* replace virtual module with TypeScript defineConfig ([e477745](https://github.com/anatolykoptev/astro-landing-kit/commit/e477745758bf078fac258bc19a41d9deb27a24e8))
+
+
+### Documentation
+
+* update README — add design tokens, PWA, forms, blog, impeccable ([72373cd](https://github.com/anatolykoptev/astro-landing-kit/commit/72373cd6f44c9a8ddb2783df39ff218caed192dc))
+
 ## [0.5.3](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.5.2...v0.5.3) (2026-07-15)
 
 

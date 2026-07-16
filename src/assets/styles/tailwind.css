@@ -360,6 +360,119 @@
   @apply rotate-45 translate-y-[-8px] translate-x-[14px];
 }
 
+/* =====================================================================
+ * Scroll-driven animations (2026 native CSS, 0 JS)
+ *
+ * Browsers with animation-timeline support: pure CSS, no JS overhead.
+ * Browsers without: @supports fallback keeps content visible (no fade),
+ * the old intersect-once JS classes still work alongside.
+ *
+ * Usage: add `scroll-reveal` class to any element. It fades + slides up
+ * as it enters the viewport, driven by scroll position.
+ * ===================================================================== */
+
+@supports (animation-timeline: view()) {
+  @keyframes scroll-reveal-in {
+    from { opacity: 0; transform: translateY(2rem); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .scroll-reveal {
+    animation: scroll-reveal-in both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-reveal {
+      animation: none;
+    }
+  }
+}
+
+@supports not (animation-timeline: view()) {
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* =====================================================================
+ * Scroll progress bar (2026 native CSS, 0 JS)
+ *
+ * Usage: <div class="scroll-progress" /> at top of page.
+ * Fixed bar that fills as user scrolls. Pure CSS animation-timeline.
+ * ===================================================================== */
+
+@supports (animation-timeline: scroll()) {
+  @keyframes scroll-progress-fill {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  .scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    transform-origin: 0 50%;
+    background: var(--aw-color-primary);
+    z-index: 100;
+    animation: scroll-progress-fill linear;
+    animation-timeline: scroll(root);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-progress {
+      animation: none;
+      display: none;
+    }
+  }
+}
+
+@supports not (animation-timeline: scroll()) {
+  .scroll-progress {
+    display: none;
+  }
+}
+
+/* =====================================================================
+ * Marquee — infinite scroll, 0 JS
+ *
+ * Usage: <div class="marquee"><div class="marquee-track">...items...</div></div>
+ * Duplicates content via CSS animation. For logo clouds, testimonials.
+ * ===================================================================== */
+
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll var(--marquee-duration, 30s) linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
 /* To deprecated */
 
 .dd *:first-child {

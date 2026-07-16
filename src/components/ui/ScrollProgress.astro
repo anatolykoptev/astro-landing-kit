@@ -1,0 +1,27 @@
+---
+/**
+ * ScrollProgress — fixed top progress bar that fills as user scrolls.
+ *
+ * Pure CSS `animation-timeline: scroll(root)` — 0 JavaScript.
+ * Browsers without scroll-timeline support: hidden via @supports.
+ * Respects prefers-reduced-motion (hidden).
+ *
+ * Usage:
+ *   <ScrollProgress />
+ *
+ * Or with custom color:
+ *   <ScrollProgress color="var(--aw-color-accent)" />
+ */
+interface Props {
+  color?: string;
+  height?: string;
+}
+
+const { color, height = '3px' } = Astro.props;
+
+const style = color
+  ? `background: ${color}; height: ${height};`
+  : `height: ${height};`;
+---
+
+<div class="scroll-progress" style={style} aria-hidden="true"></div>

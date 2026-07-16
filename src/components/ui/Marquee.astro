@@ -1,0 +1,51 @@
+---
+/**
+ * Marquee — infinite horizontal scroll, 0 JavaScript.
+ *
+ * Content scrolls horizontally forever. Pauses on hover.
+ * Edge fade via CSS mask. Respects prefers-reduced-motion (wraps).
+ *
+ * Usage:
+ *   <Marquee duration="30s">
+ *     <Logo /> <Logo /> <Logo />
+ *   </Marquee>
+ *
+ * Props:
+ *   duration — CSS time, default 30s
+ *   reverse  — scroll right-to-left instead of left-to-right
+ *   gap      — CSS gap between items, default 2rem
+ */
+interface Props {
+  duration?: string;
+  reverse?: boolean;
+  gap?: string;
+  class?: string;
+}
+
+const {
+  duration = '30s',
+  reverse = false,
+  gap = '2rem',
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  class={`marquee ${className}`}
+  style={`--marquee-duration: ${duration};`}
+>
+  <div
+    class="marquee-track"
+    style={`gap: ${gap}; animation-direction: ${reverse ? 'reverse' : 'normal'};`}
+  >
+    <slot />
+  </div>
+  <!-- Duplicate for seamless loop -->
+  <div
+    class="marquee-track"
+    style={`gap: ${gap}; animation-direction: ${reverse ? 'reverse' : 'normal'};`}
+    aria-hidden="true"
+  >
+    <slot />
+  </div>
+</div>

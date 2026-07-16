@@ -1,0 +1,53 @@
+---
+/**
+ * FaqList — native HTML accordion using <details>/<summary>.
+ *
+ * Replaces FaqAccordion.svelte (JS island) with zero-JS native HTML.
+ * <details> gives: keyboard nav, screen reader support, toggle animation
+ * via CSS, all built-in. Arrow-key roving is the only thing lost (WAI-ARIA
+ * accordion pattern), but <details> is the HTML standard — screen readers
+ * understand it natively.
+ *
+ * Usage:
+ *   <FaqList items={faqItems} />
+ *
+ * Or with default-open first item:
+ *   <FaqList items={faqItems} openFirst />
+ */
+import { Icon } from 'astro-icon/components';
+import type { FAQs as Props } from '~/types';
+
+interface FaqItem {
+  title: string;
+  description: string;
+}
+
+interface Props {
+  items: FaqItem[];
+  openFirst?: boolean;
+  class?: string;
+}
+
+const { items, openFirst = false, class: className = '' } = Astro.props;
+---
+
+<div class={`space-y-2 ${className}`}>
+  {items.map((item, i) => (
+    <details
+      class="group rounded-xl border border-hairline transition-colors open:border-primary"
+      open={openFirst && i === 0}
+    >
+      <summary
+        class="flex items-center justify-between gap-4 p-4 cursor-pointer list-none font-semibold [&::-webkit-details-marker]:hidden"
+      >
+        <span>{item.title}</span>
+        <span class="shrink-0 text-muted transition-transform duration-200 group-open:rotate-45" aria-hidden="true">
+          <Icon name="tabler:plus" class="w-5 h-5" />
+        </span>
+      </summary>
+      <div class="px-4 pb-4">
+        <p class="text-muted" set:html={item.description} />
+      </div>
+    </details>
+  ))}
+</div>

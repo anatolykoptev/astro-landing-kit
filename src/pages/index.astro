@@ -1,6 +1,7 @@
 ---
 import Layout from '~/layouts/LandingLayout.astro';
 import Button from '~/components/ui/Button.astro';
+import ScrollProgress from '~/components/ui/ScrollProgress.astro';
 import { Icon } from 'astro-icon/components';
 import type { MetaData } from '~/types';
 
@@ -11,6 +12,7 @@ const metadata: MetaData = {
 ---
 
 <Layout metadata={metadata}>
+  <ScrollProgress />
   <!-- ════════════════════════════════════════════════════════════════
        HERO — asymmetric, code-forward, not centered
        ════════════════════════════════════════════════════════════════ -->
@@ -71,7 +73,7 @@ const metadata: MetaData = {
   <!-- ════════════════════════════════════════════════════════════════
        FEATURES — inline list with real substance, not icon-grid
        ════════════════════════════════════════════════════════════════ -->
-  <section id="features" class="border-b border-hairline">
+  <section id="features" class="border-b border-hairline scroll-reveal">
     <div class="max-w-5xl mx-auto px-6 py-20 md:py-28">
       <div class="mb-16">
         <p class="font-mono text-sm text-primary mb-3">01 / What's inside</p>
@@ -171,7 +173,7 @@ const metadata: MetaData = {
   <!-- ════════════════════════════════════════════════════════════════
        DESIGN SYSTEM — show the DESIGN.md → tokens flow
        ════════════════════════════════════════════════════════════════ -->
-  <section id="design-system" class="border-b border-hairline bg-surface">
+  <section id="design-system" class="border-b border-hairline bg-surface scroll-reveal">
     <div class="max-w-5xl mx-auto px-6 py-20 md:py-28">
       <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-start">
         <div>
@@ -241,7 +243,7 @@ components:
   <!-- ════════════════════════════════════════════════════════════════
        PRODUCTION — PWA + impeccable + stack
        ════════════════════════════════════════════════════════════════ -->
-  <section id="production" class="border-b border-hairline">
+  <section id="production" class="border-b border-hairline scroll-reveal">
     <div class="max-w-5xl mx-auto px-6 py-20 md:py-28">
       <p class="font-mono text-sm text-primary mb-3">03 / Production-ready</p>
       <h2 class="font-heading text-3xl md:text-4xl tracking-tight text-default mb-16">

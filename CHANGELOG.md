@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.1](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.6.0...v0.6.1) (2026-07-16)
+
+
+### Added
+
+* forms showcase + TextScramble + CommandPalette + Tabs ([c466391](https://github.com/anatolykoptev/astro-landing-kit/commit/c466391f260bbd9ede8743bab49a7fed8689b1f8))
+* three-way theme switcher + tokenize header/footer/logo ([8f3647e](https://github.com/anatolykoptev/astro-landing-kit/commit/8f3647e5242ce3aa5a1f27b2a41a195df4abceb1))
+
 ## [0.6.0](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.5.3...v0.6.0) (2026-07-16)
 
 

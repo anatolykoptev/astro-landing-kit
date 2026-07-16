@@ -10,6 +10,8 @@
    *   <NumberFlow value={4200} suffix="+" />
    *   <NumberFlow value={99.9} decimals={1} suffix="%" />
    */
+  import { onMount } from 'svelte';
+
   interface Props {
     value: number;
     duration?: number;

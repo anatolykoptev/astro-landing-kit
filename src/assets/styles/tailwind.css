@@ -450,12 +450,14 @@
 }
 
 .marquee {
+  display: flex;
   overflow: hidden;
   -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
   mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
 
 .marquee-track {
+  flex: none;
   display: flex;
   width: max-content;
   animation: marquee-scroll var(--marquee-duration, 30s) linear infinite;

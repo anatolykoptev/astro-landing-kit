@@ -76,17 +76,17 @@
       role="switch"
       aria-checked={isAnnual}
       aria-label="Toggle billing period"
-      class="relative inline-flex h-7 w-12 items-center rounded-full transition-colors {isAnnual ? 'bg-primary' : 'bg-gray-300'}"
+      class="relative inline-flex h-7 w-12 items-center rounded-full transition-colors {isAnnual ? 'bg-primary' : 'bg-hairline'}"
       onclick={() => (isAnnual = !isAnnual)}
     >
       <span
-        class="inline-block h-5 w-5 transform rounded-full bg-white transition-transform"
+        class="inline-block h-5 w-5 transform rounded-full bg-page transition-transform"
         style:transform={isAnnual ? 'translateX(22px)' : 'translateX(2px)'}
       ></span>
     </button>
     <span class={isAnnual ? 'font-bold text-primary' : 'text-muted'}>
       {annualLabel}
-      {#if annualBadge}<span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-primary text-white">{annualBadge}</span>{/if}
+      {#if annualBadge}<span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-primary text-on-primary">{annualBadge}</span>{/if}
     </span>
   </div>
 
@@ -94,9 +94,9 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {#each prices as plan, i}
       {@const savings = savingsFor(plan)}
-      <div class="relative rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 shadow-lg p-6 flex flex-col text-center">
+      <div class="relative rounded-xl border border-hairline bg-page shadow-lg p-6 flex flex-col text-center">
         {#if plan.hasRibbon && plan.ribbonTitle}
-          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-xs font-bold uppercase rounded-full bg-primary text-white">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-xs font-bold uppercase rounded-full bg-primary text-on-primary">
             {plan.ribbonTitle}
           </div>
         {/if}
@@ -127,7 +127,7 @@
             {#each plan.items as item}
               {#if item.description}
                 <li class="flex items-start gap-2 leading-7">
-                  <span class="rounded-full bg-primary mt-1 w-5 h-5 flex items-center justify-center text-white text-xs shrink-0">✓</span>
+                  <span class="rounded-full bg-primary mt-1 w-5 h-5 flex items-center justify-center text-on-primary text-xs shrink-0">✓</span>
                   <span>{item.description}</span>
                 </li>
               {/if}
@@ -146,7 +146,7 @@
           <div class="mt-auto pt-4">
             <a
               href={plan.callToAction.href}
-              class="inline-block px-6 py-2.5 rounded-lg font-semibold transition-colors {plan.hasRibbon ? 'bg-primary text-white hover:bg-primary/90' : 'border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-800'}"
+              class="inline-block px-6 py-2.5 rounded-lg font-semibold transition-colors {plan.hasRibbon ? 'bg-primary text-on-primary hover:bg-primary/90' : 'border border-hairline hover:bg-surface-hover'}"
             >
               {ctaText(plan)}
             </a>

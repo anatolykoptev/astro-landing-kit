@@ -136,7 +136,7 @@
       type="button"
       onclick={prev}
       aria-label="Previous testimonial"
-      class="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 md:-ml-4 w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-700 z-20 transition-colors"
+      class="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 md:-ml-4 w-10 h-10 rounded-full bg-page shadow-lg flex items-center justify-center hover:bg-surface-hover z-20 transition-colors"
     >
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
     </button>
@@ -144,7 +144,7 @@
       type="button"
       onclick={next}
       aria-label="Next testimonial"
-      class="absolute right-0 top-1/2 -translate-y-1/2 -mr-2 md:-mr-4 w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-700 z-20 transition-colors"
+      class="absolute right-0 top-1/2 -translate-y-1/2 -mr-2 md:-mr-4 w-10 h-10 rounded-full bg-page shadow-lg flex items-center justify-center hover:bg-surface-hover z-20 transition-colors"
     >
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
     </button>
@@ -158,7 +158,7 @@
           type="button"
           onclick={() => goTo(i)}
           aria-label="Go to testimonial {i + 1}"
-          class="w-2.5 h-2.5 rounded-full transition-colors {current === i ? 'bg-primary' : 'bg-gray-300 dark:bg-slate-600'}"
+          class="w-2.5 h-2.5 rounded-full transition-colors {current === i ? 'bg-primary' : 'bg-hairline'}"
         ></button>
       {/each}
     </div>

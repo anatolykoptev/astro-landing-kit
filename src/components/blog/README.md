@@ -44,7 +44,7 @@ const { posts, page } = Astro.props;
 
 - `ui` — Button (Pagination, ToBlogLink), Image (GridItem, ListItem, SinglePost)
 - `utils/permalinks`, `utils/blog`, `utils/images`, `utils/utils`
-- `astrowind:config` — APP_BLOG config flag
+- `~/config/kit` — APP_BLOG config flag
 
 ## Status
 

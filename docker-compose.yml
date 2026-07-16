@@ -1,6 +1,6 @@
 services:
-  astrowind:
+  astro-landing-kit:
     build: .
-    container_name: astrowind
+    container_name: astro-landing-kit
     ports:
       - 8080:8080

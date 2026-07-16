@@ -1,0 +1,55 @@
+---
+/**
+ * BentoCell — a single cell in a BentoGrid.
+ *
+ * Use span prop or Tailwind col-span/row-span classes for asymmetry.
+ *
+ * Props:
+ *   span — '2' (2 cols), '3' (3 cols), '2x2' (2 cols x 2 rows),
+ *          'wide' (full width on mobile), 'tall' (2 rows)
+ *   rounded — border radius, default 'xl'
+ *   padding — CSS padding, default '1.5rem'
+ */
+import { twMerge } from 'tailwind-merge';
+
+interface Props {
+  span?: '2' | '3' | '2x2' | 'wide' | 'tall';
+  rounded?: 'lg' | 'xl' | '2xl' | '3xl';
+  padding?: string;
+  class?: string;
+}
+
+const {
+  span,
+  rounded = 'xl',
+  padding = '1.5rem',
+  class: className = '',
+} = Astro.props;
+
+const spanClass = {
+  '2': 'md:col-span-2',
+  '3': 'lg:col-span-3',
+  '2x2': 'md:col-span-2 md:row-span-2',
+  'wide': 'col-span-full md:col-span-2',
+  'tall': 'md:row-span-2',
+}[span ?? ''] ?? '';
+
+const roundedClass = {
+  'lg': 'rounded-lg',
+  'xl': 'rounded-xl',
+  '2xl': 'rounded-2xl',
+  '3xl': 'rounded-3xl',
+}[rounded];
+---
+
+<div
+  class={twMerge(
+    'relative overflow-hidden border border-hairline bg-card transition-colors hover:border-primary/30',
+    roundedClass,
+    spanClass,
+    className,
+  )}
+  style={`padding: ${padding};`}
+>
+  <slot />
+</div>

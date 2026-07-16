@@ -1,0 +1,46 @@
+---
+/**
+ * BentoGrid — Apple-style asymmetric grid layout.
+ *
+ * Unlike ItemGrid (uniform cells), BentoGrid uses intentional asymmetry:
+ * some cells span 2 columns or 2 rows, creating visual hierarchy.
+ * Container-query responsive: 1 column on mobile, 2 on tablet, 3-4 on desktop.
+ *
+ * Usage:
+ *   <BentoGrid>
+ *     <BentoCell class="md:col-span-2">Wide cell</BentoCell>
+ *     <BentoCell>Square</BentoCell>
+ *     <BentoCell class="md:row-span-2">Tall cell</BentoCell>
+ *     <BentoCell>Square</BentoCell>
+ *     <BentoCell>Square</BentoCell>
+ *   </BentoGrid>
+ *
+ * Or use BentoCell with span props:
+ *   <BentoCell span="2">Wide</BentoCell>
+ *   <BentoCell span="2x2">Large</BentoCell>
+ */
+interface Props {
+  columns?: 2 | 3 | 4;
+  gap?: string;
+  class?: string;
+}
+
+const {
+  columns = 3,
+  gap = '1rem',
+  class: className = '',
+} = Astro.props;
+
+const colsClass = {
+  2: 'md:grid-cols-2',
+  3: 'md:grid-cols-2 lg:grid-cols-3',
+  4: 'md:grid-cols-2 lg:grid-cols-4',
+}[columns];
+---
+
+<div
+  class={`grid grid-cols-1 ${colsClass} auto-rows-fr ${className}`}
+  style={`gap: ${gap};`}
+>
+  <slot />
+</div>

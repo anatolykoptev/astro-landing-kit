@@ -2,6 +2,11 @@
 import Layout from '~/layouts/LandingLayout.astro';
 import Button from '~/components/ui/Button.astro';
 import ScrollProgress from '~/components/ui/ScrollProgress.astro';
+import BentoGrid from '~/components/ui/BentoGrid.astro';
+import BentoCell from '~/components/ui/BentoCell.astro';
+import CursorGlow from '~/components/islands/CursorGlow.svelte';
+import MagneticButton from '~/components/islands/MagneticButton.svelte';
+import SpotlightCard from '~/components/islands/SpotlightCard.svelte';
 import { Icon } from 'astro-icon/components';
 import type { MetaData } from '~/types';
 
@@ -13,6 +18,7 @@ const metadata: MetaData = {
 
 <Layout metadata={metadata}>
   <ScrollProgress />
+  <CursorGlow client:load />
   <!-- ════════════════════════════════════════════════════════════════
        HERO — asymmetric, code-forward, not centered
        ════════════════════════════════════════════════════════════════ -->
@@ -24,7 +30,7 @@ const metadata: MetaData = {
           <p class="font-mono text-sm text-primary mb-6 tracking-tight">
             v0.5.3 · npm install astro-landing-kit
           </p>
-          <h1 class="font-heading text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-default mb-6">
+          <h1 class="font-heading text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-default mb-6 text-balance" transition:name="hero-title">
             Structural foundation<br />
             for <span class="text-primary">Astro</span> landing pages
           </h1>
@@ -33,9 +39,11 @@ const metadata: MetaData = {
             forms, SEO, and a design quality gate. Fork of AstroWind, hardened.
           </p>
           <div class="flex flex-wrap gap-3">
-            <Button variant="primary" href="https://www.npmjs.com/package/astro-landing-kit" target="_blank" class="font-mono">
-              npm install
-            </Button>
+            <MagneticButton client:visible>
+              <Button variant="primary" href="https://www.npmjs.com/package/astro-landing-kit" target="_blank" class="font-mono">
+                npm install
+              </Button>
+            </MagneticButton>
             <Button variant="secondary" href="https://github.com/anatolykoptev/astro-landing-kit" target="_blank">
               <Icon name="tabler:brand-github" class="w-4 h-4 inline-block mr-1.5 align-text-bottom" />
               Source
@@ -302,6 +310,121 @@ components:
           <span>sharp 0.35</span>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════
+       2026 PRIMITIVES — BentoGrid + SpotlightCard + scroll-driven CSS
+       ════════════════════════════════════════════════════════════════ -->
+  <section id="primitives" class="border-b border-hairline bg-surface scroll-reveal">
+    <div class="max-w-5xl mx-auto px-6 py-20 md:py-28">
+      <div class="mb-12">
+        <p class="font-mono text-sm text-primary mb-3">03 / 2026 primitives</p>
+        <h2 class="font-heading text-3xl md:text-4xl tracking-tight text-default text-balance mb-4">
+          Native CSS scroll-driven animations, not JS intersection observers
+        </h2>
+        <p class="text-muted max-w-2xl">
+          The kit ships 2026-era primitives: scroll-reveal, scroll-progress,
+          marquee, bento grid, spotlight cards, magnetic buttons — all built
+          on native CSS <code class="font-mono text-sm text-primary">animation-timeline</code>
+          and Svelte 5 runes. Zero GSAP, zero embla-carousel.
+        </p>
+      </div>
+
+      <BentoGrid columns={3} gap="1rem">
+        <BentoCell span="2x2" class="bg-page">
+          <SpotlightCard client:visible class="h-full">
+            <div class="h-full flex flex-col justify-between">
+              <div>
+                <Icon name="tabler:sparkles" class="w-8 h-8 text-primary mb-4" />
+                <h3 class="font-heading text-xl font-bold mb-2">Scroll-driven CSS</h3>
+                <p class="text-muted text-sm leading-relaxed">
+                  <code class="font-mono text-xs text-primary">animation-timeline: view()</code>
+                  replaces JS intersection observers. Elements fade and slide in
+                  as they enter the viewport — pure CSS, 0 JS overhead.
+                  <code class="font-mono text-xs text-primary">@supports</code>
+                  fallback keeps content visible in older browsers.
+                </p>
+              </div>
+              <div class="mt-6 flex gap-2 flex-wrap">
+                <span class="font-mono text-xs px-2 py-1 rounded bg-surface border border-hairline">scroll-reveal</span>
+                <span class="font-mono text-xs px-2 py-1 rounded bg-surface border border-hairline">scroll-progress</span>
+              </div>
+            </div>
+          </SpotlightCard>
+        </BentoCell>
+
+        <BentoCell class="bg-page">
+          <Icon name="tabler:infinity" class="w-7 h-7 text-primary mb-3" />
+          <h3 class="font-heading text-lg font-bold mb-1">Marquee</h3>
+          <p class="text-muted text-sm leading-relaxed">
+            Infinite scroll, 0 JS. CSS <code class="font-mono text-xs text-primary">@keyframes</code>
+            + mask fade. Pauses on hover.
+          </p>
+        </BentoCell>
+
+        <BentoCell class="bg-page">
+          <Icon name="tabler:grid-dots" class="w-7 h-7 text-primary mb-3" />
+          <h3 class="font-heading text-lg font-bold mb-1">BentoGrid</h3>
+          <p class="text-muted text-sm leading-relaxed">
+            Apple-style asymmetric grid. Intentional spans, not uniform cells.
+          </p>
+        </BentoCell>
+
+        <BentoCell span="2" class="bg-page">
+          <SpotlightCard client:visible class="h-full">
+            <div class="flex items-start gap-4">
+              <Icon name="tabler:target-arrow" class="w-8 h-8 text-primary shrink-0" />
+              <div>
+                <h3 class="font-heading text-lg font-bold mb-1">SpotlightCard + MagneticButton</h3>
+                <p class="text-muted text-sm leading-relaxed">
+                  Cursor-tracking radial glow on cards. Subtle magnetic pull on
+                  buttons. Svelte 5 runes, ~20-30 lines each, 0 dependencies.
+                  The npm install button in the hero uses MagneticButton —
+                  hover it to feel the effect.
+                </p>
+              </div>
+            </div>
+          </SpotlightCard>
+        </BentoCell>
+
+        <BentoCell class="bg-page">
+          <Icon name="tabler:details" class="w-7 h-7 text-primary mb-3" />
+          <h3 class="font-heading text-lg font-bold mb-1">FaqList</h3>
+          <p class="text-muted text-sm leading-relaxed">
+            Native <code class="font-mono text-xs text-primary">&lt;details&gt;</code>
+            accordion. 0 JS, built-in a11y.
+          </p>
+        </BentoCell>
+
+        <BentoCell class="bg-page">
+          <Icon name="tabler:number-123" class="w-7 h-7 text-primary mb-3" />
+          <h3 class="font-heading text-lg font-bold mb-1">NumberFlow</h3>
+          <p class="text-muted text-sm leading-relaxed">
+            Animated counter, Svelte 5 runes. Replaces GSAP (200KB → 0KB).
+          </p>
+        </BentoCell>
+
+        <BentoCell span="2" class="bg-page">
+          <Icon name="tabler:pointer" class="w-7 h-7 text-primary mb-3" />
+          <h3 class="font-heading text-lg font-bold mb-1">CursorGlow</h3>
+          <p class="text-muted text-sm leading-relaxed">
+            Ambient page-wide cursor glow. One Svelte island on
+            <code class="font-mono text-xs text-primary">&lt;body&gt;</code>,
+            ~15 lines, <code class="font-mono text-xs text-primary">mix-blend-screen</code>.
+            You're seeing it now — move your cursor across the page.
+          </p>
+        </BentoCell>
+
+        <BentoCell class="bg-page">
+          <Icon name="tabler:text-wrap" class="w-7 h-7 text-primary mb-3" />
+          <h3 class="font-heading text-lg font-bold mb-1">TextBalance</h3>
+          <p class="text-muted text-sm leading-relaxed">
+            <code class="font-mono text-xs text-primary">text-wrap: balance</code>
+            on all headings. No more orphan words.
+          </p>
+        </BentoCell>
+      </BentoGrid>
     </div>
   </section>
 

@@ -3,13 +3,9 @@ import { getPermalink, getBlogPermalink, getAsset } from './utils/permalinks';
 export const headerData = {
   links: [
     { text: 'Features', href: getPermalink('/#features') },
-    { text: 'Production', href: getPermalink('/#production') },
+    { text: 'Primitives', href: getPermalink('/#primitives') },
+    { text: 'Forms', href: getPermalink('/#forms') },
     { text: 'Blog', href: getBlogPermalink() },
-    {
-      text: 'npm',
-      href: 'https://www.npmjs.com/package/astro-landing-kit',
-      target: '_blank',
-    },
   ],
   actions: [
     {

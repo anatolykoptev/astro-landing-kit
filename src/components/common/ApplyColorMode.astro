@@ -2,32 +2,47 @@
 import { UI } from '~/config/kit';
 // Inline script: applies theme before paint to prevent FOUC (flash of unstyled content).
 // Runs synchronously in <head> — must stay inline (not bundled) to execute before first render.
+// Supports three-way mode: 'light', 'dark', 'system' (stored as 'theme-mode' in localStorage).
+// Legacy: 'theme' key still read for backward compat (light/dark only).
 ---
 
 <script is:inline define:vars={{ defaultTheme: UI.theme || 'system' }}>
-  function applyTheme(theme) {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+  (function () {
+    function applyDark(isDark) {
+      var el = document.documentElement;
+      if (isDark) el.classList.add('dark');
+      else el.classList.remove('dark');
     }
-    const matches = document.querySelectorAll('[data-aw-toggle-color-scheme] > input');
 
-    if (matches && matches.length) {
-      matches.forEach((elem) => {
-        elem.checked = theme !== 'dark';
-      });
+    var mode = localStorage.getItem('theme-mode');
+    // Legacy: migrate old 'theme' key to 'theme-mode'
+    if (!mode) {
+      var legacy = localStorage.getItem('theme');
+      if (legacy === 'dark' || legacy === 'light') {
+        mode = legacy;
+        localStorage.setItem('theme-mode', mode);
+      }
     }
-  }
+    if (!mode) mode = defaultTheme.replace(':only', '');
+    if (mode !== 'light' && mode !== 'dark' && mode !== 'system') mode = 'system';
 
-  if ((defaultTheme && defaultTheme.endsWith(':only')) || (!localStorage.theme && defaultTheme !== 'system')) {
-    applyTheme(defaultTheme.replace(':only', ''));
-  } else if (
-    localStorage.theme === 'dark' ||
-    (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-  ) {
-    applyTheme('dark');
-  } else {
-    applyTheme('light');
-  }
+    // Force-only mode (e.g. 'dark:only') locks the theme
+    if (defaultTheme && defaultTheme.endsWith(':only')) {
+      applyDark(defaultTheme.replace(':only', '') === 'dark');
+      return;
+    }
+
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var isDark = mode === 'dark' || (mode === 'system' && prefersDark);
+    applyDark(isDark);
+
+    // Update <meta name="color-scheme"> for native form controls
+    var meta = document.querySelector('meta[name="color-scheme"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', 'color-scheme');
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', isDark ? 'dark light' : 'light dark');
+  })();
 </script>

@@ -473,6 +473,38 @@
   }
 }
 
+/* =====================================================================
+ * Theme transition — smooth color-scheme switch
+ *
+ * Adds a brief transition on color/background/border when the theme
+ * changes, so the switch doesn't flash. Only applies to elements
+ * using --aw-color-* tokens (not to specific elements that might
+ * have their own transitions).
+ * ===================================================================== */
+
+:root {
+  --theme-transition: 200ms ease;
+}
+
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition: background-color var(--theme-transition),
+              border-color var(--theme-transition),
+              color var(--theme-transition),
+              fill var(--theme-transition) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transition,
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition: none !important;
+  }
+}
+
 /* To deprecated */
 
 .dd *:first-child {

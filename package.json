@@ -61,6 +61,7 @@
     "./islands/CursorGlow": "./src/components/islands/CursorGlow.svelte",
     "./islands/TextScramble": "./src/components/islands/TextScramble.svelte",
     "./islands/CommandPalette": "./src/components/islands/CommandPalette.svelte",
+    "./islands/ThemeToggle": "./src/components/islands/ThemeToggle.svelte",
     "./ui/Input": "./src/components/ui/Input.astro",
     "./ui/Textarea": "./src/components/ui/Textarea.astro",
     "./ui/Tabs": "./src/components/ui/Tabs.astro",

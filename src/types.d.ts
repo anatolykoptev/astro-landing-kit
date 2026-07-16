@@ -179,6 +179,17 @@ export interface CallToAction extends Omit<HTMLAttributes<'a'>, 'slot'> {
   type?: 'button' | 'submit' | 'reset';
 }
 
+export interface Link {
+  text?: string;
+  href?: string;
+  ariaLabel?: string;
+  icon?: string;
+}
+
+export interface MenuLink extends Link {
+  links?: Array<MenuLink>;
+}
+
 export interface ItemGrid {
   items?: Array<Item>;
   columns?: number;

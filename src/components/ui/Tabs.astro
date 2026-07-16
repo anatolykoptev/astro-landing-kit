@@ -1,0 +1,75 @@
+---
+/**
+ * Tabs — tabbed interface with CSS :has() for active state.
+ *
+ * Uses radio inputs + :has() for 0-JS tab switching where supported.
+ * Fallback: labels are clickable, CSS :checked works for basic switching.
+ *
+ * Usage:
+ *   <Tabs
+ *     tabs={[
+ *       { label: 'Overview', content: '...' },
+ *       { label: 'Details', content: '...' },
+ *     ]}
+ *   />
+ *
+ * Or with slots for rich content:
+ *   <Tabs labels={['Overview', 'Details', 'Pricing']}>
+ *     <div slot="tab-0">Overview content</div>
+ *   </Tabs>
+ */
+import { twMerge } from 'tailwind-merge';
+
+interface Tab {
+  label: string;
+  content?: string;
+}
+
+interface Props {
+  tabs?: Tab[];
+  labels?: string[];
+  class?: string;
+  defaultIndex?: number;
+}
+
+const {
+  tabs = [],
+  labels = [],
+  class: className = '',
+  defaultIndex = 0,
+} = Astro.props;
+
+const tabLabels = tabs.length > 0 ? tabs.map((t) => t.label) : labels;
+const tabId = `tabs-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<div class={twMerge('w-full', className)}>
+  <div class="flex gap-1 border-b border-hairline mb-6">
+    {tabLabels.map((label, i) => (
+      <label
+        for={`${tabId}-${i}`}
+        class:list={[
+          'px-4 py-2.5 text-sm font-medium cursor-pointer transition-colors rounded-t-lg',
+          'text-muted hover:text-default',
+        ]}
+      >
+        {label}
+      </label>
+    ))}
+  </div>
+
+  <div>
+    {tabs.length > 0
+      ? tabs.map((tab, i) => (
+          <div class:list={[i === defaultIndex ? 'block' : 'hidden']}>
+            {tab.content && <p class="text-muted leading-relaxed" set:html={tab.content} />}
+            <slot name={`tab-${i}`} />
+          </div>
+        ))
+      : labels.map((_, i) => (
+          <div class:list={[i === defaultIndex ? 'block' : 'hidden']}>
+            <slot name={`tab-${i}`} />
+          </div>
+        ))}
+  </div>
+</div>

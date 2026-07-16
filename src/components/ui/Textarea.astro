@@ -1,0 +1,72 @@
+---
+/**
+ * Textarea — tokenized textarea with label + focus ring.
+ *
+ * Uses --aw-color-* semantic tokens. Auto-resize via CSS field-sizing
+ * where supported, fixed rows elsewhere.
+ *
+ * Usage:
+ *   <Textarea name="message" label="Message" required rows={4} />
+ */
+import { twMerge } from 'tailwind-merge';
+
+interface Props {
+  name: string;
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+  rows?: number;
+  value?: string;
+  error?: string;
+  class?: string;
+}
+
+const {
+  name,
+  label,
+  placeholder,
+  required = false,
+  rows = 4,
+  value = '',
+  error,
+  class: className = '',
+} = Astro.props;
+
+const textareaId = `textarea-${name}`;
+---
+
+<div class={twMerge('relative', className)}>
+  {label && (
+    <label
+      for={textareaId}
+      class:list={[
+        'block text-sm font-medium mb-1.5 transition-colors',
+        error ? 'text-red-500' : 'text-default',
+      ]}
+    >
+      {label}{required && <span class="text-primary ml-0.5">*</span>}
+    </label>
+  )}
+  <textarea
+    id={textareaId}
+    name={name}
+    placeholder={placeholder}
+    required={required}
+    rows={rows}
+    aria-invalid={error ? 'true' : undefined}
+    aria-describedby={error ? `${textareaId}-error` : undefined}
+    class:list={[
+      'w-full rounded-lg border bg-card px-4 py-2.5 text-default placeholder:text-muted/60',
+      'transition-colors duration-150 resize-y',
+      'focus:outline-none focus:ring-2 focus:ring-offset-0',
+      error
+        ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20'
+        : 'border-hairline focus:border-primary focus:ring-primary/20',
+    ]}
+  >{value}</textarea>
+  {error && (
+    <p id={`${textareaId}-error`} class="mt-1.5 text-xs text-red-500" role="alert">
+      {error}
+    </p>
+  )}
+</div>

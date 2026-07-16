@@ -4,9 +4,13 @@ import Button from '~/components/ui/Button.astro';
 import ScrollProgress from '~/components/ui/ScrollProgress.astro';
 import BentoGrid from '~/components/ui/BentoGrid.astro';
 import BentoCell from '~/components/ui/BentoCell.astro';
+import Input from '~/components/ui/Input.astro';
+import Textarea from '~/components/ui/Textarea.astro';
 import CursorGlow from '~/components/islands/CursorGlow.svelte';
 import MagneticButton from '~/components/islands/MagneticButton.svelte';
 import SpotlightCard from '~/components/islands/SpotlightCard.svelte';
+import TextScramble from '~/components/islands/TextScramble.svelte';
+import CommandPalette from '~/components/islands/CommandPalette.svelte';
 import { Icon } from 'astro-icon/components';
 import type { MetaData } from '~/types';
 
@@ -14,11 +18,20 @@ const metadata: MetaData = {
   title: 'astro-landing-kit',
   description: 'Structural foundation for Astro landing pages. Design tokens, PWA, forms, SEO, and impeccable design quality — built in.',
 };
+
+const commandItems = [
+  { label: 'Home', href: '/', hint: '/' },
+  { label: 'Blog', href: '/blog', hint: '/blog' },
+  { label: 'RSS Feed', href: '/rss.xml', hint: '/rss.xml' },
+  { label: 'GitHub', href: 'https://github.com/anatolykoptev/astro-landing-kit', hint: 'external', external: true },
+  { label: 'npm', href: 'https://www.npmjs.com/package/astro-landing-kit', hint: 'external', external: true },
+];
 ---
 
 <Layout metadata={metadata}>
   <ScrollProgress />
   <CursorGlow client:load />
+  <CommandPalette client:load items={commandItems} />
   <!-- ════════════════════════════════════════════════════════════════
        HERO — asymmetric, code-forward, not centered
        ════════════════════════════════════════════════════════════════ -->
@@ -28,7 +41,7 @@ const metadata: MetaData = {
         <!-- Left: headline + subhead -->
         <div>
           <p class="font-mono text-sm text-primary mb-6 tracking-tight">
-            v0.5.3 · npm install astro-landing-kit
+            <TextScramble client:visible text="v0.6.0 · npm install astro-landing-kit" class="font-mono" /> · press <kbd class="px-1.5 py-0.5 rounded border border-hairline bg-surface text-[10px] font-mono">⌘K</kbd>
           </p>
           <h1 class="font-heading text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-default mb-6 text-balance" transition:name="hero-title">
             Structural foundation<br />
@@ -429,11 +442,87 @@ components:
   </section>
 
   <!-- ════════════════════════════════════════════════════════════════
+       FORMS — tokenized Input/Textarea + inline validation + honeypot
+       ════════════════════════════════════════════════════════════════ -->
+  <section id="forms" class="border-b border-hairline scroll-reveal">
+    <div class="max-w-5xl mx-auto px-6 py-20 md:py-28">
+      <div class="grid md:grid-cols-2 gap-12 md:gap-16">
+        <!-- Left: explanation -->
+        <div>
+          <p class="font-mono text-sm text-primary mb-3">04 / Forms</p>
+          <h2 class="font-heading text-3xl md:text-4xl tracking-tight text-default text-balance mb-4">
+            Tokenized inputs, not hardcoded gray-300
+          </h2>
+          <p class="text-muted leading-relaxed mb-6">
+            <code class="font-mono text-sm text-primary">Input.astro</code> and
+            <code class="font-mono text-sm text-primary">Textarea.astro</code> use
+            <code class="font-mono text-sm text-primary">--aw-color-*</code> tokens —
+            border, background, focus ring, placeholder. A consumer re-skins by
+            overriding tokens, not by fighting hardcoded Tailwind classes.
+          </p>
+          <div class="space-y-3">
+            <div class="flex items-start gap-3">
+              <Icon name="tabler:shield-check" class="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p class="font-medium text-default text-sm">Honeypot anti-spam</p>
+                <p class="text-muted text-sm">Hidden field that bots fill, humans don't.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <Icon name="tabler:key" class="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p class="font-medium text-default text-sm">CSRF tokens</p>
+                <p class="text-muted text-sm">HMAC-signed, timing-safe, 1h TTL. Auto-injected via meta tag.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <Icon name="tabler:gauge" class="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p class="font-medium text-default text-sm">Rate limiting</p>
+                <p class="text-muted text-sm">Token-bucket, in-memory or Redis. 429 + Retry-After.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <Icon name="tabler:checkup-list" class="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p class="font-medium text-default text-sm">Inline validation</p>
+                <p class="text-muted text-sm">Client-side in ContactForm.svelte, clears on input.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: live form -->
+        <div class="bg-surface border border-hairline rounded-xl p-6 md:p-8">
+          <p class="font-mono text-xs text-muted mb-4">// try the inputs below</p>
+          <div class="space-y-5">
+            <Input name="demo-name" label="Name" placeholder="Jane Doe" />
+            <Input name="demo-email" label="Email" type="email" placeholder="jane@company.com" />
+            <Input
+              name="demo-error"
+              label="Field with error state"
+              placeholder="type something..."
+              error="This field demonstrates the error styling"
+            />
+            <Textarea name="demo-message" label="Message" placeholder="How can we help?" rows={3} />
+            <Button variant="primary" class="w-full">
+              Submit demo
+            </Button>
+            <p class="text-xs text-muted text-center">
+              This form is for visual demo only — no backend endpoint.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════
        CTA — quiet, not a giant colored banner
        ════════════════════════════════════════════════════════════════ -->
   <section class="border-b border-hairline">
     <div class="max-w-3xl mx-auto px-6 py-20 md:py-28 text-left">
-      <p class="font-mono text-sm text-primary mb-3">04 / Start</p>
+      <p class="font-mono text-sm text-primary mb-3">05 / Start</p>
       <h2 class="font-heading text-3xl md:text-4xl tracking-tight text-default mb-6">
         Install in one command
       </h2>
@@ -451,7 +540,7 @@ components:
         </Button>
       </div>
       <p class="text-sm text-muted mt-8">
-        MIT licensed · Fork of AstroWind by onWidget · v0.5.3
+        MIT licensed · Fork of AstroWind by onWidget · v0.6.0
       </p>
     </div>
   </section>

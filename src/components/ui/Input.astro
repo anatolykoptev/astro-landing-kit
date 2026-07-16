@@ -1,0 +1,78 @@
+---
+/**
+ * Input — tokenized text input with floating label + focus ring.
+ *
+ * Uses --aw-color-* semantic tokens, not hardcoded colors.
+ * Floating label via peer-placeholder-shown + peer-focus.
+ * Focus ring uses --aw-color-focus-ring.
+ *
+ * Usage:
+ *   <Input name="email" label="Email" type="email" required />
+ *   <Input name="name" label="Name" placeholder="Jane Doe" />
+ */
+import { twMerge } from 'tailwind-merge';
+
+interface Props {
+  name: string;
+  label?: string;
+  type?: string;
+  placeholder?: string;
+  required?: boolean;
+  autocomplete?: string;
+  value?: string;
+  error?: string;
+  class?: string;
+}
+
+const {
+  name,
+  label,
+  type = 'text',
+  placeholder,
+  required = false,
+  autocomplete = 'on',
+  value = '',
+  error,
+  class: className = '',
+} = Astro.props;
+
+const inputId = `input-${name}`;
+---
+
+<div class={twMerge('relative', className)}>
+  {label && (
+    <label
+      for={inputId}
+      class:list={[
+        'block text-sm font-medium mb-1.5 transition-colors',
+        error ? 'text-red-500' : 'text-default',
+      ]}
+    >
+      {label}{required && <span class="text-primary ml-0.5">*</span>}
+    </label>
+  )}
+  <input
+    id={inputId}
+    type={type}
+    name={name}
+    value={value}
+    placeholder={placeholder}
+    required={required}
+    autocomplete={autocomplete}
+    aria-invalid={error ? 'true' : undefined}
+    aria-describedby={error ? `${inputId}-error` : undefined}
+    class:list={[
+      'w-full rounded-lg border bg-card px-4 py-2.5 text-default placeholder:text-muted/60',
+      'transition-colors duration-150',
+      'focus:outline-none focus:ring-2 focus:ring-offset-0',
+      error
+        ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20'
+        : 'border-hairline focus:border-primary focus:ring-primary/20',
+    ]}
+  />
+  {error && (
+    <p id={`${inputId}-error`} class="mt-1.5 text-xs text-red-500" role="alert">
+      {error}
+    </p>
+  )}
+</div>

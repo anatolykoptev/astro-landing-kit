@@ -40,40 +40,52 @@ have:
 npm i astro-landing-kit
 ```
 
-```astro
----
-import PageLayout from 'astro-landing-kit/layouts/PageLayout';
-import { designMdIntegration } from 'astro-landing-kit/design';
-import { serviceWorkerIntegration } from 'astro-landing-kit/sw';
-import { loadJson } from 'astro-landing-kit/adapters/json';
+**1. Write your config** (`src/config.ts`):
 
-const page = await loadJson('home', 'src/content');
----
+```ts
+import { defineConfig } from 'astro-landing-kit/config';
 
-<PageLayout metadata={page.meta}>
-  <!-- compose sections from ui/* primitives -->
-</PageLayout>
+export const config = defineConfig({
+  site: { name: 'My Site', site: 'https://example.com' },
+  blog: { isEnabled: true, postsPerPage: 6 },
+});
 ```
 
-Astro config:
+**2. Wire integrations** (`astro.config.ts`):
 
 ```ts
 import { defineConfig } from 'astro/config';
 import svelte from '@astrojs/svelte';
 import { designMdIntegration } from 'astro-landing-kit/design';
 import { serviceWorkerIntegration } from 'astro-landing-kit/sw';
+import { robotsIntegration } from 'astro-landing-kit/integration/robots';
 
 export default defineConfig({
+  site: 'https://example.com',
   integrations: [
     svelte(),
     designMdIntegration(),        // DESIGN.md → CSS tokens
     serviceWorkerIntegration(),   // PWA offline
+    robotsIntegration(),          // robots.txt + sitemap
   ],
 });
 ```
 
-No CLI, no scaffolding step, no config file required before your first
-import resolves.
+**3. Compose pages** from `ui/*` primitives:
+
+```astro
+---
+import PageLayout from 'astro-landing-kit/layouts/PageLayout';
+import { SITE } from 'astro-landing-kit/config/kit';
+---
+
+<PageLayout metadata={{ title: 'Home' }}>
+  <!-- compose sections from ui/* primitives -->
+</PageLayout>
+```
+
+No CLI, no scaffolding step, no virtual modules — all imports resolve
+as plain TypeScript.
 
 ## Modules
 
@@ -92,7 +104,8 @@ import resolves.
 | [compose](src/compose/README.md) | `astro-landing-kit/compose` | `RenderSections` + widget registry — render sections from JSON | stable |
 | [images](src/utils/README.md) | `astro-landing-kit/images` | Astro image optimization + `unpic` CDN support | stable |
 | [styles](src/assets/styles/README.md) | `astro-landing-kit/styles` | Tailwind v4 base stylesheet + `--aw-color-*` token system | stable |
-| [integration](vendor/README.md) | `astro-landing-kit/integration` | `astrowindIntegration`: `config.yaml` loader for Astro | experimental |
+| [config](src/config/index.ts) | `astro-landing-kit/config` | `defineConfig()` — TypeScript config with full type safety | stable |
+| [integration/robots](src/integration/robots.ts) | `astro-landing-kit/integration/robots` | `robotsIntegration()` — robots.txt + sitemap wiring | stable |
 
 Each module ships its own README with its exact exports and cross-module
 dependencies. Widgets depend on `ui`; blog depends on `ui` + `utils`; `seo`

@@ -5,6 +5,8 @@
 - `DESIGN.md` defines the reference visual contract. Consumer repositories own their brand-specific `DESIGN.md`.
 - `src/assets/styles/README.md` lists the CSS variables that components actually consume.
 - `src/types.d.ts` is the public component prop contract.
+- `src/config/index.ts` defines `defineConfig()` and all config types (`SiteConfig`, `AppBlogConfig`, etc.).
+- `src/config/kit.ts` is the kit's own config instance (replaces former `config.yaml`).
 - `package.json#exports` is the public import surface. Do not import unexported internals.
 
 ## Choose the right layer
@@ -35,5 +37,5 @@ The kit integrates with the [impeccable](https://impeccable.style) design plugin
 - `DESIGN.md` uses Stitch-spec YAML frontmatter + canonical sections (parses in both kit and impeccable parsers).
 - `PRODUCT.md` provides impeccable's context loader with register, users, and anti-references.
 - CI runs `npx impeccable detect --fast dist/` after build (advisory mode).
-- Known by-design findings: `overused-font: Inter` (documented default), `pure-black-white: #000` (Tailwind preflight internals). Do NOT fix these.
+- Known by-design findings: none currently (0 findings as of v0.5.3+).
 - All new components must use `--aw-color-*` semantic tokens. Hard-coded colors trigger impeccable's anti-pattern rules.

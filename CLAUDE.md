@@ -20,6 +20,10 @@ npm install && npm run dev
 - `src/adapters/` — Content providers (JSON, Directus, custom)
 - `src/forms/` — Form protection (honeypot, CSRF, webhook)
 - `src/seo/` — SEO utilities, JSON-LD builder
+- `src/config/` — `defineConfig()` TypeScript config (replaces former config.yaml + virtual module)
+- `src/integration/` — Astro integrations (robots.txt + sitemap)
+- `src/design/` — DESIGN.md → CSS token pipeline
+- `src/sw/` — Versioned service worker integration
 
 ## Content
 Sites provide content via adapters. Default: JSON files in `content/`.

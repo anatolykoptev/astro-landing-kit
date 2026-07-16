@@ -10,9 +10,9 @@ import compress from 'astro-compress';
 import svelte from '@astrojs/svelte';
 import tailwindcss from '@tailwindcss/vite';
 
-import astrowind from './vendor/integration';
 import designMdIntegration from './src/design/integration';
 import serviceWorkerIntegration from './src/sw/integration';
+import robotsIntegration from './src/integration/robots';
 
 import { readingTimeRemarkPlugin, responsiveTablesRehypePlugin, lazyImagesRehypePlugin } from './src/utils/frontmatter';
 
@@ -20,6 +20,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   output: 'static',
+  site: 'https://kit.krolik.run',
+  base: '/',
+  trailingSlash: 'never',
 
   // Astro 7 changed the compressHTML default from `true` to `'jsx'`, which collapses
   // whitespace between inline elements using JSX rules instead of HTML rules — this
@@ -65,9 +68,8 @@ export default defineConfig({
       Logger: 1,
     }),
 
-    astrowind({
-      config: './src/config.yaml',
-    }),
+    // robots.txt + sitemap-index.xml wiring (appends Sitemap: line after build).
+    robotsIntegration(),
 
     // PWA: versioned service worker (network-first nav, cache-first assets,
     // auto-reload on deploy). See src/sw/README.md for the pattern + caveats.

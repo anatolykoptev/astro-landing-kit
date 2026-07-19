@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.4](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.6.3...v0.6.4) (2026-07-19)
+
+
+### Added
+
+* **ThemeToggle:** single cycle-button design (light/dark/system), token-driven ([#90](https://github.com/anatolykoptev/astro-landing-kit/issues/90)) ([b776279](https://github.com/anatolykoptev/astro-landing-kit/commit/b776279241ed4bfc1262b6083e66ee4738594c0b))
+
 ## [0.6.3](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.6.2...v0.6.3) (2026-07-16)
 
 

@@ -63,3 +63,13 @@ describe('adaptOpenGraphImages — public-prefix passthrough', () => {
     expect(result).toEqual({ title: 'foo' });
   });
 });
+
+describe('adaptOpenGraphImages — alt', () => {
+  it('carries alt through the public-prefix passthrough', async () => {
+    const result = await adaptOpenGraphImages(
+      { images: [{ url: '/og.png', width: 1200, height: 630, alt: 'A card' }] },
+      SITE,
+    );
+    expect(result.images?.[0]?.alt).toBe('A card');
+  });
+});

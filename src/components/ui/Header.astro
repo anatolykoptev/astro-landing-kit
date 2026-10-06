@@ -210,7 +210,7 @@ const allLinks = autoGenerateBlogLinks
   // Mobile menu toggle — scoped to [data-aw-header], does NOT touch #header
   // (BasicScripts.astro owns #header for the legacy widget wrapper).
   // Skip if this element also has id="header" — BasicScripts handles it.
-  const header = document.querySelector('[data-aw-header]');
+  const header = document.querySelector<HTMLElement>('[data-aw-header]');
   if (header && header.id !== 'header') {
     const toggle = header.querySelector('[data-aw-toggle-menu]');
     if (toggle) {

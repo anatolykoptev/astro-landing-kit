@@ -2,13 +2,12 @@
 import merge from 'lodash.merge';
 import { SEO } from 'astro-seo';
 
-import type { Props as AstroSeoProps, TwitterCardType } from 'astro-seo';
-
 import { SITE, METADATA, I18N } from '~/config/kit';
-import type { MetaData } from '~/types';
+import type { MetaData, MetaDataOpenGraph } from '~/types';
 import { getCanonical } from '~/utils/permalinks';
 
 import { adaptOpenGraphImages } from '~/utils/images';
+import { toSeoProps } from '~/seo/metadata';
 
 export interface Props extends MetaData {
   dontUseTitleTemplate?: boolean;
@@ -22,6 +21,7 @@ const {
   description,
   openGraph = {},
   twitter = {},
+  links = [],
 } = Astro.props;
 
 // Resolve flat, next-seo-shaped values first (precedence: page props > METADATA > default) —
@@ -42,9 +42,7 @@ const resolved = merge(
       locale: I18N?.language || 'en',
       type: 'website',
     },
-    twitter: {
-      cardType: openGraph?.images?.length ? 'summary_large_image' : 'summary',
-    },
+    twitter: {},
   },
   {
     title: METADATA?.title?.default,
@@ -67,46 +65,42 @@ const resolved = merge(
   }
 );
 
-const adaptedOpenGraph = await adaptOpenGraphImages({ images: resolved.openGraph?.images ?? [] }, Astro.site);
+// Base for resolving relative URLs: Astro's `site`, else the kit config's `SITE.site` (what the canonical
+// uses), else the request origin. In a static build that origin is localhost, so the kit config comes first.
+const base = Astro.site ?? (SITE?.site ? new URL(SITE.site) : new URL(Astro.url.origin));
+// Images are replaced, not merged: lodash.merge would give a page image the alt text (or size) of the
+// site-wide image at the same index.
+if (openGraph.images?.length) (resolved.openGraph as MetaDataOpenGraph).images = openGraph.images;
+const adaptedOpenGraph = await adaptOpenGraphImages({ images: resolved.openGraph?.images ?? [] }, base);
 const [primaryImage] = adaptedOpenGraph.images ?? [];
 
-// astro-seo throws if `openGraph` is passed without `basic.title`/`basic.type`/`basic.image` —
-// only emit the openGraph prop once we actually have an image to point `basic.image` at.
-const seoOpenGraph = primaryImage?.url
-  ? {
-      basic: {
-        title: resolved.title || SITE?.name || '',
-        type: resolved.openGraph.type || 'website',
-        image: primaryImage.url,
-        url: resolved.openGraph.url,
-      },
-      image: {
-        width: primaryImage.width,
-        height: primaryImage.height,
-      },
-      optional: {
-        description: resolved.description,
-        siteName: resolved.openGraph.siteName,
-        locale: resolved.openGraph.locale,
-      },
-    }
-  : undefined;
-
-const seoProps: AstroSeoProps = {
-  title: resolved.title,
-  titleTemplate: resolved.titleTemplate,
-  canonical: resolved.canonical,
-  noindex: resolved.noindex,
-  nofollow: resolved.nofollow,
-  description: resolved.description,
-  openGraph: seoOpenGraph,
-  twitter: {
-    // next-seo-shaped `handle`/`site` map onto astro-seo's `creator`/`site`.
-    card: resolved.twitter?.cardType as TwitterCardType | undefined,
-    site: resolved.twitter?.site,
-    creator: resolved.twitter?.handle,
-  },
+// Article tags and the twitter text/image overrides describe one page: taking them from the
+// merge would stamp a site-wide METADATA value on every page (and lodash.merge combines the
+// `authors`/`tags` arrays by index).
+resolved.openGraph.article = openGraph.article;
+// `~/assets/...` goes through the image optimizer; anything else is only made absolute, because the
+// optimizer rejects remote hosts that are not in the Astro image config and rewrites unpic URLs.
+const twitterImage = !twitter.image
+  ? undefined
+  : twitter.image.startsWith('~/')
+    ? (await adaptOpenGraphImages({ images: [{ url: twitter.image }] }, base)).images?.[0]?.url || undefined
+    : new URL(twitter.image, base).href;
+resolved.twitter = {
+  ...resolved.twitter,
+  title: twitter.title,
+  description: twitter.description,
+  image: twitterImage,
+  // An alt written for an explicit image that did not resolve would describe the fallback image.
+  imageAlt: twitter.image && !twitterImage ? undefined : twitter.imageAlt,
 };
+
+// Arrays are concatenated, not merged by index (lodash.merge would let a page link overwrite METADATA's).
+// hrefs are made absolute: hreflang alternates must be fully qualified.
+const allLinks = [...(METADATA?.links ?? []), ...links].filter((link) => link.href).map((link) => ({
+  ...link,
+  href: new URL(link.href, base).href,
+}));
+const seoProps = toSeoProps({ ...resolved, links: allLinks }, primaryImage, SITE?.name);
 ---
 
 <SEO {...seoProps} />

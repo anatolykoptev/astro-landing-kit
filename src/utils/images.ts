@@ -9,6 +9,7 @@ export interface OpenGraphImage {
   url?: string;
   width?: number;
   height?: number;
+  alt?: string;
 }
 
 /** Structural stand-in for the old `@astrolib/seo` OpenGraph type — we only touch `.images`,
@@ -87,6 +88,7 @@ export const adaptOpenGraphImages = async (
             url: String(new URL(image.url, astroSite)),
             width: image.width,
             height: image.height,
+            alt: image.alt,
           };
         }
 
@@ -118,6 +120,7 @@ export const adaptOpenGraphImages = async (
             url: 'src' in _image && typeof _image.src === 'string' ? String(new URL(_image.src, astroSite)) : '',
             width: 'width' in _image && typeof _image.width === 'number' ? _image.width : undefined,
             height: 'height' in _image && typeof _image.height === 'number' ? _image.height : undefined,
+            alt: image.alt,
           };
         }
         return {

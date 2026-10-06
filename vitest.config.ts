@@ -1,7 +1,9 @@
+/// <reference types="vitest/config" />
 import { fileURLToPath } from 'node:url';
-import { defineConfig } from 'vitest/config';
+import { getViteConfig } from 'astro/config';
 
-export default defineConfig({
+// getViteConfig loads the Astro pipeline so tests can import and render .astro components.
+export default getViteConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],

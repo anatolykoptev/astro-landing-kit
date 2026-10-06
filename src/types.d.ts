@@ -62,7 +62,7 @@ export interface MetaData {
   openGraph?: MetaDataOpenGraph;
   twitter?: MetaDataTwitter;
 
-  /** Extra `<link>` tags for the head (feeds, hreflang alternates). Page links are appended to METADATA's. */
+  /** Extra `<link>` tags for the head (feeds, hreflang alternates). Page links are appended to METADATA's; hrefs are resolved against `site`. */
   links?: Array<MetaDataLink>;
 }
 
@@ -93,7 +93,7 @@ export interface MetaDataOpenGraph {
   images?: Array<MetaDataImage>;
   locale?: string;
   type?: string;
-  /** Rendered as `article:*` tags; meant for `type: 'article'` pages. */
+  /** Rendered as `article:*` tags; page-level only (ignored in `METADATA`) and needs a resolvable image, like all Open Graph tags. */
   article?: MetaDataOpenGraphArticle;
 }
 
@@ -113,7 +113,7 @@ export interface MetaDataTwitter {
   handle?: string;
   site?: string;
   cardType?: string;
-  /** Only needed when it must differ from the og: values. */
+  /** Page-level only. The four fields below are only needed when they must differ from the og: values. */
   title?: string;
   description?: string;
   /** Defaults to the primary Open Graph image. */

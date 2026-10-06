@@ -45,6 +45,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run check
+      - run: npm test
 
       # Design gate: impeccable detect on build output.
       # Catches AI slop tells (hard-coded colors, overused fonts, border

@@ -65,15 +65,33 @@ const resolved = merge(
   }
 );
 
-const adaptedOpenGraph = await adaptOpenGraphImages({ images: resolved.openGraph?.images ?? [] }, Astro.site);
+// Without `site` in the Astro config the request origin stands in; before, URL resolution threw `Invalid URL`.
+const base = Astro.site ?? new URL(Astro.url.origin);
+const adaptedOpenGraph = await adaptOpenGraphImages({ images: resolved.openGraph?.images ?? [] }, base);
 const [primaryImage] = adaptedOpenGraph.images ?? [];
 
+// Article tags and the twitter text/image overrides describe one page: taking them from the
+// merge would stamp a site-wide METADATA value on every page (and lodash.merge combines the
+// `authors`/`tags` arrays by index).
+resolved.openGraph.article = openGraph.article;
+const twitterImage = twitter.image
+  ? (await adaptOpenGraphImages({ images: [{ url: twitter.image }] }, base)).images?.[0]?.url || undefined
+  : undefined;
+resolved.twitter = {
+  ...resolved.twitter,
+  title: twitter.title,
+  description: twitter.description,
+  image: twitterImage,
+  imageAlt: twitter.imageAlt,
+};
+
 // Arrays are concatenated, not merged by index (lodash.merge would let a page link overwrite METADATA's).
-const seoProps = toSeoProps(
-  { ...resolved, links: [...(METADATA?.links ?? []), ...links] },
-  primaryImage,
-  SITE?.name
-);
+// hrefs are made absolute: hreflang alternates must be fully qualified.
+const allLinks = [...(METADATA?.links ?? []), ...links].map((link) => ({
+  ...link,
+  href: new URL(link.href, base).href,
+}));
+const seoProps = toSeoProps({ ...resolved, links: allLinks }, primaryImage, SITE?.name);
 ---
 
 <SEO {...seoProps} />

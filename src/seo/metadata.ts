@@ -68,7 +68,9 @@ export function toSeoProps(resolved: ResolvedMetadata, primaryImage?: OpenGraphI
       title: tw.title,
       description: tw.description,
       image: tw.image ?? primaryImage?.url,
-      imageAlt: tw.imageAlt ?? primaryImage?.alt,
+      // An alt only describes the image it was written for: fall back to the Open Graph alt
+      // only when the image falls back too.
+      imageAlt: tw.image ? tw.imageAlt : (tw.imageAlt ?? primaryImage?.alt),
     },
     extend: resolved.links?.length
       ? {

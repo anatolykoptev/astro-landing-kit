@@ -52,7 +52,7 @@ stable
 
 ## Page metadata
 
-`<Metadata>` (rendered by every layout) turns a page's `metadata` prop into `<title>`, canonical, robots, Open Graph and Twitter tags. Precedence: page props > `METADATA` in the kit config > defaults. Everything the kit accepts is rendered; `toSeoProps` (`src/seo/metadata.ts`) is the one place that maps it onto `astro-seo`, which skips what it is not given without an error.
+`<Metadata>` (rendered by every layout) turns a page's `metadata` prop into `<title>`, canonical, robots, Open Graph and Twitter tags. Precedence: page props > `METADATA` in the kit config > defaults. Every field below is rendered, with two conditions: Open Graph tags (including `article:*`) need an image that resolves, from the page or from `METADATA`, because `astro-seo` cannot emit them without one; and only the first image is rendered. `toSeoProps` (`src/seo/metadata.ts`) is the one place that maps it onto `astro-seo`, which skips what it is not given without an error.
 
 ```ts
 const metadata = {
@@ -68,4 +68,4 @@ const metadata = {
 };
 ```
 
-`twitter.title`, `twitter.description`, `twitter.image` and `twitter.imageAlt` only need setting when they must differ from the Open Graph values; `twitter:image` defaults to the primary Open Graph image.
+`twitter.title`, `twitter.description`, `twitter.image` and `twitter.imageAlt` only need setting when they must differ from the Open Graph values; `twitter:image` defaults to the primary Open Graph image, and `imageAlt` falls back to that image's alt only when `image` does too. `openGraph.article` and the four `twitter` overrides are read from the page only, never from `METADATA`, so a site-wide value cannot leak onto every page. `twitter.image` and `links[].href` are resolved against `site`.

@@ -28,6 +28,12 @@ describe('toSeoProps — image', () => {
     expect(props.twitter?.imageAlt).toBe('Other');
   });
 
+  it('does not reuse the og alt for a different twitter image', () => {
+    const props = toSeoProps({ ...base, twitter: { image: 'https://example.com/tw.png' } }, image);
+    expect(props.twitter?.image).toBe('https://example.com/tw.png');
+    expect(props.twitter?.imageAlt).toBeUndefined();
+  });
+
   it('omits openGraph entirely without an image (astro-seo would throw)', () => {
     expect(toSeoProps(base).openGraph).toBeUndefined();
   });

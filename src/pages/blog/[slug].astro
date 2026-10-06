@@ -24,9 +24,18 @@ const metadata: MetaData = {
   title: post.title,
   description: post.excerpt,
   canonical: post.metadata?.canonical || getCanonical(getPermalink(post.permalink, 'post')),
-  openGraph: post.image
-    ? { images: [{ url: typeof post.image === 'string' ? post.image : post.image?.src }] }
-    : undefined,
+  openGraph: {
+    type: 'article',
+    ...(post.image ? { images: [{ url: typeof post.image === 'string' ? post.image : post.image?.src, alt: post.title }] } : {}),
+    article: {
+      publishedTime: post.publishDate.toISOString(),
+      ...(post.updateDate ? { modifiedTime: post.updateDate.toISOString() } : {}),
+      ...(post.category ? { section: post.category.title } : {}),
+      ...(post.tags?.length ? { tags: post.tags.map((t) => t.title) } : {}),
+      ...post.metadata?.openGraph?.article,
+    },
+  },
+  links: post.metadata?.links,
   robots: blogPostRobots,
 };
 ---

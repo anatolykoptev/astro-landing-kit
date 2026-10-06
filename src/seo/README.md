@@ -52,7 +52,7 @@ stable
 
 ## Page metadata
 
-`<Metadata>` (rendered by every layout) turns a page's `metadata` prop into `<title>`, canonical, robots, Open Graph and Twitter tags. Precedence: page props > `METADATA` in the kit config > defaults. Every field below is rendered, with two conditions: Open Graph tags (including `article:*`) need an image that resolves, from the page or from `METADATA`, because `astro-seo` cannot emit them without one; and only the first image is rendered. `toSeoProps` (`src/seo/metadata.ts`) is the one place that maps it onto `astro-seo`, which skips what it is not given without an error.
+`<Metadata>` (rendered by every layout) turns a page's `metadata` prop into `<title>`, canonical, robots, Open Graph and Twitter tags. Precedence: page props > `METADATA` in the kit config > defaults. Every field below is rendered, with two conditions: Open Graph tags need an image that resolves, from the page or from `METADATA`, because `astro-seo` cannot emit them without one (`article:*` tags are still emitted without an image, as plain meta); and only the first image is rendered. A page's `openGraph.images` replaces `METADATA`'s instead of merging with it. `toSeoProps` (`src/seo/metadata.ts`) is the one place that maps it onto `astro-seo`, which skips what it is not given without an error.
 
 ```ts
 const metadata = {

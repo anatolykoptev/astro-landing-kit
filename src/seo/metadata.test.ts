@@ -82,6 +82,24 @@ describe('toSeoProps — article and links', () => {
     ]);
   });
 
+  it('emits article:* as plain meta when there is no image (astro-seo gates them on one)', () => {
+    const article = { publishedTime: '2026-10-06T00:00:00.000Z', authors: ['https://example.com/me'], section: 'S', tags: ['a', 'b'] };
+    const props = toSeoProps({ ...base, openGraph: { ...base.openGraph, article } });
+    expect(props.openGraph).toBeUndefined();
+    expect(props.extend?.meta).toEqual([
+      { property: 'article:published_time', content: '2026-10-06T00:00:00.000Z' },
+      { property: 'article:author', content: 'https://example.com/me' },
+      { property: 'article:section', content: 'S' },
+      { property: 'article:tag', content: 'a' },
+      { property: 'article:tag', content: 'b' },
+    ]);
+  });
+
+  it('does not duplicate article:* as plain meta when the image-gated block carries them', () => {
+    const props = toSeoProps({ ...base, openGraph: { ...base.openGraph, article: { publishedTime: '2026-10-06T00:00:00.000Z' } } }, image);
+    expect(props.extend).toBeUndefined();
+  });
+
   it('has no extend block when there are no links', () => {
     expect(toSeoProps(base, image).extend).toBeUndefined();
   });

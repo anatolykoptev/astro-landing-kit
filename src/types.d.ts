@@ -93,7 +93,7 @@ export interface MetaDataOpenGraph {
   images?: Array<MetaDataImage>;
   locale?: string;
   type?: string;
-  /** Rendered as `article:*` tags; page-level only (ignored in `METADATA`) and needs a resolvable image, like all Open Graph tags. */
+  /** Rendered as `article:*` tags; page-level only (ignored in `METADATA`). */
   article?: MetaDataOpenGraphArticle;
 }
 

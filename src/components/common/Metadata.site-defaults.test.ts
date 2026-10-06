@@ -9,7 +9,7 @@ vi.mock('~/config/kit', async (importOriginal) => {
     SITE: { ...original.SITE, site: 'https://configured.example' },
     METADATA: {
       ...original.METADATA,
-      openGraph: { ...original.METADATA?.openGraph, article: { authors: ['A', 'C'], section: 'Site' } },
+      openGraph: { ...original.METADATA?.openGraph, images: [{ url: '/site.png', width: 1200, height: 630, alt: 'Site logo' }], article: { authors: ['A', 'C'], section: 'Site' } },
       twitter: { ...original.METADATA?.twitter, title: 'Site title', image: '/site.png', imageAlt: 'Site alt' },
     },
   };
@@ -50,5 +50,18 @@ describe('Metadata.astro: page-level fields are not inherited from METADATA', ()
     expect(html).toContain('property="og:image" content="https://configured.example/og.png"');
     expect(html).toContain('href="https://configured.example/fr"');
     expect(html).not.toContain('localhost');
+  });
+
+  it('a page image replaces the site-wide image instead of inheriting its alt', async () => {
+    const html = await render({ title: 'T', openGraph: { images: [{ url: '/post.png' }] } });
+    expect(html).toContain('property="og:image" content="https://configured.example/post.png"');
+    expect(html).not.toContain('Site logo');
+    expect(html).not.toContain('og:image:alt');
+  });
+
+  it('a page without images uses the site-wide image with its alt', async () => {
+    const html = await render({ title: 'T' });
+    expect(html).toContain('property="og:image" content="https://configured.example/site.png"');
+    expect(html).toContain('property="og:image:alt" content="Site logo"');
   });
 });

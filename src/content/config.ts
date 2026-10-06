@@ -28,12 +28,35 @@ const metadataDefinition = () =>
                 url: z.string(),
                 width: z.number().optional(),
                 height: z.number().optional(),
+                alt: z.string().optional(),
               })
             )
             .optional(),
           locale: z.string().optional(),
           type: z.string().optional(),
+          article: z
+            .object({
+              publishedTime: z.string().optional(),
+              modifiedTime: z.string().optional(),
+              expirationTime: z.string().optional(),
+              authors: z.array(z.string()).optional(),
+              section: z.string().optional(),
+              tags: z.array(z.string()).optional(),
+            })
+            .optional(),
         })
+        .optional(),
+
+      links: z
+        .array(
+          z.object({
+            rel: z.string(),
+            href: z.string(),
+            type: z.string().optional(),
+            title: z.string().optional(),
+            hreflang: z.string().optional(),
+          })
+        )
         .optional(),
 
       twitter: z
@@ -41,6 +64,10 @@ const metadataDefinition = () =>
           handle: z.string().optional(),
           site: z.string().optional(),
           cardType: z.string().optional(),
+          title: z.string().optional(),
+          description: z.string().optional(),
+          image: z.string().optional(),
+          imageAlt: z.string().optional(),
         })
         .optional(),
     })

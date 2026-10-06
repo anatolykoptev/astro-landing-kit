@@ -24,7 +24,7 @@ export const config = defineConfig({
     robots: { index: true, follow: true },
     openGraph: {
       siteName: 'astro-landing-kit',
-      images: [{ url: '~/assets/images/default.png', width: 1200, height: 628 }],
+      images: [{ url: '~/assets/images/default.png', width: 1200, height: 628, alt: 'astro-landing-kit' }],
       type: 'website',
     },
     twitter: { cardType: 'summary_large_image' },

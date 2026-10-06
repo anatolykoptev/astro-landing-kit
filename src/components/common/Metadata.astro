@@ -3,7 +3,7 @@ import merge from 'lodash.merge';
 import { SEO } from 'astro-seo';
 
 import { SITE, METADATA, I18N } from '~/config/kit';
-import type { MetaData } from '~/types';
+import type { MetaData, MetaDataOpenGraph } from '~/types';
 import { getCanonical } from '~/utils/permalinks';
 
 import { adaptOpenGraphImages } from '~/utils/images';
@@ -68,6 +68,9 @@ const resolved = merge(
 // Base for resolving relative URLs: Astro's `site`, else the kit config's `SITE.site` (what the canonical
 // uses), else the request origin. In a static build that origin is localhost, so the kit config comes first.
 const base = Astro.site ?? (SITE?.site ? new URL(SITE.site) : new URL(Astro.url.origin));
+// Images are replaced, not merged: lodash.merge would give a page image the alt text (or size) of the
+// site-wide image at the same index.
+if (openGraph.images?.length) (resolved.openGraph as MetaDataOpenGraph).images = openGraph.images;
 const adaptedOpenGraph = await adaptOpenGraphImages({ images: resolved.openGraph?.images ?? [] }, base);
 const [primaryImage] = adaptedOpenGraph.images ?? [];
 

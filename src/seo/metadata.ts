@@ -52,6 +52,20 @@ export function toSeoProps(resolved: ResolvedMetadata, primaryImage?: OpenGraphI
       }
     : undefined;
 
+  // astro-seo only renders article:* inside the image-gated openGraph block; without an image the
+  // tags are emitted as plain meta so a dated article never loses its dates.
+  const articleMeta =
+    !openGraph && og.article
+      ? [
+          ...(og.article.publishedTime ? [{ property: 'article:published_time', content: og.article.publishedTime }] : []),
+          ...(og.article.modifiedTime ? [{ property: 'article:modified_time', content: og.article.modifiedTime }] : []),
+          ...(og.article.expirationTime ? [{ property: 'article:expiration_time', content: og.article.expirationTime }] : []),
+          ...(og.article.authors ?? []).map((content) => ({ property: 'article:author', content })),
+          ...(og.article.section ? [{ property: 'article:section', content: og.article.section }] : []),
+          ...(og.article.tags ?? []).map((content) => ({ property: 'article:tag', content })),
+        ]
+      : [];
+
   return {
     title: resolved.title,
     titleTemplate: resolved.titleTemplate,
@@ -72,16 +86,22 @@ export function toSeoProps(resolved: ResolvedMetadata, primaryImage?: OpenGraphI
       // only when the image falls back too.
       imageAlt: tw.image ? tw.imageAlt : (tw.imageAlt ?? primaryImage?.alt),
     },
-    extend: resolved.links?.length
-      ? {
-          link: resolved.links.map(({ rel, href, type, title, hreflang }) => ({
-            rel,
-            href,
-            ...(type ? { type } : {}),
-            ...(title ? { title } : {}),
-            ...(hreflang ? { hreflang } : {}),
-          })),
-        }
-      : undefined,
+    extend:
+      resolved.links?.length || articleMeta.length
+        ? {
+            ...(resolved.links?.length
+              ? {
+                  link: resolved.links.map(({ rel, href, type, title, hreflang }) => ({
+                    rel,
+                    href,
+                    ...(type ? { type } : {}),
+                    ...(title ? { title } : {}),
+                    ...(hreflang ? { hreflang } : {}),
+                  })),
+                }
+              : {}),
+            ...(articleMeta.length ? { meta: articleMeta } : {}),
+          }
+        : undefined,
   };
 }

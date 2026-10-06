@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.5](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.6.4...v0.6.5) (2026-10-06)
+
+
+### Added
+
+* **seo:** render og:image:alt, article:* tags, twitter image/alt and extra &lt;link&gt; tags ([#92](https://github.com/anatolykoptev/astro-landing-kit/issues/92)) ([a222fb5](https://github.com/anatolykoptev/astro-landing-kit/commit/a222fb56d123bccebbbac38c6f3b8812b3fb5fac))
+
 ## [0.6.4](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.6.3...v0.6.4) (2026-07-19)
 
 

@@ -6,6 +6,7 @@ vi.mock('~/config/kit', async (importOriginal) => {
   const original = await importOriginal<typeof import('~/config/kit')>();
   return {
     ...original,
+    SITE: { ...original.SITE, site: 'https://configured.example' },
     METADATA: {
       ...original.METADATA,
       openGraph: { ...original.METADATA?.openGraph, article: { authors: ['A', 'C'], section: 'Site' } },
@@ -16,9 +17,10 @@ vi.mock('~/config/kit', async (importOriginal) => {
 
 import Metadata from './Metadata.astro';
 
+// A static build has no real request origin: Astro reports localhost.
 const render = async (props: Record<string, unknown>) => {
   const container = await AstroContainer.create();
-  return container.renderToString(Metadata, { props, request: new Request('https://example.com/post') });
+  return container.renderToString(Metadata, { props, request: new Request('http://localhost:4321/post') });
 };
 
 describe('Metadata.astro: page-level fields are not inherited from METADATA', () => {
@@ -35,7 +37,18 @@ describe('Metadata.astro: page-level fields are not inherited from METADATA', ()
   it('twitter title/image/alt from METADATA are not stamped on the page', async () => {
     const html = await render({ title: 'T', openGraph: { images: [image] } });
     expect(html).not.toContain('twitter:title');
-    expect(html).toContain('name="twitter:image" content="https://example.com/og.png"');
+    expect(html).toContain('name="twitter:image" content="https://configured.example/og.png"');
     expect(html).toContain('name="twitter:image:alt" content="A card"');
+  });
+
+  it('without Astro `site`, relative URLs resolve against SITE.site, never against localhost', async () => {
+    const html = await render({
+      title: 'T',
+      openGraph: { images: [image] },
+      links: [{ rel: 'alternate', hreflang: 'fr', href: '/fr' }],
+    });
+    expect(html).toContain('property="og:image" content="https://configured.example/og.png"');
+    expect(html).toContain('href="https://configured.example/fr"');
+    expect(html).not.toContain('localhost');
   });
 });

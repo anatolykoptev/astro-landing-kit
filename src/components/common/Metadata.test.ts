@@ -4,7 +4,8 @@ import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import Metadata from './Metadata.astro';
 
 // Renders the real component, so a field that Metadata.astro or astro-seo drops fails here;
-// the toSeoProps tests alone cannot see that.
+// the toSeoProps tests alone cannot see that. The container has no `site`, so URLs resolve against
+// the kit config's SITE.site (https://kit.krolik.run).
 const render = async (props: Record<string, unknown>) => {
   const container = await AstroContainer.create();
   return container.renderToString(Metadata, { props, request: new Request('https://example.com/post') });
@@ -19,14 +20,29 @@ describe('Metadata.astro (rendered)', () => {
   it('renders og:image:alt and twitter:image(:alt) from the image alt', async () => {
     const html = await render({ title: 'T', openGraph: { images: [image] } });
     expect(metas(html, 'property', 'og:image:alt')).toEqual(['A card']);
-    expect(metas(html, 'name', 'twitter:image')).toEqual(['https://example.com/og.png']);
+    expect(metas(html, 'name', 'twitter:image')).toEqual(['https://kit.krolik.run/og.png']);
     expect(metas(html, 'name', 'twitter:image:alt')).toEqual(['A card']);
   });
 
   it('resolves an explicit twitter.image against the site and does not reuse the og alt for it', async () => {
     const html = await render({ title: 'T', openGraph: { images: [image] }, twitter: { image: '/tw.png' } });
-    expect(metas(html, 'name', 'twitter:image')).toEqual(['https://example.com/tw.png']);
+    expect(metas(html, 'name', 'twitter:image')).toEqual(['https://kit.krolik.run/tw.png']);
     expect(metas(html, 'name', 'twitter:image:alt')).toEqual([]);
+  });
+
+  it('keeps an absolute remote twitter.image as given (no optimizer, no rewrite)', async () => {
+    const html = await render({ title: 'T', openGraph: { images: [image] }, twitter: { image: 'https://cdn.example.net/x.png?w=800' } });
+    expect(metas(html, 'name', 'twitter:image')).toEqual(['https://cdn.example.net/x.png?w=800']);
+  });
+
+  it('drops twitter.imageAlt when its explicit image does not resolve', async () => {
+    const html = await render({
+      title: 'T',
+      openGraph: { images: [image] },
+      twitter: { image: '~/assets/images/does-not-exist.png', imageAlt: 'For the missing image' },
+    });
+    expect(metas(html, 'name', 'twitter:image')).toEqual(['https://kit.krolik.run/og.png']);
+    expect(metas(html, 'name', 'twitter:image:alt')).toEqual(['A card']);
   });
 
   it('renders article:* tags', async () => {
@@ -50,7 +66,7 @@ describe('Metadata.astro (rendered)', () => {
       openGraph: { images: [image] },
       links: [{ rel: 'alternate', type: 'application/rss+xml', title: 'Blog', href: '/rss.xml' }],
     });
-    expect(html).toContain('href="https://example.com/rss.xml"');
+    expect(html).toContain('href="https://kit.krolik.run/rss.xml"');
     expect(html).toContain('type="application/rss+xml"');
   });
 
@@ -58,10 +74,5 @@ describe('Metadata.astro (rendered)', () => {
     const html = await render({ title: 'T', openGraph: { images: [{ url: '~/assets/images/default.png', alt: 'Local asset' }] } });
     expect(metas(html, 'property', 'og:image:alt')).toEqual(['Local asset']);
     expect(metas(html, 'name', 'twitter:image:alt')).toEqual(['Local asset']);
-  });
-
-  it('works without `site` in the Astro config (request origin stands in)', async () => {
-    const html = await render({ title: 'T', openGraph: { images: [image] } });
-    expect(metas(html, 'property', 'og:image')).toEqual(['https://example.com/og.png']);
   });
 });

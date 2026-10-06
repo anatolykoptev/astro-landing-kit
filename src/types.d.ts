@@ -61,6 +61,17 @@ export interface MetaData {
 
   openGraph?: MetaDataOpenGraph;
   twitter?: MetaDataTwitter;
+
+  /** Extra `<link>` tags for the head (feeds, hreflang alternates). Page links are appended to METADATA's. */
+  links?: Array<MetaDataLink>;
+}
+
+export interface MetaDataLink {
+  rel: string;
+  href: string;
+  type?: string;
+  title?: string;
+  hreflang?: string;
 }
 
 export interface MetaDataRobots {
@@ -72,6 +83,8 @@ export interface MetaDataImage {
   url: string;
   width?: number;
   height?: number;
+  /** Rendered as `og:image:alt` (and `twitter:image:alt` for the primary image). */
+  alt?: string;
 }
 
 export interface MetaDataOpenGraph {
@@ -80,12 +93,32 @@ export interface MetaDataOpenGraph {
   images?: Array<MetaDataImage>;
   locale?: string;
   type?: string;
+  /** Rendered as `article:*` tags; meant for `type: 'article'` pages. */
+  article?: MetaDataOpenGraphArticle;
+}
+
+export interface MetaDataOpenGraphArticle {
+  /** ISO 8601 */
+  publishedTime?: string;
+  /** ISO 8601 */
+  modifiedTime?: string;
+  /** ISO 8601 */
+  expirationTime?: string;
+  authors?: string[];
+  section?: string;
+  tags?: string[];
 }
 
 export interface MetaDataTwitter {
   handle?: string;
   site?: string;
   cardType?: string;
+  /** Only needed when it must differ from the og: values. */
+  title?: string;
+  description?: string;
+  /** Defaults to the primary Open Graph image. */
+  image?: string;
+  imageAlt?: string;
 }
 
 export interface Image {

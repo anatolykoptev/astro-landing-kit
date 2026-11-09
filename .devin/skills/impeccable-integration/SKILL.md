@@ -11,7 +11,7 @@ How astro-landing-kit and the impeccable Claude Code plugin work together. The k
 
 - Impeccable plugin installed: `~/.claude/plugins/marketplaces/impeccable/`
 - CLI available: `node ~/.claude/plugins/marketplaces/impeccable/bin/cli.js`
-- Kit repo at `/home/krolik/src/astro-landing-kit`
+- Kit repo at `~/src/astro-landing-kit`
 
 ## Direction 1: Impeccable → Kit (design enforcement)
 
@@ -19,7 +19,7 @@ How astro-landing-kit and the impeccable Claude Code plugin work together. The k
 
 ```bash
 # Build first (impeccable scans generated CSS/HTML, not source)
-cd /home/krolik/src/astro-landing-kit && npm run build
+cd ~/src/astro-landing-kit && npm run build
 
 # Detect on dist/ (jsdom mode — catches linked stylesheets)
 node ~/.claude/plugins/marketplaces/impeccable/bin/cli.js detect --json dist/ | python3 -m json.tool

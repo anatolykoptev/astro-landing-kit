@@ -93,8 +93,8 @@ as plain TypeScript.
 |---|---|---|---|
 | [layouts](src/layouts/README.md) | `astro-landing-kit/layouts/*` | `PageLayout`, `LandingLayout` shells | stable |
 | [ui](src/components/ui/README.md) | `astro-landing-kit/ui/*` | `Button`, `Headline`, `ItemGrid`, `WidgetWrapper`, `Form`, `Timeline` | stable |
-| [widgets](src/components/widgets/README.md) | `astro-landing-kit/widgets/*` | 29 prototype scaffolds: `Hero`, `Features`, `Stats`, `Steps`, `Pricing`, `FAQs`, `Gallery`, `ComparisonTable`, … | scaffold |
-| [islands](src/components/islands/README.md) | `astro-landing-kit/islands/*` | `ContactForm`, `StatsCounter`, `FaqAccordion`, `PricingToggle`, `TestimonialSlider` (Svelte 5) | stable |
+| [widgets](src/components/widgets/README.md) | `astro-landing-kit/widgets/*` | 28 prototype scaffolds: `Hero`, `Features`, `Stats`, `Steps`, `Pricing`, `FAQs`, `Gallery`, `ComparisonTable`, … | scaffold |
+| [islands](src/components/islands/README.md) | `astro-landing-kit/islands/*` | 12 Svelte 5 components: `ContactForm`, `StatsCounter`, `FaqAccordion`, `PricingToggle`, `TestimonialSlider`, `ThemeToggle`, `CommandPalette`, `NumberFlow`, `SpotlightCard`, `MagneticButton`, `CursorGlow`, `TextScramble` | stable |
 | [blog](src/components/blog/README.md) | `astro-landing-kit/blog/*` | `Grid`, `List`, `SinglePost`, `PostShell`, `Pagination`, `Tags`, `RelatedPosts` | stable |
 | [adapters](src/adapters/README.md) | `astro-landing-kit/adapters` | `ContentProvider` interface, `JsonContentProvider`, `DirectusContentProvider` | stable |
 | [seo](src/seo/README.md) | `astro-landing-kit/seo` | `buildJsonLd` structured-data builder | stable |
@@ -177,5 +177,7 @@ for the full history. Every version is also on
 
 ## Contributing
 
-Issues and PRs welcome. Fork of [AstroWind](https://github.com/onwidget/astrowind),
+Issues and PRs welcome; the build, gate and commit rules are in
+[CONTRIBUTING.md](CONTRIBUTING.md), and every document is listed in
+[docs/INDEX.md](docs/INDEX.md). Fork of [AstroWind](https://github.com/onwidget/astrowind),
 MIT licensed — see [LICENSE.md](LICENSE.md).

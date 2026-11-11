@@ -1,7 +1,8 @@
 # astro-landing-kit
 
 Reusable Astro + Svelte 5 landing page kit. Fork of AstroWind (MIT,
-copyright onWidget — see LICENSE.md).
+copyright onWidget — see LICENSE.md). Every document is indexed in
+[docs/INDEX.md](docs/INDEX.md).
 
 ## Stack
 Astro 7 + Svelte 5 + Tailwind CSS 4 + GSAP + astro-seo
@@ -24,6 +25,32 @@ npm install && npm run dev
 - `src/integration/` — Astro integrations (robots.txt + sitemap)
 - `src/design/` — DESIGN.md → CSS token pipeline
 - `src/sw/` — Versioned service worker integration
+
+## Gate
+CI (`.github/workflows/actions.yaml`, workflow `preflight`, job `preflight`) runs, in order:
+
+```sh
+npm ci
+npm run build
+npm run check
+npm test
+npx --yes impeccable detect --fast dist/   # advisory: the step ends in `|| true`
+```
+
+A docs-only PR (Markdown, `docs/`, licence, issue and PR templates) skips that job through the
+`docs-scope` job in the same workflow. That block is canonical across the fleet and is compared
+byte for byte, so do not edit it here.
+
+## Invariants that are easy to break
+- `package.json#exports` is the public import surface. A new module needs an `exports` entry and
+  its own README; do not import unexported internals from another module.
+- Versions come from release-please (Conventional Commits, 0.x rules: `feat` and `fix` bump the
+  patch, a breaking change bumps the minor). Never tag, or edit the version, `CHANGELOG.md` or
+  `.release-please-manifest.json` by hand.
+- The npm publish runs from `release-please.yml` with Trusted Publishing; never add a stored token.
+- The default branch is `master`.
+- This repository is public: no hostnames, operator paths, account names, tokens or personal data
+  in any tracked file.
 
 ## Content
 Sites provide content via adapters. Default: JSON files in `content/`.

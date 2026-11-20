@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.6](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.6.5...v0.6.6) (2026-11-11)
+
+
+### Documentation
+
+* bring repository documents up to the repo-standards set ([#96](https://github.com/anatolykoptev/astro-landing-kit/issues/96)) ([3655317](https://github.com/anatolykoptev/astro-landing-kit/commit/36553172c85f7ac9cd8eefe63382c95eb588c253))
+
 ## [0.6.5](https://github.com/anatolykoptev/astro-landing-kit/compare/v0.6.4...v0.6.5) (2026-10-06)
 
 

@@ -6,7 +6,7 @@ Issues and pull requests are welcome. Report a security problem privately, as de
 
 ## Build and test
 
-Node 24.18.0 and npm 11.6.2 are pinned by `.node-version` and `packageManager`.
+Node 26.13.1 and npm 11.6.2 are pinned by `.node-version` and `packageManager`.
 
 ```sh
 npm ci
